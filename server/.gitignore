@@ -1,0 +1,13 @@
+# Server specific files
+node_modules/
+dist/
+*.log
+
+# ENV files
+.env
+
+# REST API
+API_TEST.rest
+
+# Firebase service
+config/
