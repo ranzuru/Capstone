@@ -1,40 +1,46 @@
 import { useState, useEffect } from 'react';
-import { TextField, Button, Paper, Typography } from '@mui/material';
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  Button,
+  Typography,
+} from '@mui/material';
 import PropTypes from 'prop-types';
 
-const OTPInput = ({ onVerify, onResend }) => {
+const OTPInput = ({ open, onClose, onVerify, onResend }) => {
   const [otp, setOtp] = useState('');
-  const [showResend, setShowResend] = useState(false);
   const [timer, setTimer] = useState(60);
 
   useEffect(() => {
     let interval;
-    if (showResend && timer > 0) {
+    if (timer > 0) {
       interval = setInterval(() => {
         setTimer((prevTimer) => prevTimer - 1);
       }, 1000);
-    } else if (timer === 0) {
-      setShowResend(false);
-      setTimer(60);
+    } else {
+      clearInterval(interval);
     }
     return () => clearInterval(interval);
-  }, [showResend, timer]);
+  }, [timer]);
 
   const handleResend = () => {
     onResend();
-    setShowResend(true);
+    setTimer(60); // Reset the timer
+  };
+
+  const handleClose = () => {
+    onClose();
+    setOtp(''); // Reset OTP input
     setTimer(60); // Reset the timer
   };
 
   return (
-    <div className="flex justify-center items-center h-screen">
-      <Paper
-        elevation={5}
-        className="p-8 flex flex-col items-center w-full max-w-md"
-      >
-        <Typography variant="h5" className="mb-4">
-          Enter OTP
-        </Typography>
+    <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
+      <DialogTitle>Enter OTP</DialogTitle>
+      <DialogContent>
         <TextField
           label="OTP"
           variant="outlined"
@@ -42,19 +48,11 @@ const OTPInput = ({ onVerify, onResend }) => {
           value={otp}
           onChange={(e) => setOtp(e.target.value)}
           inputProps={{ maxLength: 6 }} // Assuming 6-digit OTP
-          className="mb-4"
+          autoFocus
+          margin="dense"
         />
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={() => onVerify(otp)}
-          disabled={otp.length < 6} // Disable until complete OTP is entered
-        >
-          Verify OTP
-        </Button>
-
-        {showResend ? (
-          <Typography variant="body2" className="mt-4">
+        {timer > 0 ? (
+          <Typography variant="body2" style={{ marginTop: 10 }}>
             Resend OTP in {timer} seconds
           </Typography>
         ) : (
@@ -62,18 +60,31 @@ const OTPInput = ({ onVerify, onResend }) => {
             variant="outlined"
             color="primary"
             onClick={handleResend}
-            className="mt-4"
-            disabled={showResend}
+            style={{ marginTop: 10 }}
           >
             Resend OTP
           </Button>
         )}
-      </Paper>
-    </div>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={handleClose} color="primary">
+          Cancel
+        </Button>
+        <Button
+          onClick={() => onVerify(otp)}
+          color="primary"
+          disabled={otp.length < 6}
+        >
+          Verify OTP
+        </Button>
+      </DialogActions>
+    </Dialog>
   );
 };
 
 OTPInput.propTypes = {
+  open: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
   onVerify: PropTypes.func.isRequired,
   onResend: PropTypes.func.isRequired,
 };

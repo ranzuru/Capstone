@@ -1,34 +1,40 @@
 import { useState, useEffect } from 'react';
-
 import { List } from '@mui/material';
 import { sidebarItems } from '../components/SidebarItems';
-
 import SidebarLink from '../components/SidebarLink';
 import SidebarSubmenu from '../components/SidebarSubmenu';
 import MenuOutlinedIcon from '@mui/icons-material/MenuOutlined';
-
+import { useAuth } from '../hooks/useAuth';
+import { useNavigate } from 'react-router-dom';
 
 function Sidebar() {
   const [isSidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [openedSubmenu, setOpenedSubmenu] = useState('');
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
 
- 
+  const { logout } = useAuth();
 
   const itemsToDisplay = sidebarItems;
-
-
 
   const toggleSidebar = () => {
     setSidebarCollapsed(!isSidebarCollapsed);
   };
 
   const handleLogout = async () => {
-  
+    try {
+      await logout(); // Call the logout function
+      navigate('/');
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
   };
 
   const toggleSubmenu = (submenuName) => {
-    setOpenedSubmenu(openedSubmenu === submenuName ? '' : submenuName);
+    if (openedSubmenu === submenuName) {
+      setOpenedSubmenu(''); // Collapse the submenu if it's already open
+    } else {
+      setOpenedSubmenu(submenuName); // Otherwise, set the opened submenu to the clicked submenu
+    }
   };
 
   useEffect(() => {
@@ -40,8 +46,11 @@ function Sidebar() {
   return (
     <div
       className={`h-screen overflow-y-auto bg-blue-700 text-white flex flex-col p-2 shadow-xl ${
-        isSidebarCollapsed ? 'w-18' : 'w-66'
+        isSidebarCollapsed ? 'collapsed overflow-x-hidden' : ''
       }`}
+      style={{
+        width: isSidebarCollapsed ? 'w-18' : 'w-66',
+      }}
     >
       <div
         className={`flex items-center p-2 ${

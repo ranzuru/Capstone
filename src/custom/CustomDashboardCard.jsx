@@ -46,7 +46,7 @@ const DashboardCard = ({
 
 DashboardCard.propTypes = {
   icon: PropTypes.elementType, // Assuming icon is a string URL
-  number: PropTypes.number, // or PropTypes.string if it's textual
+  number: PropTypes.string, // or PropTypes.string if it's textual
   title: PropTypes.string.isRequired,
   subtitle: PropTypes.string,
   onCardClick: PropTypes.func, // Assuming onCardClick is a function

@@ -8,15 +8,20 @@ import OtpInput from './OtpInput';
 const LoginForm = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [showOTPInput, setShowOTPInput] = useState(false);
+  const [showOTPDialog, setShowOTPDialog] = useState(false);
   const navigate = useNavigate();
 
   const { login, verifyOTP, resendOTP } = useAuth();
 
-  const handleLogin = async () => {
+  const handleOTPDialogClose = () => {
+    setShowOTPDialog(false); // Close the OTP dialog
+  };
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
     try {
       await login(email, password);
-      setShowOTPInput(true); // Show OTP input after successful login
+      setShowOTPDialog(true);
     } catch (error) {
       console.error('Login error:', error);
     }
@@ -28,56 +33,74 @@ const LoginForm = () => {
       navigate('/app/dashboard');
     } catch (error) {
       console.error('OTP Verification error:', error);
+      setShowOTPDialog(false);
     }
   };
 
-  if (showOTPInput) {
-    return (
-      <OtpInput onVerify={handleOTPVerification} onResend={() => resendOTP()} />
-    );
-  }
+  const handleResendOTP = async () => {
+    try {
+      await resendOTP();
+    } catch (error) {
+      console.error('Resend OTP error:', error);
+    }
+  };
 
   return (
-    <div className="flex justify-center items-center h-screen bg-custom-blue">
-      <div className="w-full max-w-md px-4 sm:px-6 md:px-8">
-        <div className="flex flex-col items-center">
-          <img src={schoolLogo} alt="schoolLogo" className="w-28 h-28 mb-2" />
-          <Paper
-            elevation={5}
-            className="p-8 flex flex-col items-center w-full max-w-md bg-white"
-          >
-            <Typography variant="h4" style={{ marginBottom: '16px' }}>
-              Welcome Back
-            </Typography>
-            <form className="w-full mb-6 space-y-6" onSubmit={handleLogin}>
-              <TextField
-                label="Email"
-                variant="outlined"
-                fullWidth
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+    <>
+      {showOTPDialog ? (
+        <OtpInput
+          open={showOTPDialog}
+          onClose={handleOTPDialogClose}
+          onVerify={handleOTPVerification}
+          onResend={handleResendOTP}
+        />
+      ) : (
+        <div className="flex justify-center items-center h-screen bg-custom-blue">
+          <div className="w-full max-w-md px-4 sm:px-6 md:px-8">
+            <div className="flex flex-col items-center">
+              <img
+                src={schoolLogo}
+                alt="schoolLogo"
+                className="w-28 h-28 mb-2"
               />
-              <TextField
-                label="Password"
-                variant="outlined"
-                type="password"
-                fullWidth
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-              <div className="flex flex-col items-center">
-                <Button type="submit" variant="contained" color="primary">
-                  Sign In
+              <Paper
+                elevation={5}
+                className="p-8 flex flex-col items-center w-full max-w-md bg-white"
+              >
+                <Typography variant="h4" style={{ marginBottom: '16px' }}>
+                  Welcome Back
+                </Typography>
+                <form className="w-full mb-6 space-y-6" onSubmit={handleLogin}>
+                  <TextField
+                    label="Email"
+                    variant="outlined"
+                    fullWidth
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
+                  <TextField
+                    label="Password"
+                    variant="outlined"
+                    type="password"
+                    fullWidth
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
+                  <div className="flex flex-col items-center">
+                    <Button type="submit" variant="contained" color="primary">
+                      Sign In
+                    </Button>
+                  </div>
+                </form>
+                <Button color="primary" className="mt-6">
+                  Forgot your password? Reset Password
                 </Button>
-              </div>
-            </form>
-            <Button color="primary" className="mt-6">
-              Forgot your password? Reset Password
-            </Button>
-          </Paper>
+              </Paper>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
+      )}
+    </>
   );
 };
 

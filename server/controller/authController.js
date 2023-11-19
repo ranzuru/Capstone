@@ -60,7 +60,7 @@ export const login = async (req, res) => {
     req.session.userId = user._id; // Save user ID in session
     req.session.isOTPRequested = true; // Flag to indicate that OTP has been requested
     req.session.otpToken = otpToken; // Save OTP token in session for later verification
-    console.log('Session after login:', req.session.userId);
+
     return res.status(200).json({ message: 'OTP sent, please verify' });
   } catch (error) {
     console.error('Login error:', error);

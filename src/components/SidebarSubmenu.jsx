@@ -94,6 +94,7 @@ function SidebarSubmenu({
                 to={link.to}
                 primary={link.primary}
                 icon={link.icon}
+                isSidebarCollapsed={isSidebarCollapsed}
               />
             ))}
           </List>

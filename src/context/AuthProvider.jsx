@@ -18,7 +18,7 @@ export const AuthProvider = ({ children }) => {
 
   const verifyOTP = async (otp) => {
     try {
-      const response = await axiosInstance.post('/auth/verifyLoginOTP', {
+      const response = await axiosInstance.post('/auth/verify-otp', {
         otp,
       });
       setUser(response.data); // Set user data on successful OTP verification
@@ -29,7 +29,7 @@ export const AuthProvider = ({ children }) => {
 
   const resendOTP = async () => {
     try {
-      await axiosInstance.post('/auth/resendOTP');
+      await axiosInstance.post('/auth/resend-otp');
     } catch (error) {
       console.error('Resend OTP error:', error);
     }
