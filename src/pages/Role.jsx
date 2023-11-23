@@ -1,15 +1,15 @@
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import StudentProfileGrid from '../components/Grid/StudentProfileGrid';
+import RoleGrid from '../components/Grid/RoleGrid';
 
-const StudentProfile = () => {
+const Role = () => {
   return (
     <div className="flex flex-col">
       <div className="flex-grow overflow-hidden">
-        <Header title="Manage Student" />
+        <Header title="Manage Role" />
         <div className="flex flex-col items-center justify-center h-full p-4">
           <div className="flex items-center justify-center w-full">
-            <StudentProfileGrid />
+            <RoleGrid />
           </div>
         </div>
         <Footer />
@@ -18,4 +18,4 @@ const StudentProfile = () => {
   );
 };
 
-export default StudentProfile;
+export default Role;

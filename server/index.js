@@ -6,6 +6,11 @@ import cookieParser from 'cookie-parser';
 import connectDB from './mongodb/Connect.js';
 import cors from 'cors';
 import authRoutes from './auth/Routes.js';
+import eventRoutes from './routes/event.js';
+import userRoutes from './routes/user.js';
+import roleRoutes from './routes/role.js';
+import academicYearRoutes from './routes/academicYear.js';
+import studentProfileRoutes from './routes/studentProfile.js';
 
 const app = express();
 app.use(express.json({ limit: '50mb' }));
@@ -38,6 +43,11 @@ app.get('/', (req, res) => {
 });
 
 app.use('/auth', authRoutes);
+app.use('/events', eventRoutes);
+app.use('/user', userRoutes);
+app.use('/role', roleRoutes);
+app.use('/academicYear', academicYearRoutes);
+app.use('/studentProfile', studentProfileRoutes);
 
 const startServer = async () => {
   try {

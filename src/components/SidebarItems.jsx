@@ -10,6 +10,8 @@ import {
   ExitToAppOutlined,
 } from '@mui/icons-material';
 import SpaOutlinedIcon from '@mui/icons-material/SpaOutlined';
+import AssignmentOutlinedIcon from '@mui/icons-material/AssignmentOutlined';
+import SchoolOutlinedIcon from '@mui/icons-material/SchoolOutlined';
 
 export const sidebarItems = [
   {
@@ -19,42 +21,28 @@ export const sidebarItems = [
     icon: DashboardOutlined,
   },
   {
-    type: 'submenu',
+    type: 'link',
+    to: '/app/manage-users',
     primary: 'Users',
     icon: ManageAccountsOutlined,
-    submenuLinks: [
-      { to: '/app/user-approval', primary: 'User Approval' },
-      { to: '/app/manage-users', primary: 'Manage User' },
-    ],
   },
   {
-    type: 'submenu',
-    primary: 'Profile',
-    icon: SupervisorAccountOutlined,
-    submenuLinks: [
-      { to: '/app/students-profile', primary: 'Student Profile' },
-      { to: '/app/faculty-profile', primary: 'Faculty Profile' },
-      { to: '/app/academic-year', primary: 'Academic Year' },
-    ],
+    type: 'link',
+    to: '/app/role',
+    primary: 'Roles',
+    icon: AssignmentIndOutlined,
   },
-
   {
-    type: 'submenu',
-    primary: 'Programs',
-    icon: SpaOutlinedIcon,
-    submenuLinks: [
-      { to: '/app/dengue-monitoring', primary: 'Dengue Monitoring' },
-      { to: '/app/medical-checkup', primary: 'Medical Checkup' },
-      { to: '/app/faculty-checkup', primary: 'Faculty Checkup' },
-      { to: '/app/dewormed-monitoring', primary: 'Dewormed Monitoring' },
-      { to: '/app/feeding-program', primary: 'Feeding Program' },
-    ],
+    type: 'link',
+    to: '/app/academic-year',
+    primary: 'Academic Year',
+    icon: SchoolOutlinedIcon,
   },
   {
     type: 'link',
     to: '/app/clinic-records',
     primary: 'Clinic Records',
-    icon: AssignmentIndOutlined,
+    icon: AssignmentOutlinedIcon,
   },
   {
     type: 'link',
@@ -68,6 +56,27 @@ export const sidebarItems = [
     primary: 'Events',
     icon: EventOutlined,
     roles: ['Admin', 'School Nurse', 'District Nurse'],
+  },
+  {
+    type: 'submenu',
+    primary: 'Profile',
+    icon: SupervisorAccountOutlined,
+    submenuLinks: [
+      { to: '/app/students-profile', primary: 'Student Profile' },
+      { to: '/app/faculty-profile', primary: 'Faculty Profile' },
+    ],
+  },
+  {
+    type: 'submenu',
+    primary: 'Programs',
+    icon: SpaOutlinedIcon,
+    submenuLinks: [
+      { to: '/app/dengue-monitoring', primary: 'Dengue Monitoring' },
+      { to: '/app/medical-checkup', primary: 'Medical Checkup' },
+      { to: '/app/faculty-checkup', primary: 'Faculty Checkup' },
+      { to: '/app/dewormed-monitoring', primary: 'Dewormed Monitoring' },
+      { to: '/app/feeding-program', primary: 'Feeding Program' },
+    ],
   },
   {
     type: 'submenu',

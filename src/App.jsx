@@ -28,7 +28,7 @@ import Logs from './pages/Logs';
 import ManageUser from './pages/ManageUser';
 import MedicineInventory from './pages/MedicineInventory';
 import StudentProfile from './pages/StudentProfile';
-import UserApproval from './pages/UserApproval';
+import Role from './pages/Role';
 
 function App() {
   return (
@@ -41,11 +41,11 @@ function App() {
               {/* <Route element={<ProtectedRoute />}> */}
               <Route path="/app" element={<LayoutWithSidebar />}>
                 <Route path="dashboard" element={<Dashboard />} />
-                <Route path="user-approval" element={<UserApproval />} />
                 <Route path="manage-users" element={<ManageUser />} />
                 <Route path="students-profile" element={<StudentProfile />} />
                 <Route path="faculty-profile" element={<FacultyProfile />} />
                 <Route path="academic-year" element={<AcademicYear />} />
+                <Route path="role" element={<Role />} />
                 <Route
                   path="medicine-inventory"
                   element={<MedicineInventory />}

@@ -6,8 +6,9 @@ import {
   resendOTP,
   logout,
 } from '../controller/authController.js';
-const router = express.Router();
 import isAuthenticated from './isAuthenticated.js';
+
+const router = express.Router();
 
 router.post('/register', isAuthenticated, register);
 router.post('/login', login);
