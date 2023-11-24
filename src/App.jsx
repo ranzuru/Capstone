@@ -23,7 +23,7 @@ import MedicalCheckup from './pages/ClinicProgram/MedicalCheckup';
 import Dashboard from './components/Dashboard';
 import AcademicYear from './pages/AcademicYear';
 import Events from './pages/Events';
-import FacultyProfile from './pages/FacultyProfile';
+import EmployeeProfile from './pages/EmployeeProfile';
 import Logs from './pages/Logs';
 import ManageUser from './pages/ManageUser';
 import MedicineInventory from './pages/MedicineInventory';
@@ -43,7 +43,7 @@ function App() {
                 <Route path="dashboard" element={<Dashboard />} />
                 <Route path="manage-users" element={<ManageUser />} />
                 <Route path="students-profile" element={<StudentProfile />} />
-                <Route path="faculty-profile" element={<FacultyProfile />} />
+                <Route path="employee-profile" element={<EmployeeProfile />} />
                 <Route path="academic-year" element={<AcademicYear />} />
                 <Route path="role" element={<Role />} />
                 <Route

@@ -11,9 +11,9 @@ import FormInput from '../../custom/CustomTextField';
 import FormSelect from '../../custom/CustomSelect';
 import CustomDatePicker from '../../custom/CustomDatePicker';
 import CustomPhoneNumberField from '../../custom/CustomPhoneNumberField.jsx';
-import CustomRadioGroup from '../../custom/CustomRadioButton.jsx';
+
 // yup
-import StudentProfileValidation from '../../validation/StudentProfileValidation';
+import EmployeeValidation from '../../validation/EmployeeProfileValidation.js';
 // axios
 import axiosInstance from '../../config/axios-instance.js';
 // MUI
@@ -31,19 +31,19 @@ import { parseISO } from 'date-fns';
 import {
   genderOption,
   nameExtensionOption,
-  gradeOptions,
   statusOptions,
+  employeeRolesOption,
 } from '../../others/dropDownOptions';
 import useFetchSchoolYears from '../../hooks/useFetchSchoolYears.js';
 import { calculateAge } from '../../utils/calculateAge.js';
 
-const StudentProfileForm = (props) => {
+const EmployeeProfileForm = (props) => {
   const {
     open,
     onClose,
     initialData,
-    addNewStudent,
-    selectedStudent,
+    addNewEmployee,
+    selectedEmployee,
     onUpdate,
   } = props;
   const [snackbarOpen, setSnackbarOpen] = useState(false);
@@ -72,7 +72,7 @@ const StudentProfileForm = (props) => {
     formState: { errors },
   } = useForm({
     defaultValues: initialData || {
-      lrn: '',
+      employeeId: '',
       lastName: '',
       firstName: '',
       middleName: '',
@@ -81,17 +81,13 @@ const StudentProfileForm = (props) => {
       dateOfBirth: null,
       age: '',
       schoolYear: activeSchoolYear,
-      grade: '',
-      section: '',
-      is4p: false,
-      parentName1: '',
-      parentContact1: '',
-      parentName2: '',
-      parentContact2: '',
+      email: '',
+      mobileNumber: '',
+      role: '',
       address: '',
       status: 'Active',
     },
-    resolver: yupResolver(StudentProfileValidation),
+    resolver: yupResolver(EmployeeValidation),
   });
 
   const handleError = (error, context = 'operation') => {
@@ -103,50 +99,53 @@ const StudentProfileForm = (props) => {
     }
   };
 
-  const handleCreateStudent = async (data) => {
+  const handleCreateEmployee = async (data) => {
     try {
-      const response = await axiosInstance.post('/studentProfile/create', data);
+      const response = await axiosInstance.post(
+        '/employeeProfile/create',
+        data
+      );
       if (response.data && response.data._id) {
-        addNewStudent(response.data); // Pass the entire role object to addNewRole
-        showSnackbar('Successfully added new student', 'success');
+        addNewEmployee(response.data);
+        showSnackbar('Successfully added new employee', 'success');
         handleClose();
       } else {
         showSnackbar('Operation failed', 'error');
       }
     } catch (error) {
-      console.error('Error adding student:', error);
+      console.error('Error adding employee:', error);
       if (error.response && error.response.status === 409) {
-        showSnackbar('LRN with this schoolYear already exists', 'error');
+        showSnackbar('EmployeeId with this schoolYear already exists', 'error');
       } else {
-        handleError(error, 'adding student');
+        handleError(error, 'adding employee');
       }
     }
   };
 
-  const handleUpdateStudent = async (id, updatedData) => {
+  const handleUpdateEmployee = async (id, updatedData) => {
     try {
       const response = await axiosInstance.put(
-        `/studentProfile/update/${id}`,
+        `/employeeProfile/update/${id}`,
         updatedData
       );
       if (response.data) {
         onUpdate(response.data);
-        showSnackbar('Student successfully updated', 'success');
+        showSnackbar('Employee successfully updated', 'success');
         handleClose();
       } else {
         showSnackbar('Update operation failed', 'error');
       }
     } catch (error) {
-      handleError(error, 'updating student');
+      handleError(error, 'updating employee');
     }
   };
 
   const handleSaveOrUpdate = async (data) => {
     try {
-      if (selectedStudent && selectedStudent.id) {
-        await handleUpdateStudent(selectedStudent.id, data);
+      if (selectedEmployee && selectedEmployee.id) {
+        await handleUpdateEmployee(selectedEmployee.id, data);
       } else {
-        await handleCreateStudent(data);
+        await handleCreateEmployee(data);
       }
     } catch (error) {
       handleError(error, 'add or updating');
@@ -168,48 +167,46 @@ const StudentProfileForm = (props) => {
   }, [watchDOB, setValue]);
 
   useEffect(() => {
-    if (selectedStudent) {
+    if (selectedEmployee) {
       // Regular fields
       const fields = [
-        'lrn',
+        'employeeId',
         'firstName',
         'lastName',
         'middleName',
         'nameExtension',
         'gender',
         'age',
-        'grade',
-        'section',
-        'parentName1',
-        'parentContact1',
-        'parentName2',
-        'parentContact2',
+        'email',
+        'mobileNumber',
+        'role',
         'address',
+        'status',
       ];
 
       fields.forEach((field) => {
-        setValue(field, selectedStudent[field] || '');
+        setValue(field, selectedEmployee[field] || '');
       });
 
       // Boolean field
-      setValue('is4p', !!selectedStudent['is4p']);
+      setValue('is4p', !!selectedEmployee['is4p']);
 
       // Date field
       const dateField = 'dateOfBirth';
-      const parsedDate = selectedStudent[dateField]
-        ? parseISO(selectedStudent[dateField])
+      const parsedDate = selectedEmployee[dateField]
+        ? parseISO(selectedEmployee[dateField])
         : null;
       setValue(dateField, parsedDate);
 
       const schoolYearExists = schoolYears.some(
-        (sy) => sy.value === selectedStudent['schoolYear']
+        (sy) => sy.value === selectedEmployee['schoolYear']
       );
       const schoolYearValue = schoolYearExists
-        ? selectedStudent['schoolYear']
+        ? selectedEmployee['schoolYear']
         : '';
       setValue('schoolYear', schoolYearValue);
     }
-  }, [selectedStudent, setValue, schoolYears]);
+  }, [selectedEmployee, setValue, schoolYears]);
 
   return (
     <>
@@ -227,21 +224,21 @@ const StudentProfileForm = (props) => {
         className="overflow-auto"
       >
         <DialogTitle>
-          {selectedStudent ? 'Edit Student' : 'Add Student'}
+          {selectedEmployee ? 'Edit Employee' : 'Add Employee'}
         </DialogTitle>
         <form onSubmit={handleSubmit(handleSaveOrUpdate)}>
           <DialogContent>
             <DialogContentText>
-              Enter student profile details:
+              Enter employee profile details:
             </DialogContentText>
             <Grid container spacing={2}>
               <Grid item xs={12} md={6}>
                 <FormInput
                   control={control}
-                  name="lrn"
-                  label="LRN"
+                  name="employeeId"
+                  label="Employee Id"
                   textType="combine"
-                  error={errors.lrn}
+                  error={errors.employeeId}
                 />
               </Grid>
             </Grid>
@@ -308,15 +305,6 @@ const StudentProfileForm = (props) => {
                   error={errors.age}
                 />
               </Grid>
-              <Grid item xs={12} md={6}>
-                <CustomRadioGroup
-                  control={control}
-                  name="is4p"
-                  label="4p's Member?"
-                />
-              </Grid>
-            </Grid>
-            <Grid container spacing={2}>
               <Grid item xs={12} md={3}>
                 <FormSelect
                   control={control}
@@ -326,76 +314,47 @@ const StudentProfileForm = (props) => {
                   errors={errors}
                 />
               </Grid>
-              <Grid item xs={12} md={2.5}>
+              <Grid item xs={12} md={2}>
                 <FormSelect
                   control={control}
-                  name="grade"
-                  label="Grade level"
-                  options={gradeOptions}
+                  name="role"
+                  label="Role"
+                  options={employeeRolesOption}
                   errors={errors}
                 />
               </Grid>
+            </Grid>
+            <Grid container spacing={2}>
               <Grid item xs={12} md={3}>
                 <FormInput
                   control={control}
-                  name="section"
-                  label="Section"
-                  textType="text"
-                  error={errors.section}
+                  name="email"
+                  label="Email"
+                  error={errors.email}
                 />
               </Grid>
-            </Grid>
-            <Grid container spacing={2}>
-              <Grid item xs={12} md={6}>
-                <FormInput
-                  control={control}
-                  name="parentName1"
-                  label="Parent Name"
-                  textType="text"
-                  error={errors.parentName1}
-                />
-              </Grid>
-              <Grid item xs={12} md={6}>
+              <Grid item xs={12} md={3}>
                 <CustomPhoneNumberField
-                  name="parentContact1"
+                  name="mobileNumber"
                   control={control}
-                  label="Parent Contact"
+                  label="Mobile Number"
                   maxLength={10}
                   adornment="+63"
                   placeholder="995 215 5436"
                   errors={errors}
                 />
               </Grid>
-            </Grid>
-            <Grid container spacing={2}>
               <Grid item xs={12} md={6}>
                 <FormInput
                   control={control}
-                  name="parentName2"
-                  label="Parent Name2 (Optional)"
-                  textType="text"
-                />
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <CustomPhoneNumberField
-                  name="parentContact2"
-                  control={control}
-                  label="Parent Contact2 (Optional)"
-                  maxLength={10}
-                  adornment="+63"
-                  placeholder="995 215 5436"
-                  errors={errors}
+                  name="address"
+                  label="Address"
+                  textType="combine"
+                  error={errors.address}
+                  multiline
                 />
               </Grid>
             </Grid>
-            <FormInput
-              control={control}
-              name="address"
-              label="Address"
-              textType="combine"
-              error={errors.address}
-              multiline
-            />
             <Grid container spacing={2}>
               <Grid item xs={12} md={3}>
                 <FormSelect
@@ -413,7 +372,7 @@ const StudentProfileForm = (props) => {
               Cancel
             </Button>
             <Button type="submit" color="primary">
-              {selectedStudent ? 'Update' : 'Save'}
+              {selectedEmployee ? 'Update' : 'Save'}
             </Button>
           </DialogActions>
         </form>
@@ -422,13 +381,13 @@ const StudentProfileForm = (props) => {
   );
 };
 
-StudentProfileForm.propTypes = {
+EmployeeProfileForm.propTypes = {
   open: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
   initialData: PropTypes.object,
-  addNewStudent: PropTypes.func.isRequired,
-  selectedStudent: PropTypes.object,
+  addNewEmployee: PropTypes.func.isRequired,
+  selectedEmployee: PropTypes.object,
   onUpdate: PropTypes.func.isRequired,
 };
 
-export default StudentProfileForm;
+export default EmployeeProfileForm;

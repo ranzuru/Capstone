@@ -11,6 +11,7 @@ import userRoutes from './routes/user.js';
 import roleRoutes from './routes/role.js';
 import academicYearRoutes from './routes/academicYear.js';
 import studentProfileRoutes from './routes/studentProfile.js';
+import employeeProfileRoutes from './routes/employeeProfile.js';
 
 const app = express();
 app.use(express.json({ limit: '50mb' }));
@@ -48,6 +49,7 @@ app.use('/user', userRoutes);
 app.use('/role', roleRoutes);
 app.use('/academicYear', academicYearRoutes);
 app.use('/studentProfile', studentProfileRoutes);
+app.use('/employeeProfile', employeeProfileRoutes);
 
 const startServer = async () => {
   try {

@@ -111,3 +111,13 @@ export const gradeOptions = [
   'Grade 5',
   'Grade 6',
 ].map((grade) => ({ label: grade, value: grade }));
+
+export const statusOptions = [
+  { label: 'Active', value: 'Active' },
+  { label: 'Archived', value: 'Archived' },
+];
+
+export const employeeRolesOption = ['Teacher', 'Guidance'].map((empRoles) => ({
+  label: empRoles,
+  value: empRoles,
+}));

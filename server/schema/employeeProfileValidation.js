@@ -1,7 +1,7 @@
 import Joi from 'joi';
 
-const studentProfileSchema = Joi.object({
-  lrn: Joi.string().required(),
+const employeeProfileSchema = Joi.object({
+  employeeId: Joi.string().required(),
   lastName: Joi.string().required(),
   firstName: Joi.string().required(),
   middleName: Joi.string().allow('', null), // Optional
@@ -10,23 +10,19 @@ const studentProfileSchema = Joi.object({
   dateOfBirth: Joi.date().required(),
   age: Joi.number().integer().required(),
   schoolYear: Joi.string().required(),
-  grade: Joi.string().required(),
-  section: Joi.string().required(),
-  is4p: Joi.boolean().required(),
-  parentName1: Joi.string().required(),
-  parentContact1: Joi.string().required(),
-  parentName2: Joi.string().allow('', null), // Optional
-  parentContact2: Joi.string().allow('', null), // Optional
+  email: Joi.string().email().allow('', null),
+  mobileNumber: Joi.number().required(),
+  role: Joi.string().required(),
   address: Joi.string().required(),
   status: Joi.string().valid('Active', 'Archived', 'Inactive'),
 });
 
-export const validateStudentProfile = (data) => {
-  return studentProfileSchema.validate(data);
+export const validateEmployeeProfile = (data) => {
+  return employeeProfileSchema.validate(data);
 };
 
 const headerMappings = {
-  LRN: 'lrn',
+  'Employee ID': 'employeeId',
   'Last Name': 'lastName',
   'First Name': 'firstName',
   'Middle Name': 'middleName',
@@ -35,13 +31,9 @@ const headerMappings = {
   'Birth Date': 'dateOfBirth',
   Age: 'age',
   'School Year': 'schoolYear',
-  Grade: 'grade',
-  Section: 'section',
-  "4P's?": 'is4p',
-  'Parent Name1': 'parentName1',
-  'Parent Contact1': 'parentContact1',
-  'Parent Name2': 'parentName2',
-  'Parent Contact2': 'parentContact2',
+  Email: 'email',
+  'Mobile Number': 'mobileNumber',
+  Role: 'role',
   Address: 'address',
   Status: 'status',
 };

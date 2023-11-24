@@ -13,20 +13,20 @@ import { formatYearFromDate } from '../../utils/formatDateFromYear.js';
 import CustomGridToolbar from '../CustomGridToolbar.jsx';
 import CustomSnackbar from '../../custom/CustomSnackbar.jsx';
 import exportDataToExcel from '../../utils/exportToExcel.js';
-import HeaderMapping from '../../constant/studentHeaderMapping.js';
+import EmployeeHeader from '../../constant/employeeHeaderMapping.js';
 import ConfirmationDialog from '../../custom/CustomConfirmDialog.jsx';
-import StudentInfoDialog from '../Dialog/StudentInfoDialog.jsx';
+import EmployeeInfoDialog from '../Dialog/employeeInfoDialog.jsx';
 // Form
-import StudentProfileForm from '../Form/StudentProfileForm.jsx';
+import EmployeeProfileForm from '../Form/EmployeeProfileForm.jsx';
 
-const StudentProfileGrid = () => {
+const EmployeeProfileGrid = () => {
   const [formOpen, setFormOpen] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [students, setStudents] = useState([]);
+  const [employees, setEmployees] = useState([]);
   const [searchValue, setSearchValue] = useState('');
   const [recordIdToDelete, setRecordIdToDelete] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedStudent, setSelectedStudent] = useState(null);
+  const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [isInfoDialogOpen, setInfoDialogOpen] = useState(false);
   const [selectedRecordInfo, setSelectedRecordInfo] = useState(null);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
@@ -71,24 +71,20 @@ const StudentProfileGrid = () => {
 
     return {
       id: record._id,
-      lrn: record.lrn || 'N/A',
+      employeeId: record.employeeId || 'N/A',
       firstName: record.firstName || 'N/A',
       middleName: record.middleName || '',
       lastName: record.lastName || 'N/A',
       nameExtension: record.nameExtension || '',
       name: formattedName,
       schoolYear: academicYear.schoolYear || 'N/A',
-      grade: record.grade || 'N/A',
-      section: record.section || 'N/A',
       gender: record.gender || 'N/A',
       dateOfBirth: record.dateOfBirth || 'N/A',
       age: record.age || 'N/A',
-      is4p: record.is4p !== undefined ? record.is4p : 'N/A',
-      parentContact1: record.parentContact1 || 'N/A',
-      parentName1: record.parentName1 || 'N/A',
-      parentName2: record.parentName2 || '',
-      parentContact2: record.parentContact2 || '',
-      address: record.address || 'N/A',
+      email: record.email || 'N/A',
+      mobileNumber: record.mobileNumber || 'N/A',
+      role: record.role || 'N/A',
+      address: record.address || '',
       status: record.status || 'N/A',
     };
   };
@@ -96,11 +92,11 @@ const StudentProfileGrid = () => {
   const fetchRecord = useCallback(async () => {
     setIsLoading(true);
     try {
-      const response = await axiosInstance.get('studentProfile/fetch');
+      const response = await axiosInstance.get('employeeProfile/fetch');
       const updatedRecords = response.data.map(mapRecord);
-      setStudents(updatedRecords);
+      setEmployees(updatedRecords);
     } catch (error) {
-      console.error('An error occurred while fetching roles:', error);
+      console.error('An error occurred while fetching employees:', error);
       setIsLoading(false);
     } finally {
       setIsLoading(false);
@@ -111,18 +107,18 @@ const StudentProfileGrid = () => {
     fetchRecord();
   }, [fetchRecord]);
 
-  const refreshStudents = () => {
+  const refreshEmployee = () => {
     fetchRecord();
   };
 
-  const addNewStudent = (newRecord) => {
+  const addNewEmployee = (newRecord) => {
     const mappedRecord = mapRecord(newRecord);
-    setStudents((prevRecords) => [...prevRecords, mappedRecord]);
+    setEmployees((prevRecords) => [...prevRecords, mappedRecord]);
   };
 
-  const updatedStudentProfile = (updatedStudentData) => {
-    const mappedRecord = mapRecord(updatedStudentData);
-    setStudents((prevRecords) =>
+  const updatedEmployeeProfile = (updatedEmployeeData) => {
+    const mappedRecord = mapRecord(updatedEmployeeData);
+    setEmployees((prevRecords) =>
       prevRecords.map((record) =>
         record.id === mappedRecord.id ? mappedRecord : record
       )
@@ -130,7 +126,7 @@ const StudentProfileGrid = () => {
   };
 
   const columns = [
-    { field: 'lrn', headerName: 'LRN', width: 150 },
+    { field: 'employeeId', headerName: 'Employee ID', width: 150 },
     { field: 'name', headerName: 'Name', width: 200 },
     { field: 'gender', headerName: 'Gender', width: 100 },
     {
@@ -141,8 +137,8 @@ const StudentProfileGrid = () => {
     },
     { field: 'age', headerName: 'Age', width: 75 },
     { field: 'schoolYear', headerName: 'S.Y', width: 100 },
-    { field: 'grade', headerName: 'Grade', width: 100 },
-    { field: 'section', headerName: 'Section', width: 100 },
+    { field: 'mobileNumber', headerName: 'Mobile Number', width: 125 },
+    { field: 'role', headerName: 'Role', width: 100 },
     {
       field: 'status',
       headerName: 'Status',
@@ -168,7 +164,7 @@ const StudentProfileGrid = () => {
   ];
 
   const handleInfoDialogOpen = (recordId) => {
-    const recordInfo = students.find((student) => student.id === recordId);
+    const recordInfo = employees.find((employee) => employee.id === recordId);
     setSelectedRecordInfo(recordInfo);
     setInfoDialogOpen(true);
   };
@@ -179,26 +175,28 @@ const StudentProfileGrid = () => {
   };
 
   const handleEdit = (recordId) => {
-    const studentToEdit = students.find((student) => student.id === recordId);
-    setSelectedStudent(studentToEdit);
+    const employeeToEdit = employees.find(
+      (employee) => employee.id === recordId
+    );
+    setSelectedEmployee(employeeToEdit);
     setFormOpen(true);
   };
 
   const handleDelete = async () => {
     try {
-      await axiosInstance.delete(`studentProfile/delete/${recordIdToDelete}`);
+      await axiosInstance.delete(`employeeProfile/delete/${recordIdToDelete}`);
 
-      const updatedRecords = students.filter(
+      const updatedRecords = employees.filter(
         (record) => record.id !== recordIdToDelete
       );
-      setStudents(updatedRecords);
-      showSnackbar('Student record successfully deleted.', 'success');
+      setEmployees(updatedRecords);
+      showSnackbar('Employee record successfully deleted.', 'success');
     } catch (error) {
       if (error.response && error.response.data && error.response.data.error) {
         showSnackbar(`Delete Error: ${error.response.data.error}`, 'error');
       } else {
         showSnackbar(
-          'Failed to delete the Student record. Please try again.',
+          'Failed to delete the Employee record. Please try again.',
           'error'
         );
       }
@@ -227,7 +225,7 @@ const StudentProfileGrid = () => {
 
     try {
       const response = await axiosInstance.post(
-        '/studentProfile/import',
+        '/employeeProfile/import',
         formData,
         { headers: { 'Content-Type': 'multipart/form-data' } }
       );
@@ -240,7 +238,7 @@ const StudentProfileGrid = () => {
         });
       } else {
         showSnackbar('Data imported successfully!', 'success');
-        refreshStudents(); // Refresh or update the data grid
+        refreshEmployee(); // Refresh or update the data grid
       }
     } catch (error) {
       // Handle network or server errors
@@ -256,21 +254,16 @@ const StudentProfileGrid = () => {
   const handleExport = () => {
     const activeFilterModel = filterModel;
 
-    const filteredData = students.filter((record) => {
+    const filteredData = employees.filter((record) => {
       return activeFilterModel.items.every((filterItem) => {
         if (!filterItem.field) {
           return true;
         }
 
-        let cellValue;
-        if (filterItem.field === 'is4p') {
-          cellValue = record[filterItem.field] ? 'yes' : 'no';
-        } else {
-          cellValue = (record[filterItem.field] ?? '')
-            .toString()
-            .toLowerCase()
-            .trim();
-        }
+        let cellValue = (record[filterItem.field] ?? '')
+          .toString()
+          .toLowerCase()
+          .trim();
 
         const filterValues = Array.isArray(filterItem.value)
           ? filterItem.value.map((val) => val.toString().toLowerCase().trim())
@@ -297,23 +290,22 @@ const StudentProfileGrid = () => {
     });
 
     // Define excelHeaders based on the fields in transformedRecord
-    const excelHeaders = Object.keys(students[0] || {})
+    const excelHeaders = Object.keys(employees[0] || {})
       .filter((key) => key !== 'id') // This will exclude the 'id' field
       .map((key) => ({
-        title: HeaderMapping[key] || key,
+        title: EmployeeHeader[key] || key,
         key: key,
       }));
 
-    exportDataToExcel(filteredData, excelHeaders, 'StudentProfile', {
-      dateFields: ['dateOfBirth'], // adjust based on transformed data
+    exportDataToExcel(filteredData, excelHeaders, 'EmployeeProfile', {
+      dateFields: ['dateOfBirth'],
       excludeColumns: [
         'action',
         'firstName',
         'lastName',
         'middleName',
         'nameExtension',
-      ], // adjust based on transformed data
-      booleanFields: ['is4p'], // adjust as needed
+      ],
     });
   };
 
@@ -325,9 +317,9 @@ const StudentProfileGrid = () => {
     setFormOpen(false);
   };
 
-  const filteredStudents = students.filter((student) =>
-    Object.keys(student).some((key) => {
-      const value = student[key]?.toString().toLowerCase();
+  const filteredEmployee = employees.filter((employee) =>
+    Object.keys(employee).some((key) => {
+      const value = employee[key]?.toString().toLowerCase();
       return value?.includes(searchValue.toLowerCase());
     })
   );
@@ -339,10 +331,10 @@ const StudentProfileGrid = () => {
         severity={snackbarData.severity}
         message={snackbarData.message}
       />
-      <StudentInfoDialog
+      <EmployeeInfoDialog
         open={isInfoDialogOpen}
         onClose={handleInfoDialogClose}
-        student={selectedRecordInfo}
+        employee={selectedRecordInfo}
       />
       <div className="flex flex-col h-full">
         <div className="w-full max-w-screen-xl mx-auto px-8">
@@ -367,7 +359,7 @@ const StudentProfileGrid = () => {
           <Paper elevation={5} className="flex-grow">
             <DataGrid
               ref={dataGridRef}
-              rows={filteredStudents}
+              rows={filteredEmployee}
               columns={columns}
               onFilterModelChange={(newModel) => setFilterModel(newModel)}
               getRowId={(row) => row.id}
@@ -399,17 +391,17 @@ const StudentProfileGrid = () => {
           </Paper>
         </div>
       </div>
-      <StudentProfileForm
+      <EmployeeProfileForm
         open={formOpen}
-        addNewStudent={addNewStudent}
-        onUpdate={updatedStudentProfile}
-        selectedStudent={selectedStudent}
+        addNewEmployee={addNewEmployee}
+        onUpdate={updatedEmployeeProfile}
+        selectedEmployee={selectedEmployee}
         onClose={() => {
-          setSelectedStudent(null);
+          setSelectedEmployee(null);
           handleModalClose();
         }}
         onCancel={() => {
-          setSelectedStudent(null);
+          setSelectedEmployee(null);
           handleModalClose();
         }}
       />
@@ -424,4 +416,4 @@ const StudentProfileGrid = () => {
   );
 };
 
-export default StudentProfileGrid;
+export default EmployeeProfileGrid;

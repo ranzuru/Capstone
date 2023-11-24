@@ -1,7 +1,8 @@
-import StudentProfile from '../models/StudentProfile.js'; // Adjust import path
-import AcademicYear from '../models/AcademicYear.js'; // Adjust import path
-import { handleError } from '../utils/handleError.js'; // Adjust import path
-import { validateStudentProfile } from '../schema/studentProfileValidation.js'; // Adjust import path
+import StudentProfile from '../models/StudentProfile.js';
+import AcademicYear from '../models/AcademicYear.js';
+import { handleError } from '../utils/handleError.js';
+import { validateStudentProfile } from '../schema/studentProfileValidation.js';
+import importStudents from '../services/importStudentProfile.js';
 
 // Create
 export const createStudentProfile = async (req, res) => {
@@ -103,6 +104,43 @@ export const deleteStudentProfile = async (req, res) => {
       return res.status(404).send('Student profile not found');
 
     res.send(studentProfile);
+  } catch (err) {
+    handleError(res, err);
+  }
+};
+
+// import
+export const importStudentProfiles = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).send('No file uploaded.');
+    }
+
+    const fileBuffer = req.file.buffer;
+    const { studentProfiles, errors } = await importStudents(fileBuffer);
+
+    if (errors.length > 0) {
+      // Construct a detailed error message if there are errors
+      const errorDetails = errors
+        .map((error) => {
+          if (error.lrn && error.message) {
+            return `LRN ${error.lrn}: ${error.message}`;
+          }
+          return error.message || 'Unknown error';
+        })
+        .join('; ');
+
+      return res.status(400).json({
+        message: 'Some records have errors.',
+        detailedErrors: errorDetails, // Include the detailed error messages
+        errorCount: errors.length,
+      });
+    }
+
+    res.status(201).json({
+      message: 'Students imported successfully',
+      count: studentProfiles.length,
+    });
   } catch (err) {
     handleError(res, err);
   }

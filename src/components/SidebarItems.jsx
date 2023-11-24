@@ -63,7 +63,7 @@ export const sidebarItems = [
     icon: SupervisorAccountOutlined,
     submenuLinks: [
       { to: '/app/students-profile', primary: 'Student Profile' },
-      { to: '/app/faculty-profile', primary: 'Faculty Profile' },
+      { to: '/app/employee-profile', primary: 'Employee Profile' },
     ],
   },
   {
