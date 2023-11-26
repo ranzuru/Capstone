@@ -39,19 +39,6 @@ export const createStudentProfile = async (req, res) => {
 };
 
 // Read
-export const getStudentProfile = async (req, res) => {
-  try {
-    const studentProfile = await StudentProfile.findById(
-      req.params.id
-    ).populate('academicYear');
-    if (!studentProfile)
-      return res.status(404).send('Student profile not found');
-    res.send(studentProfile);
-  } catch (err) {
-    handleError(res, err);
-  }
-};
-
 export const getAllStudentProfiles = async (req, res) => {
   try {
     const studentProfiles =
@@ -59,6 +46,39 @@ export const getAllStudentProfiles = async (req, res) => {
     res.send(studentProfiles);
   } catch (err) {
     handleError(res, err);
+  }
+};
+
+// Search profile
+export const getStudentProfiles = async (req, res) => {
+  try {
+    const { search = '', page = 1, limit = 10 } = req.query;
+
+    // Building the search query with a condition for 'status' being 'Active'
+    const searchQuery = {
+      status: 'Active', // filtering for active students
+      ...(search
+        ? {
+            $or: [
+              { firstName: { $regex: search, $options: 'i' } },
+              { lastName: { $regex: search, $options: 'i' } },
+              { lrn: { $regex: search, $options: 'i' } },
+            ],
+          }
+        : {}),
+    };
+
+    const total = await StudentProfile.countDocuments(searchQuery);
+    const studentProfiles = await StudentProfile.find(
+      searchQuery,
+      'lrn lastName firstName middleName nameExtension gender dateOfBirth age grade section address'
+    )
+      .skip((page - 1) * limit)
+      .limit(limit);
+
+    res.json({ data: studentProfiles, total, page, limit });
+  } catch (error) {
+    res.status(500).send('Error fetching student profiles: ' + error.message);
   }
 };
 

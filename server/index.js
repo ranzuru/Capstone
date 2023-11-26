@@ -12,6 +12,8 @@ import roleRoutes from './routes/role.js';
 import academicYearRoutes from './routes/academicYear.js';
 import studentProfileRoutes from './routes/studentProfile.js';
 import employeeProfileRoutes from './routes/employeeProfile.js';
+import dengueMonitoringRoutes from './routes/dengueMonitoring.js';
+import studentMedicalRoutes from './routes/studentMedical.js';
 
 const app = express();
 app.use(express.json({ limit: '50mb' }));
@@ -50,6 +52,8 @@ app.use('/role', roleRoutes);
 app.use('/academicYear', academicYearRoutes);
 app.use('/studentProfile', studentProfileRoutes);
 app.use('/employeeProfile', employeeProfileRoutes);
+app.use('/dengueMonitoring', dengueMonitoringRoutes);
+app.use('/studentMedical', studentMedicalRoutes);
 
 const startServer = async () => {
   try {

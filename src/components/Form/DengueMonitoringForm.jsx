@@ -1,5 +1,5 @@
 // react
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 // RHF
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -10,10 +10,9 @@ import CustomSnackbar from '../../custom/CustomSnackbar';
 import FormInput from '../../custom/CustomTextField';
 import FormSelect from '../../custom/CustomSelect';
 import CustomDatePicker from '../../custom/CustomDatePicker';
-import CustomPhoneNumberField from '../../custom/CustomPhoneNumberField.jsx';
 
 // yup
-import EmployeeValidation from '../../validation/EmployeeProfileValidation.js';
+import DengueValidation from '../../validation/DengueMonitoringValidation.js';
 // axios
 import axiosInstance from '../../config/axios-instance.js';
 // MUI
@@ -25,6 +24,7 @@ import {
   DialogActions,
   Button,
   Grid,
+  Divider,
 } from '@mui/material';
 // others
 import { parseISO } from 'date-fns';
@@ -32,20 +32,15 @@ import {
   genderOption,
   nameExtensionOption,
   statusOptions,
-  employeeRolesOption,
+  gradeOptions,
 } from '../../others/dropDownOptions';
 import useFetchSchoolYears from '../../hooks/useFetchSchoolYears.js';
 import { calculateAge } from '../../utils/calculateAge.js';
+import StudentAutoComplete from '../StudentAutoComplete.jsx';
 
-const EmployeeProfileForm = (props) => {
-  const {
-    open,
-    onClose,
-    initialData,
-    addNewEmployee,
-    selectedEmployee,
-    onUpdate,
-  } = props;
+const DengueMonitoringForm = (props) => {
+  const { open, onClose, initialData, addNewRecord, selectedRecord, onUpdate } =
+    props;
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarData, setSnackbarData] = useState({
     message: '',
@@ -63,6 +58,27 @@ const EmployeeProfileForm = (props) => {
     setSnackbarOpen(false);
   };
 
+  const defaultValuesRef = useRef({
+    lrn: '',
+    lastName: '',
+    firstName: '',
+    middleName: '',
+    nameExtension: '', // Ensure this has a default value
+    gender: '', // Ensure this has a default value
+    dateOfBirth: null,
+    age: '',
+    schoolYear: '', // Initially empty, to be set later
+    grade: '', // Ensure this has a default value
+    section: '',
+    dateOfOnset: null,
+    dateOfAdmission: null,
+    hospitalAdmission: '',
+    dateOfDischarge: null,
+    address: '',
+    remarks: '',
+    status: 'Active', // Ensure this has a default value
+  }).current;
+
   const {
     handleSubmit,
     control,
@@ -71,24 +87,20 @@ const EmployeeProfileForm = (props) => {
     watch,
     formState: { errors },
   } = useForm({
-    defaultValues: initialData || {
-      employeeId: '',
-      lastName: '',
-      firstName: '',
-      middleName: '',
-      nameExtension: '',
-      gender: '',
-      dateOfBirth: null,
-      age: '',
-      schoolYear: activeSchoolYear,
-      email: '',
-      mobileNumber: '',
-      role: '',
-      address: '',
-      status: 'Active',
-    },
-    resolver: yupResolver(EmployeeValidation),
+    defaultValues: initialData || defaultValuesRef,
+    resolver: yupResolver(DengueValidation),
   });
+
+  useEffect(() => {
+    if (activeSchoolYear) {
+      reset({
+        ...defaultValuesRef,
+        ...initialData,
+        schoolYear: activeSchoolYear,
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeSchoolYear, reset, initialData]);
 
   const handleError = (error, context = 'operation') => {
     console.error(`An error occurred during ${context}:`, error);
@@ -99,53 +111,53 @@ const EmployeeProfileForm = (props) => {
     }
   };
 
-  const handleCreateEmployee = async (data) => {
+  const handleCreateRecord = async (data) => {
     try {
       const response = await axiosInstance.post(
-        '/employeeProfile/create',
+        '/dengueMonitoring/create',
         data
       );
       if (response.data && response.data._id) {
-        addNewEmployee(response.data);
-        showSnackbar('Successfully added new employee', 'success');
+        addNewRecord(response.data);
+        showSnackbar('Successfully added new record', 'success');
         handleClose();
       } else {
         showSnackbar('Operation failed', 'error');
       }
     } catch (error) {
-      console.error('Error adding employee:', error);
+      console.error('Error adding record:', error);
       if (error.response && error.response.status === 409) {
-        showSnackbar('EmployeeId with this schoolYear already exists', 'error');
+        showSnackbar('LRN with this schoolYear already exists', 'error');
       } else {
-        handleError(error, 'adding employee');
+        handleError(error, 'adding record');
       }
     }
   };
 
-  const handleUpdateEmployee = async (id, updatedData) => {
+  const handleUpdateRecord = async (id, updatedData) => {
     try {
       const response = await axiosInstance.put(
-        `/employeeProfile/update/${id}`,
+        `/dengueMonitoring/update/${id}`,
         updatedData
       );
       if (response.data) {
         onUpdate(response.data);
-        showSnackbar('Employee successfully updated', 'success');
+        showSnackbar('Record successfully updated', 'success');
         handleClose();
       } else {
         showSnackbar('Update operation failed', 'error');
       }
     } catch (error) {
-      handleError(error, 'updating employee');
+      handleError(error, 'updating record');
     }
   };
 
   const handleSaveOrUpdate = async (data) => {
     try {
-      if (selectedEmployee && selectedEmployee.id) {
-        await handleUpdateEmployee(selectedEmployee.id, data);
+      if (selectedRecord && selectedRecord.id) {
+        await handleUpdateRecord(selectedRecord.id, data);
       } else {
-        await handleCreateEmployee(data);
+        await handleCreateRecord(data);
       }
     } catch (error) {
       handleError(error, 'add or updating');
@@ -155,6 +167,30 @@ const EmployeeProfileForm = (props) => {
   const handleClose = () => {
     reset();
     onClose();
+  };
+
+  const handleStudentSelect = (studentProfile) => {
+    if (!studentProfile) {
+      reset(); // This assumes you've defined the default values at useForm hook initialization
+      return;
+    }
+    setValue('lrn', studentProfile.lrn);
+    setValue('firstName', studentProfile.firstName);
+    setValue('lastName', studentProfile.lastName);
+    setValue('middleName', studentProfile.middleName);
+    setValue('nameExtension', studentProfile.nameExtension);
+    setValue('gender', studentProfile.gender);
+
+    // Check if dateOfBirth is a valid string and then parse and format
+    if (typeof studentProfile.dateOfBirth === 'string') {
+      const parsedDate = parseISO(studentProfile.dateOfBirth);
+      setValue('dateOfBirth', parsedDate);
+    }
+
+    setValue('age', studentProfile.age);
+    setValue('grade', studentProfile.grade);
+    setValue('section', studentProfile.section);
+    setValue('address', studentProfile.address);
   };
 
   const watchDOB = watch('dateOfBirth');
@@ -167,43 +203,53 @@ const EmployeeProfileForm = (props) => {
   }, [watchDOB, setValue]);
 
   useEffect(() => {
-    if (selectedEmployee) {
+    if (selectedRecord) {
       // Regular fields
       const fields = [
-        'employeeId',
+        'lrn',
         'firstName',
         'lastName',
         'middleName',
         'nameExtension',
         'gender',
         'age',
-        'email',
-        'mobileNumber',
-        'role',
+        'grade',
+        'section',
+        'hospitalAdmission',
         'address',
         'status',
+        'remarks',
       ];
 
       fields.forEach((field) => {
-        setValue(field, selectedEmployee[field] || '');
+        setValue(field, selectedRecord[field] || '');
       });
 
-      // Date field
-      const dateField = 'dateOfBirth';
-      const parsedDate = selectedEmployee[dateField]
-        ? parseISO(selectedEmployee[dateField])
-        : null;
-      setValue(dateField, parsedDate);
+      // Date fields
+      const dateFields = [
+        'dateOfBirth',
+        'dateOfOnset',
+        'dateOfAdmission',
+        'dateOfDischarge',
+      ];
 
+      dateFields.forEach((field) => {
+        const dateValue = selectedRecord[field]
+          ? parseISO(selectedRecord[field])
+          : null;
+        setValue(field, dateValue);
+      });
+
+      // School year field
       const schoolYearExists = schoolYears.some(
-        (sy) => sy.value === selectedEmployee['schoolYear']
+        (sy) => sy.value === selectedRecord['schoolYear']
       );
       const schoolYearValue = schoolYearExists
-        ? selectedEmployee['schoolYear']
+        ? selectedRecord['schoolYear']
         : '';
       setValue('schoolYear', schoolYearValue);
     }
-  }, [selectedEmployee, setValue, schoolYears]);
+  }, [selectedRecord, setValue, schoolYears]);
 
   return (
     <>
@@ -217,30 +263,32 @@ const EmployeeProfileForm = (props) => {
         open={open}
         onClose={handleClose}
         fullWidth
-        maxWidth="md"
+        maxWidth="lg"
         className="overflow-auto"
       >
         <DialogTitle>
-          {selectedEmployee ? 'Edit Employee' : 'Add Employee'}
+          {selectedRecord ? 'Edit Record' : 'Add Record'}
         </DialogTitle>
         <form onSubmit={handleSubmit(handleSaveOrUpdate)}>
           <DialogContent>
-            <DialogContentText>
-              Enter employee profile details:
-            </DialogContentText>
+            <DialogContentText>Enter record details:</DialogContentText>
             <Grid container spacing={2}>
-              <Grid item xs={12} md={6}>
-                <FormInput
-                  control={control}
-                  name="employeeId"
-                  label="Employee Id"
-                  textType="combine"
-                  error={errors.employeeId}
-                />
+              <Grid item xs={12} md={4}>
+                <StudentAutoComplete onSelect={handleStudentSelect} />
               </Grid>
             </Grid>
+            <Divider />
             <Grid container spacing={2}>
-              <Grid item xs={12} md={3.5}>
+              <Grid item xs={12} md={3}>
+                <FormInput
+                  control={control}
+                  name="lrn"
+                  label="LRN"
+                  textType="combine"
+                  error={errors.lrn}
+                />
+              </Grid>
+              <Grid item xs={12} md={2.5}>
                 <FormInput
                   control={control}
                   name="firstName"
@@ -249,7 +297,7 @@ const EmployeeProfileForm = (props) => {
                   error={errors.firstName}
                 />
               </Grid>
-              <Grid item xs={12} md={3.5}>
+              <Grid item xs={12} md={2.5}>
                 <FormInput
                   control={control}
                   name="lastName"
@@ -258,7 +306,7 @@ const EmployeeProfileForm = (props) => {
                   error={errors.lastName}
                 />
               </Grid>
-              <Grid item xs={12} md={3.5}>
+              <Grid item xs={12} md={2.5}>
                 <FormInput
                   control={control}
                   name="middleName"
@@ -266,7 +314,7 @@ const EmployeeProfileForm = (props) => {
                   textType="text"
                 />
               </Grid>
-              <Grid item xs={12} md={1.5}>
+              <Grid item xs={12} md={1}>
                 <FormSelect
                   control={control}
                   name="nameExtension"
@@ -276,7 +324,7 @@ const EmployeeProfileForm = (props) => {
               </Grid>
             </Grid>
             <Grid container spacing={2}>
-              <Grid item xs={12} md={2}>
+              <Grid item xs={12} md={1.5}>
                 <FormSelect
                   control={control}
                   name="gender"
@@ -285,7 +333,7 @@ const EmployeeProfileForm = (props) => {
                   errors={errors}
                 />
               </Grid>
-              <Grid item xs={12} md={2.5}>
+              <Grid item xs={12} md={2}>
                 <CustomDatePicker
                   control={control}
                   name="dateOfBirth"
@@ -293,7 +341,7 @@ const EmployeeProfileForm = (props) => {
                   maxDate={new Date()}
                 />
               </Grid>
-              <Grid item xs={12} md={1.5}>
+              <Grid item xs={12} md={1}>
                 <FormInput
                   control={control}
                   name="age"
@@ -302,7 +350,25 @@ const EmployeeProfileForm = (props) => {
                   error={errors.age}
                 />
               </Grid>
-              <Grid item xs={12} md={3}>
+              <Grid item xs={12} md={2}>
+                <FormInput
+                  control={control}
+                  name="section"
+                  label="Section"
+                  textType="text"
+                  error={errors.section}
+                />
+              </Grid>
+              <Grid item xs={12} md={2}>
+                <FormSelect
+                  control={control}
+                  name="grade"
+                  label="Grade level"
+                  options={gradeOptions}
+                  errors={errors}
+                />
+              </Grid>
+              <Grid item xs={12} md={1.8}>
                 <FormSelect
                   control={control}
                   name="schoolYear"
@@ -311,36 +377,8 @@ const EmployeeProfileForm = (props) => {
                   errors={errors}
                 />
               </Grid>
-              <Grid item xs={12} md={2}>
-                <FormSelect
-                  control={control}
-                  name="role"
-                  label="Role"
-                  options={employeeRolesOption}
-                  errors={errors}
-                />
-              </Grid>
             </Grid>
             <Grid container spacing={2}>
-              <Grid item xs={12} md={3}>
-                <FormInput
-                  control={control}
-                  name="email"
-                  label="Email"
-                  error={errors.email}
-                />
-              </Grid>
-              <Grid item xs={12} md={3}>
-                <CustomPhoneNumberField
-                  name="mobileNumber"
-                  control={control}
-                  label="Mobile Number"
-                  maxLength={10}
-                  adornment="+63"
-                  placeholder="995 215 5436"
-                  errors={errors}
-                />
-              </Grid>
               <Grid item xs={12} md={6}>
                 <FormInput
                   control={control}
@@ -348,6 +386,50 @@ const EmployeeProfileForm = (props) => {
                   label="Address"
                   textType="combine"
                   error={errors.address}
+                  multiline
+                />
+              </Grid>
+            </Grid>
+            <Grid container spacing={2}>
+              <Grid item xs={12} md={3}>
+                <FormInput
+                  control={control}
+                  name="hospitalAdmission"
+                  label="Hospital Admission"
+                  textType="combine"
+                  multiline
+                />
+              </Grid>
+              <Grid item xs={12} md={2}>
+                <CustomDatePicker
+                  control={control}
+                  name="dateOfOnset"
+                  label="Date of Onset"
+                  maxDate={new Date()}
+                />
+              </Grid>
+              <Grid item xs={12} md={2.2}>
+                <CustomDatePicker
+                  control={control}
+                  name="dateOfAdmission"
+                  label="Date of Admission"
+                  maxDate={new Date()}
+                />
+              </Grid>
+              <Grid item xs={12} md={2.2}>
+                <CustomDatePicker
+                  control={control}
+                  name="dateOfDischarge"
+                  label="Date of Discharge"
+                  maxDate={new Date()}
+                />
+              </Grid>
+              <Grid item xs={12} md={2.5}>
+                <FormInput
+                  control={control}
+                  name="remarks"
+                  label="Remarks"
+                  textType="combine"
                   multiline
                 />
               </Grid>
@@ -369,7 +451,7 @@ const EmployeeProfileForm = (props) => {
               Cancel
             </Button>
             <Button type="submit" color="primary">
-              {selectedEmployee ? 'Update' : 'Save'}
+              {selectedRecord ? 'Update' : 'Save'}
             </Button>
           </DialogActions>
         </form>
@@ -378,13 +460,13 @@ const EmployeeProfileForm = (props) => {
   );
 };
 
-EmployeeProfileForm.propTypes = {
+DengueMonitoringForm.propTypes = {
   open: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
   initialData: PropTypes.object,
-  addNewEmployee: PropTypes.func.isRequired,
-  selectedEmployee: PropTypes.object,
+  addNewRecord: PropTypes.func.isRequired,
+  selectedRecord: PropTypes.object,
   onUpdate: PropTypes.func.isRequired,
 };
 
-export default EmployeeProfileForm;
+export default DengueMonitoringForm;
