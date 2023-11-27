@@ -99,7 +99,7 @@ export const genderOption = [
   { label: 'Female', value: 'Female' },
 ];
 
-export const nameExtensionOption = ['Jr.', 'Sr.', 'II', 'III', 'IV', 'V'].map(
+export const nameExtensionOption = ['Jr', 'Sr', 'II', 'III', 'IV', 'V'].map(
   (ext) => ({ label: ext, value: ext })
 );
 

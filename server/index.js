@@ -14,6 +14,7 @@ import studentProfileRoutes from './routes/studentProfile.js';
 import employeeProfileRoutes from './routes/employeeProfile.js';
 import dengueMonitoringRoutes from './routes/dengueMonitoring.js';
 import studentMedicalRoutes from './routes/studentMedical.js';
+import employeeMedicalRoutes from './routes/employeeMedical.js';
 
 const app = express();
 app.use(express.json({ limit: '50mb' }));
@@ -54,6 +55,7 @@ app.use('/studentProfile', studentProfileRoutes);
 app.use('/employeeProfile', employeeProfileRoutes);
 app.use('/dengueMonitoring', dengueMonitoringRoutes);
 app.use('/studentMedical', studentMedicalRoutes);
+app.use('/employeeMedical', employeeMedicalRoutes);
 
 const startServer = async () => {
   try {
