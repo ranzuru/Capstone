@@ -59,7 +59,7 @@ export const abdomenOptions = [
   'Dysmenorrhea',
 ];
 
-export const deformitiesOptions = ['Acquired', 'Congenital'];
+export const deformitiesOptions = ['Normal', 'Acquired', 'Congenital'];
 
 export const ageMenarcheOptions = Array.from(
   { length: 7 },

@@ -61,6 +61,10 @@ const studentMedicalSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
+    bmi: {
+      type: Number,
+      required: true,
+    },
     bmiClassification: {
       type: String,
       required: true,
@@ -69,10 +73,7 @@ const studentMedicalSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    beneficiaryOfSBFP: {
-      type: Boolean,
-      required: true,
-    },
+
     temperature: { type: Number, required: true },
     bloodPressure: { type: String, required: true },
     heartRate: { type: Number, required: true },

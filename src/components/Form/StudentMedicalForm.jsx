@@ -10,9 +10,10 @@ import CustomSnackbar from '../../custom/CustomSnackbar';
 import FormInput from '../../custom/CustomTextField';
 import FormSelect from '../../custom/CustomSelect';
 import CustomDatePicker from '../../custom/CustomDatePicker';
+import { useBMIAnalysis } from '../../hooks/useBMIAnalysis.js';
 
 // yup
-import DengueValidation from '../../validation/DengueMonitoringValidation.js';
+import studentMedicalValidation from '../../validation/StudentMedicalValidation.js';
 // axios
 import axiosInstance from '../../config/axios-instance.js';
 // MUI
@@ -24,7 +25,6 @@ import {
   DialogActions,
   Button,
   Grid,
-  Divider,
 } from '@mui/material';
 // others
 import { parseISO } from 'date-fns';
@@ -33,12 +33,28 @@ import {
   nameExtensionOption,
   statusOptions,
   gradeOptions,
+  visionScreeningOptions,
+  auditoryScreeningOptions,
+  scalpScreeningOptions,
+  skinScreeningOptions,
+  eyesScreeningOptions,
+  earScreeningOptions,
+  noseScreeningOptions,
+  ageMenarcheOptions,
+  mouthNeckThroatOptions,
+  lungsHeartOptions,
+  abdomenOptions,
+  deformitiesOptions,
 } from '../../others/dropDownOptions';
 import useFetchSchoolYears from '../../hooks/useFetchSchoolYears.js';
 import { calculateAge } from '../../utils/calculateAge.js';
 import StudentAutoComplete from '../StudentAutoComplete.jsx';
+import MedicalAutoComplete from '../MedicalAutoComplete.jsx';
+import CustomRadioGroup from '../../custom/CustomRadioButton.jsx';
+import MedicalTypography from '../MedicalTypography.jsx';
+import Divider from '@mui/material/Divider';
 
-const DengueMonitoringForm = (props) => {
+const StudentMedicalForm = (props) => {
   const { open, onClose, initialData, addNewRecord, selectedRecord, onUpdate } =
     props;
   const [snackbarOpen, setSnackbarOpen] = useState(false);
@@ -59,6 +75,7 @@ const DengueMonitoringForm = (props) => {
   };
 
   const defaultValuesRef = useRef({
+    dateOfExamination: new Date(),
     lrn: '',
     lastName: '',
     firstName: '',
@@ -70,11 +87,35 @@ const DengueMonitoringForm = (props) => {
     schoolYear: '',
     grade: '',
     section: '',
-    dateOfOnset: null,
-    dateOfAdmission: null,
-    hospitalAdmission: '',
-    dateOfDischarge: null,
-    address: '',
+    is4p: false,
+    weightKg: '',
+    heightCm: '',
+    bmi: '',
+    bmiClassification: '',
+    heightForAge: '',
+    beneficiaryOfSBFP: false,
+    temperature: '',
+    bloodPressure: '',
+    heartRate: '',
+    pulseRate: '',
+    respiratoryRate: '',
+    visionScreening: '',
+    auditoryScreening: '',
+    skinScreening: '',
+    scalpScreening: '',
+    eyesScreening: '',
+    earScreening: '',
+    noseScreening: '',
+    mouthScreening: '',
+    throatScreening: '',
+    neckScreening: '',
+    lungScreening: '',
+    heartScreening: '',
+    abdomen: '',
+    deformities: '',
+    ironSupplementation: false,
+    deworming: false,
+    menarche: '',
     remarks: '',
     status: 'Active',
   }).current;
@@ -88,8 +129,28 @@ const DengueMonitoringForm = (props) => {
     formState: { errors },
   } = useForm({
     defaultValues: initialData || defaultValuesRef,
-    resolver: yupResolver(DengueValidation),
+    resolver: yupResolver(studentMedicalValidation),
   });
+
+  const dateOfBirth = watch('dateOfBirth');
+  const gender = watch('gender');
+  const age = watch('age');
+  const weightKg = watch('weightKg');
+  const heightCm = watch('heightCm');
+
+  const { bmi, bmiClassification, heightForAge } = useBMIAnalysis(
+    dateOfBirth,
+    gender,
+    age,
+    weightKg,
+    heightCm
+  );
+
+  useEffect(() => {
+    setValue('bmi', bmi);
+    setValue('bmiClassification', bmiClassification);
+    setValue('heightForAge', heightForAge);
+  }, [bmi, bmiClassification, heightForAge, setValue]);
 
   useEffect(() => {
     if (activeSchoolYear) {
@@ -113,10 +174,7 @@ const DengueMonitoringForm = (props) => {
 
   const handleCreateRecord = async (data) => {
     try {
-      const response = await axiosInstance.post(
-        '/dengueMonitoring/create',
-        data
-      );
+      const response = await axiosInstance.post('/studentMedical/create', data);
       if (response.data && response.data._id) {
         addNewRecord(response.data);
         showSnackbar('Successfully added new record', 'success');
@@ -137,7 +195,7 @@ const DengueMonitoringForm = (props) => {
   const handleUpdateRecord = async (id, updatedData) => {
     try {
       const response = await axiosInstance.put(
-        `/dengueMonitoring/update/${id}`,
+        `/studentMedical/update/${id}`,
         updatedData
       );
       if (response.data) {
@@ -190,7 +248,6 @@ const DengueMonitoringForm = (props) => {
     setValue('age', studentProfile.age);
     setValue('grade', studentProfile.grade);
     setValue('section', studentProfile.section);
-    setValue('address', studentProfile.address);
   };
 
   const watchDOB = watch('dateOfBirth');
@@ -215,8 +272,31 @@ const DengueMonitoringForm = (props) => {
         'age',
         'grade',
         'section',
-        'hospitalAdmission',
-        'address',
+        'weightKg',
+        'heightCm',
+        'bmi',
+        'bmiClassification',
+        'temperature',
+        'bloodPressure',
+        'heightForAge',
+        'heartRate',
+        'pulseRate',
+        'respiratoryRate',
+        'visionScreening',
+        'auditoryScreening',
+        'skinScreening',
+        'scalpScreening',
+        'eyesScreening',
+        'earScreening',
+        'noseScreening',
+        'mouthScreening',
+        'throatScreening',
+        'neckScreening',
+        'lungScreening',
+        'heartScreening',
+        'abdomen',
+        'deformities',
+        'menarche',
         'status',
         'remarks',
       ];
@@ -226,12 +306,7 @@ const DengueMonitoringForm = (props) => {
       });
 
       // Date fields
-      const dateFields = [
-        'dateOfBirth',
-        'dateOfOnset',
-        'dateOfAdmission',
-        'dateOfDischarge',
-      ];
+      const dateFields = ['dateOfBirth', 'dateOfExamination'];
 
       dateFields.forEach((field) => {
         const dateValue = selectedRecord[field]
@@ -248,6 +323,10 @@ const DengueMonitoringForm = (props) => {
         ? selectedRecord['schoolYear']
         : '';
       setValue('schoolYear', schoolYearValue);
+
+      setValue('is4p', !!selectedRecord.is4p);
+      setValue('ironSupplementation', !!selectedRecord.ironSupplementation);
+      setValue('deworming', !!selectedRecord.deworming);
     }
   }, [selectedRecord, setValue, schoolYears]);
 
@@ -277,7 +356,18 @@ const DengueMonitoringForm = (props) => {
                 <StudentAutoComplete onSelect={handleStudentSelect} />
               </Grid>
             </Grid>
-            <Divider />
+
+            <MedicalTypography>Student Bio:</MedicalTypography>
+            <Grid container spacing={2}>
+              <Grid item xs={12} md={2}>
+                <CustomDatePicker
+                  control={control}
+                  name="dateOfExamination"
+                  label="Date of Examination"
+                  maxDate={new Date()}
+                />
+              </Grid>
+            </Grid>
             <Grid container spacing={2}>
               <Grid item xs={12} md={3}>
                 <FormInput
@@ -379,52 +469,268 @@ const DengueMonitoringForm = (props) => {
               </Grid>
             </Grid>
             <Grid container spacing={2}>
-              <Grid item xs={12} md={6}>
+              <Grid item xs={12} md={2}>
                 <FormInput
                   control={control}
-                  name="address"
-                  label="Address"
+                  name="weightKg"
+                  label="Weight (kg)"
+                  textType="float"
+                  error={errors.weightKg}
+                />
+              </Grid>
+              <Grid item xs={12} md={2}>
+                <FormInput
+                  control={control}
+                  name="heightCm"
+                  label="Height (cm)"
+                  textType="float"
+                  error={errors.heightCm}
+                />
+              </Grid>
+              <Grid item xs={12} md={2}>
+                <FormInput
+                  control={control}
+                  name="bmi"
+                  label="BMI"
+                  textType="float"
+                  error={errors.bmi}
+                />
+              </Grid>
+              <Grid item xs={12} md={2.2}>
+                <FormInput
+                  control={control}
+                  name="bmiClassification"
+                  label="BMI Classification"
+                  textType="text"
+                  error={errors.bmiClassification}
+                />
+              </Grid>
+              <Grid item xs={12} md={2.2}>
+                <FormInput
+                  control={control}
+                  name="heightForAge"
+                  label="Height For Age"
+                  textType="text"
+                  error={errors.heightForAge}
+                />
+              </Grid>
+            </Grid>
+            <Divider />
+            <MedicalTypography>Vital Signs:</MedicalTypography>
+            <Grid container spacing={2}>
+              <Grid item xs={12} md={2}>
+                <FormInput
+                  control={control}
+                  name="temperature"
+                  label="Temperature"
+                  textType="float"
+                  placeholder="36°C"
+                />
+              </Grid>
+              <Grid item xs={12} md={2}>
+                <FormInput
+                  control={control}
+                  name="bloodPressure"
+                  label="Blood Pressure"
                   textType="combine"
-                  error={errors.address}
-                  multiline
+                  placeholder="120/80"
+                />
+              </Grid>
+              <Grid item xs={12} md={2}>
+                <FormInput
+                  control={control}
+                  name="heartRate"
+                  label="Heart Rate"
+                  textType="number"
+                  placeholder="120 bpm"
+                />
+              </Grid>
+              <Grid item xs={12} md={2}>
+                <FormInput
+                  control={control}
+                  name="pulseRate"
+                  label="Pulse Rate"
+                  textType="number"
+                  placeholder="120 bpm"
+                />
+              </Grid>
+              <Grid item xs={12} md={2}>
+                <FormInput
+                  control={control}
+                  name="respiratoryRate"
+                  label="Respiratory Rate"
+                  textType="number"
+                  placeholder="120 bpm"
+                />
+              </Grid>
+            </Grid>
+            <MedicalTypography>Screening:</MedicalTypography>
+            <Grid container spacing={2}>
+              <Grid item xs={12} md={2}>
+                <MedicalAutoComplete
+                  control={control}
+                  name="visionScreening"
+                  options={visionScreeningOptions}
+                  label="Vision"
+                  errors={errors}
+                />
+              </Grid>
+              <Grid item xs={12} md={2}>
+                <MedicalAutoComplete
+                  control={control}
+                  name="auditoryScreening"
+                  options={auditoryScreeningOptions}
+                  label="Hearing"
+                  errors={errors}
+                />
+              </Grid>
+              <Grid item xs={12} md={2}>
+                <MedicalAutoComplete
+                  control={control}
+                  name="scalpScreening"
+                  options={scalpScreeningOptions}
+                  label="Scalp Issue"
+                  errors={errors}
+                />
+              </Grid>
+              <Grid item xs={12} md={2}>
+                <MedicalAutoComplete
+                  control={control}
+                  name="skinScreening"
+                  options={skinScreeningOptions}
+                  label="Skin Issue"
+                  errors={errors}
+                />
+              </Grid>
+              <Grid item xs={12} md={2}>
+                <MedicalAutoComplete
+                  control={control}
+                  name="eyesScreening"
+                  options={eyesScreeningOptions}
+                  label="Eyes Issue"
+                  errors={errors}
+                />
+              </Grid>
+              <Grid item xs={12} md={2}>
+                <MedicalAutoComplete
+                  control={control}
+                  name="earScreening"
+                  options={earScreeningOptions}
+                  label="Ear Issue"
+                  errors={errors}
+                />
+              </Grid>
+            </Grid>
+            <Grid container spacing={2}>
+              <Grid item xs={12} md={2}>
+                <MedicalAutoComplete
+                  control={control}
+                  name="noseScreening"
+                  options={noseScreeningOptions}
+                  label="Nose Issue"
+                  errors={errors}
+                />
+              </Grid>
+              <Grid item xs={12} md={2}>
+                <MedicalAutoComplete
+                  control={control}
+                  name="mouthScreening"
+                  options={mouthNeckThroatOptions}
+                  label="Mouth Issue"
+                  errors={errors}
+                />
+              </Grid>
+              <Grid item xs={12} md={2}>
+                <MedicalAutoComplete
+                  control={control}
+                  name="neckScreening"
+                  options={mouthNeckThroatOptions}
+                  label="Neck Issue"
+                  errors={errors}
+                />
+              </Grid>
+              <Grid item xs={12} md={2}>
+                <MedicalAutoComplete
+                  control={control}
+                  name="throatScreening"
+                  options={mouthNeckThroatOptions}
+                  label="Throat Issue"
+                  errors={errors}
+                />
+              </Grid>
+              <Grid item xs={12} md={2}>
+                <MedicalAutoComplete
+                  control={control}
+                  name="lungScreening"
+                  options={lungsHeartOptions}
+                  label="Lungs Issue"
+                  errors={errors}
+                />
+              </Grid>
+              <Grid item xs={12} md={2}>
+                <MedicalAutoComplete
+                  control={control}
+                  name="heartScreening"
+                  options={lungsHeartOptions}
+                  label="Heart Issue"
+                  errors={errors}
+                />
+              </Grid>
+            </Grid>
+            <Grid container spacing={2}>
+              <Grid item xs={12} md={2}>
+                <MedicalAutoComplete
+                  control={control}
+                  name="abdomen"
+                  options={abdomenOptions}
+                  label="Abdomen Issue"
+                  errors={errors}
+                />
+              </Grid>
+              <Grid item xs={12} md={2}>
+                <MedicalAutoComplete
+                  control={control}
+                  name="deformities"
+                  options={deformitiesOptions}
+                  label="Deformities"
+                  errors={errors}
+                />
+              </Grid>
+              <Grid item xs={12} md={2}>
+                <MedicalAutoComplete
+                  control={control}
+                  name="menarche"
+                  options={ageMenarcheOptions}
+                  label="Menarche"
+                />
+              </Grid>
+            </Grid>
+            <MedicalTypography>Others:</MedicalTypography>
+            <Grid container spacing={2}>
+              <Grid item xs={12} md={2}>
+                <CustomRadioGroup
+                  control={control}
+                  name="is4p"
+                  label="4p's Member?"
+                />
+              </Grid>
+              <Grid item xs={12} md={2}>
+                <CustomRadioGroup
+                  control={control}
+                  name="ironSupplementation"
+                  label="Iron Supplementation"
+                />
+              </Grid>
+              <Grid item xs={12} md={2}>
+                <CustomRadioGroup
+                  control={control}
+                  name="deworming"
+                  label="Deworming"
                 />
               </Grid>
             </Grid>
             <Grid container spacing={2}>
               <Grid item xs={12} md={3}>
-                <FormInput
-                  control={control}
-                  name="hospitalAdmission"
-                  label="Hospital Admission"
-                  textType="combine"
-                  multiline
-                />
-              </Grid>
-              <Grid item xs={12} md={2}>
-                <CustomDatePicker
-                  control={control}
-                  name="dateOfOnset"
-                  label="Date of Onset"
-                  maxDate={new Date()}
-                />
-              </Grid>
-              <Grid item xs={12} md={2.2}>
-                <CustomDatePicker
-                  control={control}
-                  name="dateOfAdmission"
-                  label="Date of Admission"
-                  maxDate={new Date()}
-                />
-              </Grid>
-              <Grid item xs={12} md={2.2}>
-                <CustomDatePicker
-                  control={control}
-                  name="dateOfDischarge"
-                  label="Date of Discharge"
-                  maxDate={new Date()}
-                />
-              </Grid>
-              <Grid item xs={12} md={2.5}>
                 <FormInput
                   control={control}
                   name="remarks"
@@ -433,8 +739,6 @@ const DengueMonitoringForm = (props) => {
                   multiline
                 />
               </Grid>
-            </Grid>
-            <Grid container spacing={2}>
               <Grid item xs={12} md={3}>
                 <FormSelect
                   control={control}
@@ -460,7 +764,7 @@ const DengueMonitoringForm = (props) => {
   );
 };
 
-DengueMonitoringForm.propTypes = {
+StudentMedicalForm.propTypes = {
   open: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
   initialData: PropTypes.object,
@@ -469,4 +773,4 @@ DengueMonitoringForm.propTypes = {
   onUpdate: PropTypes.func.isRequired,
 };
 
-export default DengueMonitoringForm;
+export default StudentMedicalForm;

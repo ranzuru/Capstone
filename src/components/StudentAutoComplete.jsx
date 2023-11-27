@@ -48,7 +48,9 @@ const StudentAutoComplete = ({ onSelect }) => {
     <Autocomplete
       options={options}
       getOptionLabel={(option) =>
-        `${option.lrn} - ${option.lastName}, ${option.firstName} ${option.middleName} ${option.nameExtension}`
+        `${option.lrn} - ${option.lastName}, ${option.firstName}${
+          option.middleName ? ` ${option.middleName}` : ''
+        }${option.nameExtension ? ` ${option.nameExtension}` : ''}`
       }
       fullWidth
       popupIcon={<SearchIcon />}

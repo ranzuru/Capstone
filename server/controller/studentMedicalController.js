@@ -2,6 +2,7 @@ import StudentMedical from '../models/StudentMedical.js';
 import AcademicYear from '../models/AcademicYear.js';
 import { handleError } from '../utils/handleError.js';
 import { validateStudentMedical } from '../schema/studentMedicalValidation.js';
+import importStudentMedical from '../services/importStudentMedical.js';
 
 // Create
 export const createStudentMedical = async (req, res) => {
@@ -88,6 +89,48 @@ export const deleteStudentMedical = async (req, res) => {
       return res.status(404).send('Student record not found');
 
     res.send(studentMedical);
+  } catch (err) {
+    handleError(res, err);
+  }
+};
+
+// import
+export const importMedical = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).send('No file uploaded.');
+    }
+
+    const fileBuffer = req.file.buffer;
+    const { studentMedicalRecords, errors, hasMoreErrors } =
+      await importStudentMedical(fileBuffer);
+
+    if (errors.length > 0) {
+      const errorDetails = errors
+        .map((error) => {
+          if (error.lrn && error.errors) {
+            return `LRN ${error.lrn}: ${error.errors.join(', ')}`;
+          }
+          return error.message || 'Unknown error';
+        })
+        .join('; ');
+
+      return res.status(400).json({
+        message: `Some records have errors${
+          hasMoreErrors ? ' (showing first 5)' : ''
+        }.`,
+        detailedErrors: errorDetails,
+        errorCount: errors.length,
+        ...(hasMoreErrors && {
+          additionalErrors: 'Not all errors are displayed.',
+        }),
+      });
+    }
+
+    res.status(201).json({
+      message: 'Student Medical Records imported successfully',
+      count: studentMedicalRecords.length,
+    });
   } catch (err) {
     handleError(res, err);
   }

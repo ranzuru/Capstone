@@ -37,8 +37,14 @@ const FormInput = ({
                 break;
               case 'combine':
                 value = value
-                  .replace(/[^a-zA-Z0-9 ]/g, '')
+                  // This regular expression will keep letters, numbers, spaces, and specific special characters
+                  .replace(/[^a-zA-Z0-9 @#.!]/g, '')
                   .replace(/(^\w|\s\w)/g, (m) => m.toUpperCase());
+                break;
+              case 'float':
+                value = value
+                  .replace(/[^0-9.]/g, '')
+                  .replace(/(\..*)\./g, '$1');
                 break;
               default:
                 break;
@@ -58,7 +64,7 @@ FormInput.propTypes = {
   name: PropTypes.string.isRequired,
   label: PropTypes.string,
   error: PropTypes.object,
-  textType: PropTypes.oneOf(['text', 'number', 'combine']),
+  textType: PropTypes.oneOf(['text', 'number', 'combine', 'float']),
 };
 
 export default FormInput;
