@@ -6,6 +6,12 @@ import {
   deleteDengueMonitoring,
   importDengueMonitoring,
 } from '../controller/dengueMonitoringController.js';
+import {
+  getGroupedDengueData,
+  calculateStatisticsByAcademicYear,
+  getMonthlyDengueCases,
+} from '../controller/analytics/dengueBarCharts.js';
+
 import multer from 'multer';
 const router = express.Router();
 
@@ -17,5 +23,9 @@ router.get('/fetch', getAllDengueMonitoring);
 router.put('/update/:id', updateDengueMonitoring);
 router.delete('/delete/:id', deleteDengueMonitoring);
 router.post('/import', upload.single('file'), importDengueMonitoring);
+
+router.get('/fetchBar', getGroupedDengueData);
+router.get('/fetchLine/:schoolYear', getMonthlyDengueCases);
+router.get('/fetchStatistics', calculateStatisticsByAcademicYear);
 
 export default router;

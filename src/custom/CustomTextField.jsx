@@ -46,6 +46,11 @@ const FormInput = ({
                   .replace(/[^0-9.]/g, '')
                   .replace(/(\..*)\./g, '$1');
                 break;
+              case 'bloodPressure':
+                value = value
+                  .replace(/[^0-9/]/g, '') // Allow only numbers and '/'
+                  .replace(/(\/.*)\//g, '$1'); // Prevent multiple '/'
+                break;
               default:
                 break;
             }
@@ -64,7 +69,13 @@ FormInput.propTypes = {
   name: PropTypes.string.isRequired,
   label: PropTypes.string,
   error: PropTypes.object,
-  textType: PropTypes.oneOf(['text', 'number', 'combine', 'float']),
+  textType: PropTypes.oneOf([
+    'text',
+    'number',
+    'combine',
+    'float',
+    'bloodPressure',
+  ]),
 };
 
 export default FormInput;

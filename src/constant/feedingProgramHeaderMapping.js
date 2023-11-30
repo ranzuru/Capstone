@@ -1,0 +1,25 @@
+const feedingProgramHeader = {
+  dateMeasured: 'Date Measured',
+  lrn: 'LRN',
+  lastName: 'Last Name',
+  firstName: 'First Name',
+  middleName: 'Middle Name',
+  nameExtension: 'Name Extension',
+  gender: 'Gender',
+  dateOfBirth: 'Date of Birth',
+  age: 'Age',
+  schoolYear: 'School Year',
+  grade: 'Grade',
+  section: 'Section',
+  weightKg: 'Weight (kg)',
+  heightCm: 'Height (cm)',
+  bmi: 'BMI',
+  bmiClassification: 'BMI Classification',
+  heightForAge: 'Height for Age',
+  beneficiaryOfSBFP: 'Beneficiary of SBFP',
+  measurementType: 'Measurement Type',
+  remarks: 'Remarks',
+  status: 'Status',
+};
+
+export default feedingProgramHeader;

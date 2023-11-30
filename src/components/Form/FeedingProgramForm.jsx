@@ -10,9 +10,10 @@ import CustomSnackbar from '../../custom/CustomSnackbar';
 import FormInput from '../../custom/CustomTextField';
 import FormSelect from '../../custom/CustomSelect';
 import CustomDatePicker from '../../custom/CustomDatePicker';
+import { useBMIAnalysis } from '../../hooks/useBMIAnalysis.js';
 
 // yup
-import employeeMedicalValidation from '../../validation/employeeMedicalValidation.js';
+import feedingProgramValidation from '../../validation/FeedingProgramValidation.js';
 // axios
 import axiosInstance from '../../config/axios-instance.js';
 // MUI
@@ -31,27 +32,16 @@ import {
   genderOption,
   nameExtensionOption,
   statusOptions,
-  visionScreeningOptions,
-  auditoryScreeningOptions,
-  scalpScreeningOptions,
-  skinScreeningOptions,
-  eyesScreeningOptions,
-  earScreeningOptions,
-  noseScreeningOptions,
-  mouthNeckThroatOptions,
-  lungsHeartOptions,
-  abdomenOptions,
-  deformitiesOptions,
-  employeeRolesOption,
+  gradeOptions,
+  measurementTypeOption,
 } from '../../others/dropDownOptions';
 import useFetchSchoolYears from '../../hooks/useFetchSchoolYears.js';
 import { calculateAge } from '../../utils/calculateAge.js';
-import EmployeeAutoComplete from '../EmployeeAutoComplete.jsx';
-import MedicalAutoComplete from '../MedicalAutoComplete.jsx';
+import StudentAutoComplete from '../StudentAutoComplete.jsx';
+import CustomRadioGroup from '../../custom/CustomRadioButton.jsx';
 import MedicalTypography from '../MedicalTypography.jsx';
-import Divider from '@mui/material/Divider';
 
-const EmployeeMedicalForm = (props) => {
+const FeedingProgramForm = (props) => {
   const { open, onClose, initialData, addNewRecord, selectedRecord, onUpdate } =
     props;
   const [snackbarOpen, setSnackbarOpen] = useState(false);
@@ -72,8 +62,8 @@ const EmployeeMedicalForm = (props) => {
   };
 
   const defaultValuesRef = useRef({
-    dateOfExamination: new Date(),
-    employeeId: '',
+    dateMeasured: new Date(),
+    lrn: '',
     lastName: '',
     firstName: '',
     middleName: '',
@@ -82,28 +72,15 @@ const EmployeeMedicalForm = (props) => {
     dateOfBirth: null,
     age: '',
     schoolYear: '',
-    role: '',
+    grade: '',
+    section: '',
     weightKg: '',
     heightCm: '',
-    temperature: '',
-    bloodPressure: '',
-    heartRate: '',
-    pulseRate: '',
-    respiratoryRate: '',
-    visionScreening: '',
-    auditoryScreening: '',
-    skinScreening: '',
-    scalpScreening: '',
-    eyesScreening: '',
-    earScreening: '',
-    noseScreening: '',
-    mouthScreening: '',
-    throatScreening: '',
-    neckScreening: '',
-    lungScreening: '',
-    heartScreening: '',
-    abdomen: '',
-    deformities: '',
+    bmi: '',
+    bmiClassification: '',
+    heightForAge: '',
+    beneficiaryOfSBFP: false,
+    measurementType: 'PRE',
     remarks: '',
     status: 'Active',
   }).current;
@@ -117,8 +94,24 @@ const EmployeeMedicalForm = (props) => {
     formState: { errors },
   } = useForm({
     defaultValues: initialData || defaultValuesRef,
-    resolver: yupResolver(employeeMedicalValidation),
+    resolver: yupResolver(feedingProgramValidation),
   });
+
+  const dateOfBirth = watch('dateOfBirth');
+  const gender = watch('gender');
+  const age = watch('age');
+  const weightKg = watch('weightKg');
+  const heightCm = watch('heightCm');
+
+  const { bmi, bmiClassification, heightForAge, beneficiaryOfSBFP } =
+    useBMIAnalysis(dateOfBirth, gender, age, weightKg, heightCm);
+
+  useEffect(() => {
+    setValue('bmi', bmi);
+    setValue('bmiClassification', bmiClassification);
+    setValue('heightForAge', heightForAge);
+    setValue('beneficiaryOfSBFP', beneficiaryOfSBFP);
+  }, [bmi, bmiClassification, heightForAge, beneficiaryOfSBFP, setValue]);
 
   useEffect(() => {
     if (activeSchoolYear) {
@@ -142,10 +135,7 @@ const EmployeeMedicalForm = (props) => {
 
   const handleCreateRecord = async (data) => {
     try {
-      const response = await axiosInstance.post(
-        '/employeeMedical/create',
-        data
-      );
+      const response = await axiosInstance.post('/feedingProgram/create', data);
       if (response.data && response.data._id) {
         addNewRecord(response.data);
         showSnackbar('Successfully added new record', 'success');
@@ -166,7 +156,7 @@ const EmployeeMedicalForm = (props) => {
   const handleUpdateRecord = async (id, updatedData) => {
     try {
       const response = await axiosInstance.put(
-        `/employeeMedical/update/${id}`,
+        `/feedingProgram/update/${id}`,
         updatedData
       );
       if (response.data) {
@@ -198,26 +188,27 @@ const EmployeeMedicalForm = (props) => {
     onClose();
   };
 
-  const handleEmployeeSelect = (employeeProfile) => {
-    if (!employeeProfile) {
+  const handleStudentSelect = (studentProfile) => {
+    if (!studentProfile) {
       reset(); // This assumes you've defined the default values at useForm hook initialization
       return;
     }
-    setValue('employeeId', employeeProfile.employeeId);
-    setValue('firstName', employeeProfile.firstName);
-    setValue('lastName', employeeProfile.lastName);
-    setValue('middleName', employeeProfile.middleName);
-    setValue('nameExtension', employeeProfile.nameExtension);
-    setValue('gender', employeeProfile.gender);
+    setValue('lrn', studentProfile.lrn);
+    setValue('firstName', studentProfile.firstName);
+    setValue('lastName', studentProfile.lastName);
+    setValue('middleName', studentProfile.middleName);
+    setValue('nameExtension', studentProfile.nameExtension);
+    setValue('gender', studentProfile.gender);
 
     // Check if dateOfBirth is a valid string and then parse and format
-    if (typeof employeeProfile.dateOfBirth === 'string') {
-      const parsedDate = parseISO(employeeProfile.dateOfBirth);
+    if (typeof studentProfile.dateOfBirth === 'string') {
+      const parsedDate = parseISO(studentProfile.dateOfBirth);
       setValue('dateOfBirth', parsedDate);
     }
 
-    setValue('age', employeeProfile.age);
-    setValue('role', employeeProfile.role);
+    setValue('age', studentProfile.age);
+    setValue('grade', studentProfile.grade);
+    setValue('section', studentProfile.section);
   };
 
   const watchDOB = watch('dateOfBirth');
@@ -233,38 +224,22 @@ const EmployeeMedicalForm = (props) => {
     if (selectedRecord) {
       // Regular fields
       const fields = [
-        'employeeId',
+        'lrn',
         'firstName',
         'lastName',
         'middleName',
         'nameExtension',
         'gender',
         'age',
-        'role',
+        'grade',
+        'section',
         'weightKg',
         'heightCm',
-        'temperature',
-        'bloodPressure',
-        'heightForAge',
-        'heartRate',
-        'pulseRate',
-        'respiratoryRate',
-        'visionScreening',
-        'auditoryScreening',
-        'skinScreening',
-        'scalpScreening',
-        'eyesScreening',
-        'earScreening',
-        'noseScreening',
-        'mouthScreening',
-        'throatScreening',
-        'neckScreening',
-        'lungScreening',
-        'heartScreening',
-        'abdomen',
-        'deformities',
-        'status',
+        'bmi',
+        'bmiClassification',
+        'measurementType',
         'remarks',
+        'status',
       ];
 
       fields.forEach((field) => {
@@ -289,6 +264,8 @@ const EmployeeMedicalForm = (props) => {
         ? selectedRecord['schoolYear']
         : '';
       setValue('schoolYear', schoolYearValue);
+
+      setValue('beneficiaryOfSBFP', !!selectedRecord.beneficiaryOfSBFP);
     }
   }, [selectedRecord, setValue, schoolYears]);
 
@@ -315,17 +292,17 @@ const EmployeeMedicalForm = (props) => {
             <DialogContentText>Enter record details:</DialogContentText>
             <Grid container spacing={2}>
               <Grid item xs={12} md={4}>
-                <EmployeeAutoComplete onSelect={handleEmployeeSelect} />
+                <StudentAutoComplete onSelect={handleStudentSelect} />
               </Grid>
             </Grid>
 
             <MedicalTypography>Student Bio:</MedicalTypography>
             <Grid container spacing={2}>
-              <Grid item xs={12} md={2}>
+              <Grid item xs={12} md={2.5}>
                 <CustomDatePicker
                   control={control}
-                  name="dateOfExamination"
-                  label="Date of Examination"
+                  name="dateMeasured"
+                  label="Date of Measurement"
                   maxDate={new Date()}
                 />
               </Grid>
@@ -334,10 +311,10 @@ const EmployeeMedicalForm = (props) => {
               <Grid item xs={12} md={3}>
                 <FormInput
                   control={control}
-                  name="employeeId"
-                  label="Employee ID"
+                  name="lrn"
+                  label="LRN"
                   textType="combine"
-                  error={errors.employeeId}
+                  error={errors.lrn}
                 />
               </Grid>
               <Grid item xs={12} md={2.5}>
@@ -403,11 +380,20 @@ const EmployeeMedicalForm = (props) => {
                 />
               </Grid>
               <Grid item xs={12} md={2}>
+                <FormInput
+                  control={control}
+                  name="section"
+                  label="Section"
+                  textType="text"
+                  error={errors.section}
+                />
+              </Grid>
+              <Grid item xs={12} md={2}>
                 <FormSelect
                   control={control}
-                  name="role"
-                  label="Role"
-                  options={employeeRolesOption}
+                  name="grade"
+                  label="Grade level"
+                  options={gradeOptions}
                   errors={errors}
                 />
               </Grid>
@@ -422,7 +408,7 @@ const EmployeeMedicalForm = (props) => {
               </Grid>
             </Grid>
             <Grid container spacing={2}>
-              <Grid item xs={12} md={2}>
+              <Grid item xs={12} md={1.5}>
                 <FormInput
                   control={control}
                   name="weightKg"
@@ -431,7 +417,7 @@ const EmployeeMedicalForm = (props) => {
                   error={errors.weightKg}
                 />
               </Grid>
-              <Grid item xs={12} md={2}>
+              <Grid item xs={12} md={1.5}>
                 <FormInput
                   control={control}
                   name="heightCm"
@@ -440,196 +426,53 @@ const EmployeeMedicalForm = (props) => {
                   error={errors.heightCm}
                 />
               </Grid>
-            </Grid>
-            <Divider />
-            <MedicalTypography>Vital Signs:</MedicalTypography>
-            <Grid container spacing={2}>
-              <Grid item xs={12} md={2}>
+              <Grid item xs={12} md={1.5}>
                 <FormInput
                   control={control}
-                  name="temperature"
-                  label="Temperature"
+                  name="bmi"
+                  label="BMI"
                   textType="float"
-                  placeholder="36°C"
-                  error={errors.temperature}
+                  error={errors.bmi}
                 />
               </Grid>
               <Grid item xs={12} md={2}>
                 <FormInput
                   control={control}
-                  name="bloodPressure"
-                  label="Blood Pressure"
-                  textType="bloodPressure"
-                  placeholder="120/80"
-                  error={errors.bloodPressure}
+                  name="bmiClassification"
+                  label="BMI Classification"
+                  textType="text"
+                  error={errors.bmiClassification}
                 />
               </Grid>
               <Grid item xs={12} md={2}>
                 <FormInput
                   control={control}
-                  name="heartRate"
-                  label="Heart Rate"
-                  textType="number"
-                  placeholder="120 bpm"
-                  error={errors.heartRate}
+                  name="heightForAge"
+                  label="Height For Age"
+                  textType="text"
+                  error={errors.heightForAge}
                 />
               </Grid>
               <Grid item xs={12} md={2}>
-                <FormInput
+                <CustomRadioGroup
                   control={control}
-                  name="pulseRate"
-                  label="Pulse Rate"
-                  textType="number"
-                  placeholder="120 bpm"
-                  error={errors.pulseRate}
-                />
-              </Grid>
-              <Grid item xs={12} md={2}>
-                <FormInput
-                  control={control}
-                  name="respiratoryRate"
-                  label="Respiratory Rate"
-                  textType="number"
-                  placeholder="120 bpm"
-                  error={errors.respiratoryRate}
+                  name="beneficiaryOfSBFP"
+                  label="SBFP?"
                 />
               </Grid>
             </Grid>
-            <MedicalTypography>Screening:</MedicalTypography>
+            <MedicalTypography>Others:</MedicalTypography>
+
             <Grid container spacing={2}>
               <Grid item xs={12} md={2}>
-                <MedicalAutoComplete
+                <FormSelect
                   control={control}
-                  name="visionScreening"
-                  options={visionScreeningOptions}
-                  label="Vision"
+                  name="measurementType"
+                  label="Measurement Type"
+                  options={measurementTypeOption}
                   errors={errors}
                 />
               </Grid>
-              <Grid item xs={12} md={2}>
-                <MedicalAutoComplete
-                  control={control}
-                  name="auditoryScreening"
-                  options={auditoryScreeningOptions}
-                  label="Hearing"
-                  errors={errors}
-                />
-              </Grid>
-              <Grid item xs={12} md={2}>
-                <MedicalAutoComplete
-                  control={control}
-                  name="scalpScreening"
-                  options={scalpScreeningOptions}
-                  label="Scalp Issue"
-                  errors={errors}
-                />
-              </Grid>
-              <Grid item xs={12} md={2}>
-                <MedicalAutoComplete
-                  control={control}
-                  name="skinScreening"
-                  options={skinScreeningOptions}
-                  label="Skin Issue"
-                  errors={errors}
-                />
-              </Grid>
-              <Grid item xs={12} md={2}>
-                <MedicalAutoComplete
-                  control={control}
-                  name="eyesScreening"
-                  options={eyesScreeningOptions}
-                  label="Eyes Issue"
-                  errors={errors}
-                />
-              </Grid>
-              <Grid item xs={12} md={2}>
-                <MedicalAutoComplete
-                  control={control}
-                  name="earScreening"
-                  options={earScreeningOptions}
-                  label="Ear Issue"
-                  errors={errors}
-                />
-              </Grid>
-            </Grid>
-            <Grid container spacing={2}>
-              <Grid item xs={12} md={2}>
-                <MedicalAutoComplete
-                  control={control}
-                  name="noseScreening"
-                  options={noseScreeningOptions}
-                  label="Nose Issue"
-                  errors={errors}
-                />
-              </Grid>
-              <Grid item xs={12} md={2}>
-                <MedicalAutoComplete
-                  control={control}
-                  name="mouthScreening"
-                  options={mouthNeckThroatOptions}
-                  label="Mouth Issue"
-                  errors={errors}
-                />
-              </Grid>
-              <Grid item xs={12} md={2}>
-                <MedicalAutoComplete
-                  control={control}
-                  name="neckScreening"
-                  options={mouthNeckThroatOptions}
-                  label="Neck Issue"
-                  errors={errors}
-                />
-              </Grid>
-              <Grid item xs={12} md={2}>
-                <MedicalAutoComplete
-                  control={control}
-                  name="throatScreening"
-                  options={mouthNeckThroatOptions}
-                  label="Throat Issue"
-                  errors={errors}
-                />
-              </Grid>
-              <Grid item xs={12} md={2}>
-                <MedicalAutoComplete
-                  control={control}
-                  name="lungScreening"
-                  options={lungsHeartOptions}
-                  label="Lungs Issue"
-                  errors={errors}
-                />
-              </Grid>
-              <Grid item xs={12} md={2}>
-                <MedicalAutoComplete
-                  control={control}
-                  name="heartScreening"
-                  options={lungsHeartOptions}
-                  label="Heart Issue"
-                  errors={errors}
-                />
-              </Grid>
-            </Grid>
-            <Grid container spacing={2}>
-              <Grid item xs={12} md={2}>
-                <MedicalAutoComplete
-                  control={control}
-                  name="abdomen"
-                  options={abdomenOptions}
-                  label="Abdomen Issue"
-                  errors={errors}
-                />
-              </Grid>
-              <Grid item xs={12} md={2}>
-                <MedicalAutoComplete
-                  control={control}
-                  name="deformities"
-                  options={deformitiesOptions}
-                  label="Deformities"
-                  errors={errors}
-                />
-              </Grid>
-            </Grid>
-            <MedicalTypography>Notes:</MedicalTypography>
-            <Grid container spacing={2}>
               <Grid item xs={12} md={3}>
                 <FormInput
                   control={control}
@@ -664,7 +507,7 @@ const EmployeeMedicalForm = (props) => {
   );
 };
 
-EmployeeMedicalForm.propTypes = {
+FeedingProgramForm.propTypes = {
   open: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
   initialData: PropTypes.object,
@@ -673,4 +516,4 @@ EmployeeMedicalForm.propTypes = {
   onUpdate: PropTypes.func.isRequired,
 };
 
-export default EmployeeMedicalForm;
+export default FeedingProgramForm;

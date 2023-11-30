@@ -23,87 +23,80 @@ export const useBMIAnalysis = (birthDate, gender, age, weight, height) => {
       setBmi(calculatedBmi.toFixed(2));
 
       // Find the BMI category
+      let bmiCategoryLabel = 'Unknown';
       const bmiCategory = bmiData.find(
         (row) => row.Month === ageInMonths && row.Gender === gender
       );
       if (bmiCategory) {
-        let categoryLabel = 'Unknown';
         const bmiValue = parseFloat(calculatedBmi);
 
         if (bmiValue <= parseFloat(bmiCategory['Wasted From']) + epsilon) {
-          categoryLabel = 'Severely Wasted';
+          bmiCategoryLabel = 'Severely Wasted';
         } else if (
           bmiValue >= parseFloat(bmiCategory['Wasted From']) - epsilon &&
           bmiValue <= parseFloat(bmiCategory['Wasted To']) + epsilon
         ) {
-          categoryLabel = 'Wasted';
+          bmiCategoryLabel = 'Wasted';
         } else if (
           bmiValue >= parseFloat(bmiCategory['Normal From']) - epsilon &&
           bmiValue <= parseFloat(bmiCategory['Normal To']) + epsilon
         ) {
-          categoryLabel = 'Normal';
+          bmiCategoryLabel = 'Normal';
         } else if (
           bmiValue >= parseFloat(bmiCategory['Overweight From']) - epsilon &&
           bmiValue <= parseFloat(bmiCategory['Overweight To']) + epsilon
         ) {
-          categoryLabel = 'Overweight';
+          bmiCategoryLabel = 'Overweight';
         } else if (
           bmiValue >
           parseFloat(bmiCategory['Overweight To']) - epsilon
         ) {
-          categoryLabel = 'Obese';
+          bmiCategoryLabel = 'Obese';
         }
 
-        setBmiClassification(categoryLabel);
+        setBmiClassification(bmiCategoryLabel);
       }
 
+      // Determine if the student is a beneficiary of SBFP based on the BMI classification
+      setBeneficiaryOfSBFP(
+        bmiCategoryLabel === 'Wasted' || bmiCategoryLabel === 'Severely Wasted'
+      );
+
       // Find the Height for Age category
+      let heightCategoryLabel = 'Unknown';
       const heightCategory = heightForAgeData.find(
         (row) => row.Months === ageInMonths && row.Gender === gender
       );
       if (heightCategory) {
-        let categoryLabel = 'Unknown';
         const heightValue = parseFloat(height);
 
         if (
           heightValue <=
           parseFloat(heightCategory['Severely Stunted']) + epsilon
         ) {
-          categoryLabel = 'Severely Stunted';
+          heightCategoryLabel = 'Severely Stunted';
         } else if (
           heightValue >=
             parseFloat(heightCategory['Stunted Start']) - epsilon &&
           heightValue <= parseFloat(heightCategory['Stunted End']) + epsilon
         ) {
-          categoryLabel = 'Stunted';
+          heightCategoryLabel = 'Stunted';
         } else if (
           heightValue >= parseFloat(heightCategory['Normal Start']) - epsilon &&
           heightValue <= parseFloat(heightCategory['Normal End']) + epsilon
         ) {
-          categoryLabel = 'Normal';
+          heightCategoryLabel = 'Normal';
         } else if (
           heightValue >=
           parseFloat(heightCategory['Tall']) - epsilon
         ) {
-          categoryLabel = 'Tall';
+          heightCategoryLabel = 'Tall';
         }
 
-        setHeightForAge(categoryLabel);
+        setHeightForAge(heightCategoryLabel);
       }
-
-      // Determine if the student is a beneficiary of SBFP based on the BMI classification
-      setBeneficiaryOfSBFP(bmiClassification.includes('Wasted'));
     }
-  }, [
-    birthDate,
-    gender,
-    age,
-    weight,
-    height,
-    bmiData,
-    heightForAgeData,
-    bmiClassification,
-  ]);
+  }, [birthDate, gender, age, weight, height, bmiData, heightForAgeData]);
 
   return {
     bmi,

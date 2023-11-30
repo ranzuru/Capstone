@@ -121,3 +121,8 @@ export const employeeRolesOption = ['Teacher', 'Guidance'].map((empRoles) => ({
   label: empRoles,
   value: empRoles,
 }));
+
+export const measurementTypeOption = ['PRE', 'POST'].map((measType) => ({
+  label: measType,
+  value: measType,
+}));
