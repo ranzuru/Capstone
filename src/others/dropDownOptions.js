@@ -99,6 +99,17 @@ export const genderOption = [
   { label: 'Female', value: 'Female' },
 ];
 
+export const typeOption = [
+  { label: 'Student', value: 'Student' },
+  { label: 'Faculty', value: 'Faculty' },
+  { label: 'Other', value: 'Other' },
+];
+
+export const adjustmentTypeOption = [
+  { label: 'Addition', value: 'Addition' },
+  { label: 'Subtraction', value: 'Subtraction' },
+];
+
 export const nameExtensionOption = ['Jr.', 'Sr.', 'II', 'III', 'IV', 'V'].map(
   (ext) => ({ label: ext, value: ext })
 );
@@ -121,3 +132,4 @@ export const employeeRolesOption = ['Teacher', 'Guidance'].map((empRoles) => ({
   label: empRoles,
   value: empRoles,
 }));
+

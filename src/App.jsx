@@ -13,7 +13,7 @@ import DewormedMonitoringAnalytics from './pages/Analytics/DewormedMonitoringAna
 import FeedingProgramAnalytics from './pages/Analytics/FeedingProgramAnalytics';
 import MedicalCheckupAnalytics from './pages/Analytics/MedicalCheckupAnalytics';
 // Clinic Programs
-import ClinicRecords from './pages/ClinicProgram/ClinicRecords';
+import ClinicVisitPage from './pages/ClinicProgram/ClinicRecords';
 import DengueMonitoring from './pages/ClinicProgram/DengueMonitoring';
 import DewormingMonitoring from './pages/ClinicProgram/DewormingMonitoring';
 import FacultyCheckup from './pages/ClinicProgram/FacultyCheckup';
@@ -26,7 +26,11 @@ import Events from './pages/Events';
 import EmployeeProfile from './pages/EmployeeProfile';
 import Logs from './pages/Logs';
 import ManageUser from './pages/ManageUser';
-import MedicineInventory from './pages/MedicineInventory';
+import MedicineItem from './pages/MedicineItem';
+import MedicineBatch from './pages/MedicineBatch';
+import MedicineIn from './pages/MedicineIn';
+import MedicineDispense from './pages/MedicineDispense';
+import MedicineAdjustment from './pages/MedicineAdjustment';
 import StudentProfile from './pages/StudentProfile';
 import Role from './pages/Role';
 
@@ -46,13 +50,14 @@ function App() {
                 <Route path="employee-profile" element={<EmployeeProfile />} />
                 <Route path="academic-year" element={<AcademicYear />} />
                 <Route path="role" element={<Role />} />
-                <Route
-                  path="medicine-inventory"
-                  element={<MedicineInventory />}
-                />
+                <Route path="medicine-item" element={<MedicineItem />} />
+                <Route path="medicine-batch" element={<MedicineBatch />} />
+                <Route path="medicine-in" element={<MedicineIn />} />
+                <Route path="medicine-dispense" element={<MedicineDispense />} />
+                <Route path="medicine-adjustment" element={<MedicineAdjustment />} />
                 <Route path="events" element={<Events />} />
                 <Route path="logs" element={<Logs />} />
-                <Route path="clinic-records" element={<ClinicRecords />} />
+                <Route path="clinic-records" element={<ClinicVisitPage />} />
                 <Route
                   path="dengue-monitoring"
                   element={<DengueMonitoring />}

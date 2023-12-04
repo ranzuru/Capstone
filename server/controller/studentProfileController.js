@@ -71,7 +71,7 @@ export const getStudentProfiles = async (req, res) => {
     const total = await StudentProfile.countDocuments(searchQuery);
     const studentProfiles = await StudentProfile.find(
       searchQuery,
-      'lrn lastName firstName middleName nameExtension gender dateOfBirth age grade section address'
+      'lrn lastName firstName middleName nameExtension gender dateOfBirth age grade section parentContact1 address'
     )
       .skip((page - 1) * limit)
       .limit(limit);
