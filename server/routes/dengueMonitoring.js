@@ -10,6 +10,7 @@ import {
   getGroupedDengueData,
   calculateStatisticsByAcademicYear,
   getMonthlyDengueCases,
+  getCasesPerGrade,
 } from '../controller/analytics/dengueBarCharts.js';
 
 import multer from 'multer';
@@ -24,8 +25,9 @@ router.put('/update/:id', updateDengueMonitoring);
 router.delete('/delete/:id', deleteDengueMonitoring);
 router.post('/import', upload.single('file'), importDengueMonitoring);
 
-router.get('/fetchBar', getGroupedDengueData);
+router.get('/fetchBar/:schoolYear', getGroupedDengueData);
 router.get('/fetchLine/:schoolYear', getMonthlyDengueCases);
+router.get('/fetchPie/:schoolYear', getCasesPerGrade);
 router.get('/fetchStatistics', calculateStatisticsByAcademicYear);
 
 export default router;

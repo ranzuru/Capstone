@@ -14,6 +14,7 @@ const importFeeding = async (fileBuffer) => {
 
   for (let rowData of data) {
     rowData.lrn = rowData.lrn != null ? String(rowData.lrn) : rowData.lrn;
+
     if (rowData.beneficiaryOfSBFP)
       rowData.beneficiaryOfSBFP =
         rowData.beneficiaryOfSBFP.toLowerCase() === 'yes';

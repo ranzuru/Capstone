@@ -1,4 +1,3 @@
-import StudentProfile from '../models/StudentProfile.js';
 import StudentMedical from '../models/StudentMedical.js';
 
 // Function to fetch and format data for the datagrid
@@ -33,7 +32,7 @@ export const fetchDataForDataGrid = async (req, res) => {
 
 const countStudentsInProfile = async (grade) => {
   try {
-    const counts = await StudentProfile.aggregate([
+    const counts = await StudentMedical.aggregate([
       { $match: { grade: grade, status: 'Active' } },
       { $group: { _id: '$is4p', count: { $sum: 1 } } },
     ]);

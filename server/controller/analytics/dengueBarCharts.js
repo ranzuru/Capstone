@@ -13,11 +13,22 @@ import { analyzeTextForCommonWords } from '../../utils/textAnalysis.js'; // Adju
 
 export const getGroupedDengueData = async (req, res) => {
   try {
+    const { schoolYear } = req.params;
+
+    const academicYearDoc = await AcademicYear.findOne({ schoolYear });
+    if (!academicYearDoc) {
+      return res.status(404).json({ message: 'Academic year not found.' });
+    }
+
     const reports = await DengueMonitoring.aggregate([
+      {
+        $match: {
+          academicYear: academicYearDoc._id,
+        },
+      },
       {
         $group: {
           _id: {
-            // Grouping key - the age range
             ageGroup: {
               $concat: [
                 { $toString: { $subtract: ['$age', { $mod: ['$age', 3] }] } },
@@ -50,6 +61,20 @@ export const getGroupedDengueData = async (req, res) => {
           _id: 0,
           ageGroup: '$_id',
           genders: 1,
+          startAge: {
+            $toInt: { $arrayElemAt: [{ $split: ['$_id', '-'] }, 0] },
+          },
+        },
+      },
+      {
+        $sort: {
+          startAge: 1,
+        },
+      },
+      {
+        $project: {
+          ageGroup: 1,
+          genders: 1,
         },
       },
     ]);
@@ -72,6 +97,7 @@ export const getGroupedDengueData = async (req, res) => {
   }
 };
 
+// Line chart
 export const getMonthlyDengueCases = async (req, res) => {
   try {
     const { schoolYear } = req.params;
@@ -159,6 +185,40 @@ export const getMonthlyDengueCases = async (req, res) => {
     res.status(200).json(casesByMonth);
   } catch (error) {
     res.status(500).json({ message: error.message });
+  }
+};
+
+// Pie chart
+
+export const getCasesPerGrade = async (req, res) => {
+  try {
+    const { schoolYear } = req.params;
+
+    const academicYearDoc = await AcademicYear.findOne({ schoolYear });
+    if (!academicYearDoc) {
+      return res.status(404).json({ message: 'Academic year not found.' });
+    }
+
+    const casesPerGrade = await DengueMonitoring.aggregate([
+      {
+        $match: {
+          academicYear: academicYearDoc._id,
+        },
+      },
+      {
+        $group: {
+          _id: '$grade',
+          count: { $sum: 1 },
+        },
+      },
+      {
+        $sort: { _id: 1 },
+      },
+    ]);
+
+    res.json(casesPerGrade);
+  } catch (error) {
+    res.status(500).send(error);
   }
 };
 

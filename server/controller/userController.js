@@ -1,25 +1,25 @@
 import User from '../models/User.js';
 import Role from '../models/Role.js';
 import bcrypt from 'bcrypt';
+import { userValidation } from '../schema/createUserValidation.js';
 
 // Create a new user
 export const createUser = async (req, res) => {
   try {
-    const { email, password, roleId, ...userData } = req.body;
+    const { email, password, confirmPassword, roleName, ...userData } =
+      req.body;
 
-    // Check if the email already exists
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return res.status(409).json({ error: 'Email already in use' });
-    }
+    const { error } = userValidation({
+      email,
+      password,
+      confirmPassword,
+      roleName,
+      ...userData,
+    });
+    if (error) return res.status(400).send(error.details[0].message);
 
-    // Validate the role
-    if (roleId) {
-      const roleExists = await Role.findById(roleId);
-      if (!roleExists) {
-        return res.status(400).json({ error: 'Invalid role ID' });
-      }
-    }
+    const role = await Role.findOne({ roleName });
+    if (!role) return res.status(400).send('Invalid Role.');
 
     // Hash the password
     const saltRounds = 10;
@@ -30,65 +30,70 @@ export const createUser = async (req, res) => {
       ...userData,
       email,
       password: hashedPassword,
-      role: roleId,
+      role: role._id,
     });
 
     // Save the new user to the database
     await newUser.save();
-
-    // Exclude the password in the response
-    const userToReturn = { ...newUser._doc };
+    const populatedUser = await User.findById(newUser._id).populate('role');
+    const userToReturn = populatedUser.toObject();
     delete userToReturn.password;
+
     res.status(201).json(userToReturn);
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
 };
 
-// Get a single user by ID
+// Update a user
+export const updateUserProfile = async (req, res) => {
+  try {
+    const { email, roleName, ...updateData } = req.body;
+
+    delete updateData.password;
+    delete updateData.confirmPassword;
+
+    // Validate user data for update operation
+    const { error } = userValidation({ email, roleName, ...updateData }, false); // false indicates update operation
+    if (error) return res.status(400).send(error.details[0].message);
+
+    let updateObject = updateData;
+
+    if (roleName) {
+      const role = await Role.findOne({ roleName });
+      if (!role) return res.status(400).send('Invalid Role.');
+      updateObject.role = role._id;
+    }
+
+    // Update user profile in the database
+    const userProfile = await User.findByIdAndUpdate(
+      req.params.id,
+      updateObject,
+      { new: true }
+    ).populate('role');
+
+    if (!userProfile) return res.status(404).send('User profile not found.');
+
+    const response = userProfile.toObject();
+    delete response.password;
+    response.roleName = userProfile.role.roleName;
+
+    res.send(response);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
+// Get all user
 export const getUser = async (req, res) => {
   try {
-    const user = await User.findById(req.params.id);
-    if (!user) {
-      return res.status(404).json({ error: 'User not found' });
-    }
+    const user = await User.find().populate('role');
     res.json(user);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
-// Update a user
-export const updateUser = async (req, res) => {
-  try {
-    const userId = req.params.id;
-    const { roleId } = req.body;
-
-    // Validate the role
-    if (!roleId) {
-      return res.status(400).json({ error: 'Role ID is required' });
-    }
-
-    const roleExists = await Role.findById(roleId);
-    if (!roleExists) {
-      return res.status(400).json({ error: 'Invalid role ID' });
-    }
-
-    // Update the user's role
-    const updatedUser = await User.findByIdAndUpdate(
-      userId,
-      { role: roleId },
-      { new: true, runValidators: true }
-    );
-    if (!updatedUser) {
-      return res.status(404).json({ error: 'User not found' });
-    }
-
-    res.json(updatedUser);
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-};
 // Delete a user
 export const deleteUser = async (req, res) => {
   try {

@@ -66,7 +66,7 @@ const StudentProfileGrid = () => {
     const academicYear = record.academicYear || {};
 
     const formattedName = `${record.lastName || ''}, ${record.firstName || ''}${
-      record.middleName ? ` ${record.middleName.charAt(0)}.` : ''
+      record.middleName ? ` ${record.middleName.charAt(0)}` : ''
     }${record.nameExtension ? ` ${record.nameExtension}` : ''}`.trim();
 
     return {

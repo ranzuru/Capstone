@@ -36,7 +36,50 @@ export const register = async (req, res) => {
       .json({ message: 'Internal server error', error: error.message });
   }
 };
+// Update
+export const updateUser = async (req, res) => {
+  const { id } = req.params; // Assuming you're passing the user ID in the URL
+  const { firstName, lastName, email, password, role, status } = req.body;
 
+  try {
+    // Find user by ID
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Optional: Check if the email is being updated and already exists
+    if (email && email !== user.email) {
+      const existingUser = await User.findOne({ email });
+      if (existingUser) {
+        return res.status(409).json({ message: 'Email already in use' });
+      }
+    }
+
+    // Update fields
+    user.firstName = firstName || user.firstName;
+    user.lastName = lastName || user.lastName;
+    user.email = email || user.email;
+    user.role = role || user.role;
+    user.status = status || user.status;
+
+    // Hash new password if provided
+    if (password) {
+      user.password = await bcrypt.hash(password, 10); // Re-hash new password
+    }
+
+    // Save updated user
+    await user.save();
+
+    res.status(200).json({ message: 'User updated successfully' });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: 'Internal server error', error: error.message });
+  }
+};
+
+// Login
 export const login = async (req, res) => {
   const { email, password } = req.body;
 

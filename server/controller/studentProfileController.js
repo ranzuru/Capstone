@@ -89,7 +89,6 @@ export const updateStudentProfile = async (req, res) => {
 
     let updateObject = updateData;
 
-    // Update academicYear if schoolYear is provided
     if (schoolYear) {
       const academicYear = await AcademicYear.findOne({ schoolYear });
       if (!academicYear) return res.status(400).send('Invalid academic year.');
@@ -105,8 +104,8 @@ export const updateStudentProfile = async (req, res) => {
     if (!studentProfile)
       return res.status(404).send('Student profile not found');
 
-    const response = studentProfile.toObject(); // Convert to a plain JavaScript object
-    response.schoolYear = studentProfile.academicYear.schoolYear; // Add the schoolYear string
+    const response = studentProfile.toObject();
+    response.schoolYear = studentProfile.academicYear.schoolYear;
 
     res.send(response);
   } catch (err) {

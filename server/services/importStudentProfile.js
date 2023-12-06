@@ -13,7 +13,8 @@ const importStudents = async (fileBuffer) => {
   const errors = [];
 
   for (let rowData of data) {
-    rowData.lrn = rowData.lrn != null ? String(rowData.lrn) : rowData.lrn;
+    rowData.lrn =
+      rowData.lrn && rowData.lrn.result ? String(rowData.lrn.result) : null;
     if (rowData.is4p) rowData.is4p = rowData.is4p.toLowerCase() === 'yes';
 
     try {

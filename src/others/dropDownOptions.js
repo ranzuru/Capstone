@@ -1,7 +1,7 @@
 // dropdownOptions.js
 
-export const visionScreeningOptions = ['Passed', 'Failed'];
-export const auditoryScreeningOptions = ['Passed', 'Failed'];
+export const visionScreeningOptions = ['Normal', 'Failed'];
+export const auditoryScreeningOptions = ['Normal', 'Failed'];
 export const scalpScreeningOptions = ['Normal', 'Presence of Lice'];
 export const skinScreeningOptions = [
   'Normal',
@@ -99,7 +99,7 @@ export const genderOption = [
   { label: 'Female', value: 'Female' },
 ];
 
-export const nameExtensionOption = ['Jr', 'Sr', 'II', 'III', 'IV', 'V'].map(
+export const nameExtensionOption = ['Jr.', 'Sr.', 'II', 'III', 'IV', 'V'].map(
   (ext) => ({ label: ext, value: ext })
 );
 
@@ -126,3 +126,22 @@ export const measurementTypeOption = ['PRE', 'POST'].map((measType) => ({
   label: measType,
   value: measType,
 }));
+
+export const measurementTypeGraph = ['ALL', 'PRE', 'POST'].map((measType) => ({
+  label: measType,
+  value: measType,
+}));
+
+export const navigationItems = [
+  { label: 'Dashboard', value: 'dashboard' },
+  { label: 'Users', value: 'users' },
+  { label: 'Roles', value: 'roles' },
+  { label: 'Academic Year', value: 'academicYear' },
+  { label: 'Clinic Records', value: 'clinicRecords' },
+  { label: 'Medicine Inventory', value: 'medicineInventory' },
+  { label: 'Events', value: 'events' },
+  { label: 'Profile', value: 'profile' },
+  { label: 'Programs', value: 'programs' },
+  { label: 'Analytics', value: 'analytics' },
+  { label: 'Logs', value: 'logs' },
+];

@@ -6,6 +6,11 @@ import {
   deleteFeeding,
   importFeedingProgram,
 } from '../controller/feedingProgramController.js';
+import {
+  getBmiClassificationCountsByYear,
+  getPrePostComparison,
+  getSBFPBeneficiariesPerGrade,
+} from '../controller/analytics/feedingChart.js';
 import multer from 'multer';
 const router = express.Router();
 
@@ -17,5 +22,9 @@ router.get('/fetch/:type', getAllFeedings);
 router.put('/update/:id', updateFeeding);
 router.delete('/delete/:id', deleteFeeding);
 router.post('/import', upload.single('file'), importFeedingProgram);
+
+router.get('/fetchBMIClassification', getBmiClassificationCountsByYear);
+router.get('/fetchComparisonPREAndPOST', getPrePostComparison);
+router.get('/fetchSBFP', getSBFPBeneficiariesPerGrade);
 
 export default router;

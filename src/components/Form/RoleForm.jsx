@@ -18,24 +18,12 @@ import axiosInstance from '../../config/axios-instance';
 import CustomSnackbar from '../../custom/CustomSnackbar';
 import PropTypes from 'prop-types';
 import FormCheckbox from '../../custom/CustomCheckbox';
-
-const navigationItems = [
-  { label: 'Dashboard', value: 'dashboard' },
-  { label: 'Users', value: 'users' },
-  { label: 'Roles', value: 'roles' },
-  { label: 'Academic Year', value: 'academicYear' },
-  { label: 'Clinic Records', value: 'clinicRecords' },
-  { label: 'Medicine Inventory', value: 'medicineInventory' },
-  { label: 'Events', value: 'events' },
-  { label: 'Profile', value: 'profile' },
-  { label: 'Programs', value: 'programs' },
-  { label: 'Analytics', value: 'analytics' },
-  { label: 'Logs', value: 'logs' },
-];
+import { navigationItems } from '../../others/dropDownOptions';
 
 const RoleForm = (props) => {
   const { open, onClose, initialData, addNewRole, selectedRole, onUpdate } =
     props;
+  const [scopesArray, setScopesArray] = useState([]);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarData, setSnackbarData] = useState({
     message: '',
@@ -51,12 +39,9 @@ const RoleForm = (props) => {
     setSnackbarOpen(false);
   };
 
-  const defaultNavigationScopes = navigationItems.reduce((acc, curr) => {
-    if (initialData && initialData.navigationScopes.includes(curr.value)) {
-      acc.push(curr.value);
-    }
-    return acc;
-  }, []);
+  const defaultNavigationScopes = initialData
+    ? initialData.navigationScopes
+    : [];
 
   const {
     handleSubmit,
@@ -67,7 +52,7 @@ const RoleForm = (props) => {
     formState: { errors },
   } = useForm({
     defaultValues: initialData || {
-      name: '',
+      roleName: '',
       description: '',
       navigationScopes: defaultNavigationScopes,
     },
@@ -87,7 +72,7 @@ const RoleForm = (props) => {
     try {
       const response = await axiosInstance.post('/role/create', data);
       if (response.data && response.data._id) {
-        addNewRole(response.data); // Pass the entire role object to addNewRole
+        addNewRole(response.data);
         showSnackbar('Successfully added role', 'success');
         handleClose();
       } else {
@@ -118,6 +103,7 @@ const RoleForm = (props) => {
   };
 
   const handleSaveOrUpdate = async (data) => {
+    console.log(data);
     try {
       if (selectedRole && selectedRole.id) {
         await handleUpdateRole(selectedRole.id, data);
@@ -136,19 +122,16 @@ const RoleForm = (props) => {
 
   useEffect(() => {
     if (selectedRole) {
-      setValue('name', selectedRole.name || '');
+      setValue('roleName', selectedRole.roleName || '');
       setValue('description', selectedRole.description || '');
 
-      const selectedScopes = selectedRole.navigationScopes || [];
-
-      const scopesState = navigationItems.reduce((acc, item) => {
-        acc[item.value] = selectedScopes.includes(item.value);
-        return acc;
-      }, {});
-
-      for (const [key, value] of Object.entries(scopesState)) {
-        setValue(`navigationScopes.${key}`, value);
-      }
+      // Convert the string to an array and update the state
+      const newScopesArray = selectedRole.navigationScopes.split(', ');
+      setScopesArray(newScopesArray);
+      setValue('navigationScopes', newScopesArray);
+    } else {
+      setValue('navigationScopes', []);
+      setScopesArray([]); // Reset the scopes array state when there's no selected role
     }
   }, [selectedRole, setValue]);
 
@@ -169,11 +152,11 @@ const RoleForm = (props) => {
             <Grid container spacing={2}>
               <Grid item xs={12}>
                 <FormInput
-                  name="name"
+                  name="roleName"
                   control={control}
                   label="Name"
                   textType="text"
-                  error={errors.name}
+                  error={errors.roleName}
                 />
               </Grid>
             </Grid>
@@ -199,19 +182,24 @@ const RoleForm = (props) => {
                       control={control}
                       label={item.label}
                       onChange={(e) => {
-                        const currentScopes = getValues('navigationScopes');
+                        const currentScopes =
+                          getValues('navigationScopes') || [];
+                        console.log('Before change:', currentScopes);
                         let newScopes;
                         if (e.target.checked) {
-                          newScopes = [...currentScopes, item.value];
+                          newScopes = [...currentScopes, item.value]; // Add to array if checked
                         } else {
                           newScopes = currentScopes.filter(
                             (scope) => scope !== item.value
                           );
                         }
+                        console.log('After change:', newScopes);
                         setValue('navigationScopes', newScopes, {
                           shouldValidate: true,
                         });
+                        setScopesArray(newScopes); // Update the scopesArray state as well
                       }}
+                      checked={scopesArray.includes(item.value)}
                     />
                   </Grid>
                 ))}

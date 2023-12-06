@@ -59,6 +59,7 @@ export const PasswordField = ({
         type={showPassword ? 'text' : 'password'}
         error={!!errors[name]}
         helperText={errors[name]?.message}
+        autoComplete="new-password"
         InputProps={{
           endAdornment: (
             <InputAdornment position="end">
@@ -86,9 +87,9 @@ PasswordField.propTypes = {
 };
 
 // EmailField component
-export const EmailField = ({ control, errors }) => (
+export const EmailField = ({ control, name, errors }) => (
   <Controller
-    name="email"
+    name={name}
     control={control}
     render={({ field }) => (
       <TextField
@@ -96,8 +97,9 @@ export const EmailField = ({ control, errors }) => (
         margin="normal"
         variant="outlined"
         label="Email"
-        error={!!errors.email}
+        error={!!errors[name]}
         helperText={errors.email?.message}
+        autoComplete="off"
         {...field}
       />
     )}
@@ -105,6 +107,7 @@ export const EmailField = ({ control, errors }) => (
 );
 
 EmailField.propTypes = {
+  name: PropTypes.string.isRequired,
   control: PropTypes.object.isRequired,
   errors: PropTypes.object,
 };

@@ -1,6 +1,7 @@
 import express from 'express';
 import {
   register,
+  updateUser,
   login,
   verifyLoginOTP,
   resendOTP,
@@ -10,7 +11,8 @@ import isAuthenticated from './isAuthenticated.js';
 
 const router = express.Router();
 
-router.post('/register', isAuthenticated, register);
+router.post('/register', register);
+router.put('/updateUser/:id', updateUser);
 router.post('/login', login);
 router.post('/verify-otp', verifyLoginOTP);
 router.post('/resend-otp', resendOTP);

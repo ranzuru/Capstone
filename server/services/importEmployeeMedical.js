@@ -15,9 +15,9 @@ const importEmployeeMedical = async (fileBuffer) => {
 
   for (let rowData of data) {
     rowData.employeeId =
-      rowData.employeeId != null
-        ? String(rowData.employeeId)
-        : rowData.employeeId;
+      rowData.employeeId && rowData.employeeId.result
+        ? String(rowData.employeeId.result)
+        : null;
 
     rowData.bloodPressure =
       rowData.bloodPressure != null

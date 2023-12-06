@@ -6,6 +6,10 @@ import {
   deleteStudentMedical,
   importMedical,
 } from '../controller/studentMedicalController.js';
+import {
+  getScreeningStatsBar,
+  getHistogramData,
+} from '../controller/analytics/medicalCharts.js';
 import multer from 'multer';
 const router = express.Router();
 
@@ -17,5 +21,8 @@ router.get('/fetch', getAllStudentMedicals);
 router.put('/update/:id', updateStudentMedical);
 router.delete('/delete/:id', deleteStudentMedical);
 router.post('/import', upload.single('file'), importMedical);
+
+router.get('/fetchBar', getScreeningStatsBar);
+router.get('/fetchBarTwo/:field', getHistogramData);
 
 export default router;

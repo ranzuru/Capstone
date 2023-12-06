@@ -1,12 +1,26 @@
 import mongoose from 'mongoose';
+import { customAlphabet } from 'nanoid';
+
+const alphabet =
+  '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+const nanoid = customAlphabet(alphabet, 10);
 
 const userSchema = new mongoose.Schema(
   {
+    userId: {
+      type: String,
+      default: () => nanoid(),
+      unique: true,
+    },
     firstName: {
       type: String,
       required: true,
     },
     lastName: {
+      type: String,
+      required: true,
+    },
+    gender: {
       type: String,
       required: true,
     },

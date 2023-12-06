@@ -1,12 +1,16 @@
+// SchoolYearSelect.js
 import { FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import useFetchSchoolYears from '../hooks/useFetchSchoolYears';
 import PropTypes from 'prop-types';
 
-export const SchoolYearSelect = ({ selectedYear, onChange }) => {
+export const SchoolYearSelect = ({ selectedYear, onChange, style }) => {
   const { schoolYears, activeSchoolYear } = useFetchSchoolYears();
 
   return (
-    <FormControl fullWidth>
+    <FormControl
+      style={{ ...style, minWidth: 120, maxWidth: 300 }}
+      size="small"
+    >
       <InputLabel id="school-year-select-label">School Year</InputLabel>
       <Select
         labelId="school-year-select-label"
@@ -28,4 +32,5 @@ export const SchoolYearSelect = ({ selectedYear, onChange }) => {
 SchoolYearSelect.propTypes = {
   selectedYear: PropTypes.string,
   onChange: PropTypes.func.isRequired,
+  style: PropTypes.object,
 };
