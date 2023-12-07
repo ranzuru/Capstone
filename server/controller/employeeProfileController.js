@@ -120,6 +120,34 @@ export const deleteEmployee = async (req, res) => {
   }
 };
 
+export const bulkDeleteEmployee = async (req, res) => {
+  try {
+    const { ids } = req.body;
+
+    if (!ids || ids.length === 0) {
+      return res
+        .status(400)
+        .send('No employee profile IDs provided for deletion');
+    }
+
+    const result = await EmployeeProfile.deleteMany({
+      _id: { $in: ids },
+    });
+
+    if (result.deletedCount === 0) {
+      return res
+        .status(404)
+        .send('No employee profiles found for the provided IDs');
+    }
+
+    res.send({
+      message: `Successfully deleted ${result.deletedCount} employee records`,
+    });
+  } catch (err) {
+    handleError(res, err);
+  }
+};
+
 export const importEmployeesProfile = async (req, res) => {
   try {
     if (!req.file) {

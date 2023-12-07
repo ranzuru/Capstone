@@ -103,7 +103,6 @@ const RoleForm = (props) => {
   };
 
   const handleSaveOrUpdate = async (data) => {
-    console.log(data);
     try {
       if (selectedRole && selectedRole.id) {
         await handleUpdateRole(selectedRole.id, data);
@@ -184,7 +183,7 @@ const RoleForm = (props) => {
                       onChange={(e) => {
                         const currentScopes =
                           getValues('navigationScopes') || [];
-                        console.log('Before change:', currentScopes);
+
                         let newScopes;
                         if (e.target.checked) {
                           newScopes = [...currentScopes, item.value]; // Add to array if checked
@@ -193,7 +192,7 @@ const RoleForm = (props) => {
                             (scope) => scope !== item.value
                           );
                         }
-                        console.log('After change:', newScopes);
+
                         setValue('navigationScopes', newScopes, {
                           shouldValidate: true,
                         });

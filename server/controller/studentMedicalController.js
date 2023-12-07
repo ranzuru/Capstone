@@ -94,6 +94,33 @@ export const deleteStudentMedical = async (req, res) => {
   }
 };
 
+// Bulk delete
+export const bulkDeleteStudentMedical = async (req, res) => {
+  try {
+    const { ids } = req.body;
+
+    if (!ids || ids.length === 0) {
+      return res
+        .status(400)
+        .send('No student medical IDs provided for deletion');
+    }
+
+    const result = await StudentMedical.deleteMany({
+      _id: { $in: ids },
+    });
+
+    if (result.deletedCount === 0) {
+      return res.status(404).send('No records found for the provided IDs');
+    }
+
+    res.send({
+      message: `Successfully deleted ${result.deletedCount} records`,
+    });
+  } catch (err) {
+    handleError(res, err);
+  }
+};
+
 // import
 export const importMedical = async (req, res) => {
   try {

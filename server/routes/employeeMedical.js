@@ -4,6 +4,7 @@ import {
   getAllEmployeeMedicals,
   updateEmployeeMedical,
   deleteEmployeeMedical,
+  bulkDeleteEmployeeMedical,
   importMedical,
 } from '../controller/employeeMedicalController.js';
 import multer from 'multer';
@@ -16,6 +17,7 @@ router.post('/create', createEmployeeMedical);
 router.get('/fetch', getAllEmployeeMedicals);
 router.put('/update/:id', updateEmployeeMedical);
 router.delete('/delete/:id', deleteEmployeeMedical);
+router.delete('/bulkDelete', bulkDeleteEmployeeMedical);
 router.post('/import', upload.single('file'), importMedical);
 
 export default router;

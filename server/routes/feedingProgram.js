@@ -4,6 +4,7 @@ import {
   getAllFeedings,
   updateFeeding,
   deleteFeeding,
+  bulkDeleteFeedings,
   importFeedingProgram,
 } from '../controller/feedingProgramController.js';
 import {
@@ -21,6 +22,7 @@ router.post('/create', createFeeding);
 router.get('/fetch/:type', getAllFeedings);
 router.put('/update/:id', updateFeeding);
 router.delete('/delete/:id', deleteFeeding);
+router.delete('/bulkDelete', bulkDeleteFeedings);
 router.post('/import', upload.single('file'), importFeedingProgram);
 
 router.get('/fetchBMIClassification', getBmiClassificationCountsByYear);

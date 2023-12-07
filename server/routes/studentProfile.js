@@ -6,6 +6,7 @@ import {
   deleteStudentProfile,
   getStudentProfiles,
   importStudentProfiles,
+  bulkDeleteStudentProfiles,
 } from '../controller/studentProfileController.js';
 import multer from 'multer';
 const router = express.Router();
@@ -18,6 +19,7 @@ router.get('/fetch', getAllStudentProfiles);
 router.get('/fetchProfile', getStudentProfiles);
 router.put('/update/:id', updateStudentProfile);
 router.delete('/delete/:id', deleteStudentProfile);
+router.delete('/bulkDelete', bulkDeleteStudentProfiles);
 router.post('/import', upload.single('file'), importStudentProfiles);
 
 export default router;

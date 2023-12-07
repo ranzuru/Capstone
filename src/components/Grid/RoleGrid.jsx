@@ -16,8 +16,9 @@ const RoleGrid = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedRecord, setSelectedRecord] = useState(null);
-  const [recordIdToDelete, setRecordIdToDelete] = useState(null);
   const [roles, setRole] = useState([]);
+  const [confirmMessage, setConfirmMessage] = useState('');
+  const [onConfirm, setOnConfirm] = useState(() => {});
   const [selectedRows, setSelectedRows] = useState([]);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarData, setSnackbarData] = useState({
@@ -38,13 +39,19 @@ const RoleGrid = () => {
     setSnackbarOpen(false);
   };
 
-  const handleDialogOpen = (recordId) => {
-    setRecordIdToDelete(recordId);
+  const handleDialogOpen = (recordId, isBulk = false) => {
+    setConfirmMessage(
+      isBulk
+        ? 'Warning: This action will permanently delete all selected records and cannot be undone. Are you absolutely sure you want to proceed?'
+        : 'Warning: This action will permanently delete this record and cannot be undone. Are you absolutely sure you want to proceed?'
+    );
+    setOnConfirm(
+      () => () => (isBulk ? handleBulkDelete() : handleDelete(recordId))
+    );
     setDialogOpen(true);
   };
 
   const handleDialogClose = () => {
-    setRecordIdToDelete(null);
     setDialogOpen(false);
   };
 
@@ -70,12 +77,14 @@ const RoleGrid = () => {
       width: 100,
       headerAlign: 'center',
       align: 'center',
-      renderCell: (params) => (
-        <ActionMenu
-          onEdit={() => handleEdit(params.row.id)}
-          onDelete={() => handleDialogOpen(params.row.id)}
-        />
-      ),
+      renderCell: (params) => {
+        return (
+          <ActionMenu
+            onEdit={() => handleEdit(params.row.id)}
+            onDelete={() => handleDialogOpen(params.row.id)}
+          />
+        );
+      },
     },
   ];
 
@@ -129,13 +138,11 @@ const RoleGrid = () => {
     );
   };
 
-  const handleDelete = async () => {
+  const handleDelete = async (recordId) => {
     try {
-      await axiosInstance.delete(`role/delete/${recordIdToDelete}`);
+      await axiosInstance.delete(`role/delete/${recordId}`);
 
-      const updatedRecords = roles.filter(
-        (record) => record.id !== recordIdToDelete
-      );
+      const updatedRecords = roles.filter((record) => record.id !== recordId);
       setRole(updatedRecords);
       showSnackbar('Role successfully deleted.', 'success');
     } catch (error) {
@@ -169,6 +176,7 @@ const RoleGrid = () => {
       }
     }
     setSnackbarOpen(true);
+    handleDialogClose();
   };
 
   const filteredRole = roles.filter((roles) =>
@@ -235,7 +243,7 @@ const RoleGrid = () => {
                 toolbar: () => (
                   <CustomDeleteToolbar
                     selectedRows={selectedRows}
-                    handleBulkDelete={handleBulkDelete}
+                    handleBulkDelete={() => handleDialogOpen(null, true)}
                   />
                 ),
               }}
@@ -268,13 +276,15 @@ const RoleGrid = () => {
           handleModalClose();
         }}
       />
-      <ConfirmationDialog
-        open={dialogOpen}
-        onClose={handleDialogClose}
-        onConfirm={handleDelete}
-        title="Confirm Delete!"
-        message="Are you sure you want to delete this record?"
-      />
+      {onConfirm && (
+        <ConfirmationDialog
+          open={dialogOpen}
+          onClose={handleDialogClose}
+          onConfirm={onConfirm}
+          title="Confirm Delete!"
+          message={confirmMessage}
+        />
+      )}
     </>
   );
 };

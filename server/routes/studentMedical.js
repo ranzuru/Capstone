@@ -4,6 +4,7 @@ import {
   getAllStudentMedicals,
   updateStudentMedical,
   deleteStudentMedical,
+  bulkDeleteStudentMedical,
   importMedical,
 } from '../controller/studentMedicalController.js';
 import {
@@ -20,6 +21,7 @@ router.post('/create', createStudentMedical);
 router.get('/fetch', getAllStudentMedicals);
 router.put('/update/:id', updateStudentMedical);
 router.delete('/delete/:id', deleteStudentMedical);
+router.delete('/bulkDelete', bulkDeleteStudentMedical);
 router.post('/import', upload.single('file'), importMedical);
 
 router.get('/fetchBar', getScreeningStatsBar);

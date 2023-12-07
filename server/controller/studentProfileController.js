@@ -128,6 +128,35 @@ export const deleteStudentProfile = async (req, res) => {
   }
 };
 
+//Bulk delete
+export const bulkDeleteStudentProfiles = async (req, res) => {
+  try {
+    const { ids } = req.body;
+
+    if (!ids || ids.length === 0) {
+      return res
+        .status(400)
+        .send('No student profile IDs provided for deletion');
+    }
+
+    const result = await StudentProfile.deleteMany({
+      _id: { $in: ids },
+    });
+
+    if (result.deletedCount === 0) {
+      return res
+        .status(404)
+        .send('No student profiles found for the provided IDs');
+    }
+
+    res.send({
+      message: `Successfully deleted ${result.deletedCount} student records`,
+    });
+  } catch (err) {
+    handleError(res, err);
+  }
+};
+
 // import
 export const importStudentProfiles = async (req, res) => {
   try {

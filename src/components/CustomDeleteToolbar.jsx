@@ -1,7 +1,5 @@
-import { GridToolbarContainer } from '@mui/x-data-grid';
+import { Box, IconButton, Tooltip, Typography } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
-import IconButton from '@mui/material/IconButton';
-import Tooltip from '@mui/material/Tooltip';
 import PropTypes from 'prop-types';
 
 const CustomDeleteToolbar = ({ selectedRows, handleBulkDelete }) => {
@@ -10,13 +8,19 @@ const CustomDeleteToolbar = ({ selectedRows, handleBulkDelete }) => {
   }
 
   return (
-    <GridToolbarContainer>
-      <Tooltip title="Delete Selected">
-        <IconButton onClick={handleBulkDelete} color="primary">
-          <DeleteIcon />
-        </IconButton>
-      </Tooltip>
-    </GridToolbarContainer>
+    <Tooltip title="Delete Selected">
+      <IconButton
+        onClick={handleBulkDelete}
+        style={{ alignItems: 'center', display: 'flex' }}
+      >
+        <DeleteIcon color="primary" />
+        <Box component="span" ml={1} display="flex" alignItems="center">
+          <Typography color="primary" variant="body2" fontWeight="420">
+            BULK DELETE
+          </Typography>
+        </Box>
+      </IconButton>
+    </Tooltip>
   );
 };
 

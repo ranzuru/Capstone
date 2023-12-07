@@ -5,6 +5,7 @@ import {
   updateDengueMonitoring,
   deleteDengueMonitoring,
   importDengueMonitoring,
+  bulkDeleteDengueMonitoring,
 } from '../controller/dengueMonitoringController.js';
 import {
   getGroupedDengueData,
@@ -23,6 +24,7 @@ router.post('/create', createDengueMonitoring);
 router.get('/fetch', getAllDengueMonitoring);
 router.put('/update/:id', updateDengueMonitoring);
 router.delete('/delete/:id', deleteDengueMonitoring);
+router.delete('/bulkDelete', bulkDeleteDengueMonitoring);
 router.post('/import', upload.single('file'), importDengueMonitoring);
 
 router.get('/fetchBar/:schoolYear', getGroupedDengueData);
