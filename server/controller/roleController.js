@@ -2,9 +2,9 @@ import Role from '../models/Role.js'; // Assuming RoleModel is in the same direc
 
 export const createRole = async (req, res) => {
   try {
-    const { name } = req.body;
+    const { roleName } = req.body;
 
-    const existingRole = await Role.findOne({ name });
+    const existingRole = await Role.findOne({ roleName });
     if (existingRole) {
       return res.status(409).json({ error: 'Role name already in use' });
     }
@@ -15,6 +15,18 @@ export const createRole = async (req, res) => {
   } catch (error) {
     // Handle errors, including potential violations of the unique constraint
     res.status(400).json({ error: error.message });
+  }
+};
+
+// Fetch RoleName
+
+export const getAllRoleNames = async (req, res) => {
+  try {
+    const roles = await Role.find({}, 'roleName'); // Select only the roleName field
+    const roleNames = roles.map((role) => role.roleName);
+    res.status(200).json(roleNames);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
 };
 
@@ -49,6 +61,30 @@ export const deleteRole = async (req, res) => {
       return res.status(404).json({ error: 'Role not found' });
     }
     res.status(200).json({ message: 'Role deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+export const deleteBulkRoles = async (req, res) => {
+  try {
+    const roleIds = req.body.ids;
+
+    if (!roleIds || roleIds.length === 0) {
+      return res.status(400).json({ error: 'No role IDs provided' });
+    }
+
+    const result = await Role.deleteMany({
+      _id: { $in: roleIds },
+    });
+
+    if (result.deletedCount === 0) {
+      return res.status(404).json({ error: 'No roles found to delete' });
+    }
+
+    res
+      .status(200)
+      .json({ message: `Successfully deleted ${result.deletedCount} roles` });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

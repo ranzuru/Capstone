@@ -79,7 +79,7 @@ export const sidebarItems = [
     submenuLinks: [
       { to: '/app/dengue-monitoring', primary: 'Dengue Monitoring' },
       { to: '/app/medical-checkup', primary: 'Medical Checkup' },
-      { to: '/app/faculty-checkup', primary: 'Faculty Checkup' },
+      { to: '/app/faculty-checkup', primary: 'Employee Checkup' },
       { to: '/app/dewormed-monitoring', primary: 'Dewormed Monitoring' },
       { to: '/app/feeding-program', primary: 'Feeding Program' },
     ],

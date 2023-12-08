@@ -1,7 +1,7 @@
 import * as yup from 'yup';
 
 const RoleValidation = yup.object().shape({
-  name: yup.string().required('Name is required'),
+  roleName: yup.string().required('Role Name is required'),
   description: yup.string(),
   navigationScopes: yup
     .array()

@@ -16,9 +16,11 @@ const employeeProfileSchema = new mongoose.Schema(
     },
     middleName: {
       type: String,
+      default: '',
     },
     nameExtension: {
       type: String,
+      default: '',
     },
     gender: {
       type: String,

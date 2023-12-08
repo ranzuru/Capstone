@@ -525,6 +525,7 @@ const StudentMedicalForm = (props) => {
                   label="Temperature"
                   textType="float"
                   placeholder="36°C"
+                  error={errors.temperature}
                 />
               </Grid>
               <Grid item xs={12} md={2}>
@@ -532,8 +533,9 @@ const StudentMedicalForm = (props) => {
                   control={control}
                   name="bloodPressure"
                   label="Blood Pressure"
-                  textType="combine"
+                  textType="bloodPressure"
                   placeholder="120/80"
+                  error={errors.bloodPressure}
                 />
               </Grid>
               <Grid item xs={12} md={2}>
@@ -543,6 +545,7 @@ const StudentMedicalForm = (props) => {
                   label="Heart Rate"
                   textType="number"
                   placeholder="120 bpm"
+                  error={errors.heartRate}
                 />
               </Grid>
               <Grid item xs={12} md={2}>
@@ -552,6 +555,7 @@ const StudentMedicalForm = (props) => {
                   label="Pulse Rate"
                   textType="number"
                   placeholder="120 bpm"
+                  error={errors.pulseRate}
                 />
               </Grid>
               <Grid item xs={12} md={2}>
@@ -561,6 +565,7 @@ const StudentMedicalForm = (props) => {
                   label="Respiratory Rate"
                   textType="number"
                   placeholder="120 bpm"
+                  error={errors.respiratoryRate}
                 />
               </Grid>
             </Grid>

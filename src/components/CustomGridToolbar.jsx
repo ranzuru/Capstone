@@ -8,8 +8,14 @@ import {
 } from '@mui/x-data-grid';
 import FileUploadRoundedIcon from '@mui/icons-material/FileUploadRounded';
 import GetAppRoundedIcon from '@mui/icons-material/GetAppRounded';
+import CustomDeleteToolbar from './CustomDeleteToolbar';
 
-function CustomGridToolbar({ onExport, handleImport }) {
+function CustomGridToolbar({
+  onExport,
+  handleImport,
+  selectedRows,
+  handleBulkDelete,
+}) {
   return (
     <GridToolbarContainer>
       <GridToolbarColumnsButton />
@@ -49,6 +55,10 @@ function CustomGridToolbar({ onExport, handleImport }) {
           </Box>
         </IconButton>
       </Tooltip>
+      <CustomDeleteToolbar
+        selectedRows={selectedRows}
+        handleBulkDelete={handleBulkDelete}
+      />
     </GridToolbarContainer>
   );
 }
@@ -56,6 +66,8 @@ function CustomGridToolbar({ onExport, handleImport }) {
 CustomGridToolbar.propTypes = {
   onExport: PropTypes.func,
   handleImport: PropTypes.func,
+  selectedRows: PropTypes.arrayOf(PropTypes.object),
+  handleBulkDelete: PropTypes.func,
 };
 
 export default CustomGridToolbar;

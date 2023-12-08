@@ -89,7 +89,6 @@ export const updateStudentProfile = async (req, res) => {
 
     let updateObject = updateData;
 
-    // Update academicYear if schoolYear is provided
     if (schoolYear) {
       const academicYear = await AcademicYear.findOne({ schoolYear });
       if (!academicYear) return res.status(400).send('Invalid academic year.');
@@ -105,8 +104,8 @@ export const updateStudentProfile = async (req, res) => {
     if (!studentProfile)
       return res.status(404).send('Student profile not found');
 
-    const response = studentProfile.toObject(); // Convert to a plain JavaScript object
-    response.schoolYear = studentProfile.academicYear.schoolYear; // Add the schoolYear string
+    const response = studentProfile.toObject();
+    response.schoolYear = studentProfile.academicYear.schoolYear;
 
     res.send(response);
   } catch (err) {
@@ -124,6 +123,35 @@ export const deleteStudentProfile = async (req, res) => {
       return res.status(404).send('Student profile not found');
 
     res.send(studentProfile);
+  } catch (err) {
+    handleError(res, err);
+  }
+};
+
+//Bulk delete
+export const bulkDeleteStudentProfiles = async (req, res) => {
+  try {
+    const { ids } = req.body;
+
+    if (!ids || ids.length === 0) {
+      return res
+        .status(400)
+        .send('No student profile IDs provided for deletion');
+    }
+
+    const result = await StudentProfile.deleteMany({
+      _id: { $in: ids },
+    });
+
+    if (result.deletedCount === 0) {
+      return res
+        .status(404)
+        .send('No student profiles found for the provided IDs');
+    }
+
+    res.send({
+      message: `Successfully deleted ${result.deletedCount} student records`,
+    });
   } catch (err) {
     handleError(res, err);
   }

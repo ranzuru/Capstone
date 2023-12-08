@@ -23,7 +23,9 @@ const DengueMonitoringGrid = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [records, setRecords] = useState([]);
   const [searchValue, setSearchValue] = useState('');
-  const [recordIdToDelete, setRecordIdToDelete] = useState(null);
+  const [selectedRows, setSelectedRows] = useState([]);
+  const [confirmMessage, setConfirmMessage] = useState('');
+  const [onConfirm, setOnConfirm] = useState(() => {});
   const [isLoading, setIsLoading] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState(null);
   const [isInfoDialogOpen, setInfoDialogOpen] = useState(false);
@@ -51,13 +53,19 @@ const DengueMonitoringGrid = () => {
     setSearchValue(event.target.value);
   };
 
-  const handleDialogOpen = (recordId) => {
-    setRecordIdToDelete(recordId);
+  const handleDialogOpen = (recordId, isBulk = false) => {
+    setConfirmMessage(
+      isBulk
+        ? 'Warning: This action will permanently delete all selected records and cannot be undone. Are you absolutely sure you want to proceed?'
+        : 'Warning: This action will permanently delete this record and cannot be undone. Are you absolutely sure you want to proceed?'
+    );
+    setOnConfirm(
+      () => () => (isBulk ? handleBulkDelete() : handleDelete(recordId))
+    );
     setDialogOpen(true);
   };
 
   const handleDialogClose = () => {
-    setRecordIdToDelete(null);
     setDialogOpen(false);
   };
 
@@ -65,7 +73,7 @@ const DengueMonitoringGrid = () => {
     const academicYear = record.academicYear || {};
 
     const formattedName = `${record.lastName || ''}, ${record.firstName || ''}${
-      record.middleName ? ` ${record.middleName.charAt(0)}.` : ''
+      record.middleName ? ` ${record.middleName.charAt(0)}` : ''
     }${record.nameExtension ? ` ${record.nameExtension}` : ''}`.trim();
 
     return {
@@ -187,26 +195,53 @@ const DengueMonitoringGrid = () => {
     setFormOpen(true);
   };
 
-  const handleDelete = async () => {
+  const handleDelete = async (recordId) => {
     try {
-      await axiosInstance.delete(`dengueMonitoring/delete/${recordIdToDelete}`);
+      await axiosInstance.delete(`dengueMonitoring/delete/${recordId}`);
 
-      const updatedRecords = records.filter(
-        (record) => record.id !== recordIdToDelete
-      );
+      const updatedRecords = records.filter((record) => record.id !== recordId);
       setRecords(updatedRecords);
-      showSnackbar('Student record successfully deleted.', 'success');
+      showSnackbar('Dengue record successfully deleted.', 'success');
     } catch (error) {
       if (error.response && error.response.data && error.response.data.error) {
         showSnackbar(`Delete Error: ${error.response.data.error}`, 'error');
       } else {
         showSnackbar(
-          'Failed to delete the Student record. Please try again.',
+          'Failed to delete the Dengue record. Please try again.',
           'error'
         );
       }
     }
     setSnackbarOpen(true); // Open the snackbar with the message
+    handleDialogClose();
+  };
+
+  const handleBulkDelete = async () => {
+    try {
+      const recordIdsToDelete = selectedRows.map((row) => row.id);
+      const response = await axiosInstance.delete(
+        'dengueMonitoring/bulkDelete',
+        {
+          data: { ids: recordIdsToDelete },
+        }
+      );
+
+      const updatedRecords = records.filter(
+        (record) => !recordIdsToDelete.includes(record.id)
+      );
+      setRecords(updatedRecords);
+      showSnackbar(response.data.message, 'success');
+    } catch (error) {
+      if (error.response && error.response.data && error.response.data.error) {
+        showSnackbar(`Delete Error: ${error.response.data.error}`, 'error');
+      } else {
+        showSnackbar(
+          'Failed to delete the Records. Please try again.',
+          'error'
+        );
+      }
+    }
+    setSnackbarOpen(true);
     handleDialogClose();
   };
 
@@ -385,8 +420,16 @@ const DengueMonitoringGrid = () => {
                   <CustomGridToolbar
                     onExport={handleExport}
                     handleImport={handleImport}
+                    selectedRows={selectedRows}
+                    handleBulkDelete={() => handleDialogOpen(null, true)}
                   />
                 ),
+              }}
+              onRowSelectionModelChange={(newSelection) => {
+                const selectedRowsData = filteredRecords.filter((row) =>
+                  newSelection.includes(row.id)
+                );
+                setSelectedRows(selectedRowsData);
               }}
               sx={{
                 '& .MuiDataGrid-row:nth-of-type(odd)': {
@@ -415,13 +458,15 @@ const DengueMonitoringGrid = () => {
           handleModalClose();
         }}
       />
-      <ConfirmationDialog
-        open={dialogOpen}
-        onClose={handleDialogClose}
-        onConfirm={handleDelete}
-        title="Confirm Delete!"
-        message="Are you sure you want to delete this record?"
-      />
+      {onConfirm && (
+        <ConfirmationDialog
+          open={dialogOpen}
+          onClose={handleDialogClose}
+          onConfirm={onConfirm}
+          title="Confirm Delete!"
+          message={confirmMessage}
+        />
+      )}
     </>
   );
 };

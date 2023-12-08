@@ -10,7 +10,7 @@ const FormCheckbox = ({ control, name, label, ...rest }) => {
       control={control}
       render={({ field }) => (
         <FormControlLabel
-          control={<Checkbox {...field} checked={field.value} {...rest} />}
+          control={<Checkbox {...field} {...rest} />}
           label={label}
         />
       )}

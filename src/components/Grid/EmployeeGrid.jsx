@@ -24,7 +24,9 @@ const EmployeeProfileGrid = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [employees, setEmployees] = useState([]);
   const [searchValue, setSearchValue] = useState('');
-  const [recordIdToDelete, setRecordIdToDelete] = useState(null);
+  const [confirmMessage, setConfirmMessage] = useState('');
+  const [onConfirm, setOnConfirm] = useState(() => {});
+  const [selectedRows, setSelectedRows] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [isInfoDialogOpen, setInfoDialogOpen] = useState(false);
@@ -52,13 +54,19 @@ const EmployeeProfileGrid = () => {
     setSearchValue(event.target.value);
   };
 
-  const handleDialogOpen = (recordId) => {
-    setRecordIdToDelete(recordId);
+  const handleDialogOpen = (recordId, isBulk = false) => {
+    setConfirmMessage(
+      isBulk
+        ? 'Warning: This action will permanently delete all selected records and cannot be undone. Are you absolutely sure you want to proceed?'
+        : 'Warning: This action will permanently delete this record and cannot be undone. Are you absolutely sure you want to proceed?'
+    );
+    setOnConfirm(
+      () => () => (isBulk ? handleBulkDelete() : handleDelete(recordId))
+    );
     setDialogOpen(true);
   };
 
   const handleDialogClose = () => {
-    setRecordIdToDelete(null);
     setDialogOpen(false);
   };
 
@@ -66,7 +74,7 @@ const EmployeeProfileGrid = () => {
     const academicYear = record.academicYear || {};
 
     const formattedName = `${record.lastName || ''}, ${record.firstName || ''}${
-      record.middleName ? ` ${record.middleName.charAt(0)}.` : ''
+      record.middleName ? ` ${record.middleName.charAt(0)}` : ''
     }${record.nameExtension ? ` ${record.nameExtension}` : ''}`.trim();
 
     return {
@@ -182,12 +190,12 @@ const EmployeeProfileGrid = () => {
     setFormOpen(true);
   };
 
-  const handleDelete = async () => {
+  const handleDelete = async (recordId) => {
     try {
-      await axiosInstance.delete(`employeeProfile/delete/${recordIdToDelete}`);
+      await axiosInstance.delete(`employeeProfile/delete/${recordId}`);
 
       const updatedRecords = employees.filter(
-        (record) => record.id !== recordIdToDelete
+        (record) => record.id !== recordId
       );
       setEmployees(updatedRecords);
       showSnackbar('Employee record successfully deleted.', 'success');
@@ -202,6 +210,35 @@ const EmployeeProfileGrid = () => {
       }
     }
     setSnackbarOpen(true); // Open the snackbar with the message
+    handleDialogClose();
+  };
+
+  const handleBulkDelete = async () => {
+    try {
+      const employeeIdsToDelete = selectedRows.map((row) => row.id);
+      const response = await axiosInstance.delete(
+        'employeeProfile/bulkDelete',
+        {
+          data: { ids: employeeIdsToDelete },
+        }
+      );
+
+      const updatedRecords = employees.filter(
+        (record) => !employeeIdsToDelete.includes(record.id)
+      );
+      setEmployees(updatedRecords);
+      showSnackbar(response.data.message, 'success');
+    } catch (error) {
+      if (error.response && error.response.data && error.response.data.error) {
+        showSnackbar(`Delete Error: ${error.response.data.error}`, 'error');
+      } else {
+        showSnackbar(
+          'Failed to delete the Records. Please try again.',
+          'error'
+        );
+      }
+    }
+    setSnackbarOpen(true);
     handleDialogClose();
   };
 
@@ -375,8 +412,16 @@ const EmployeeProfileGrid = () => {
                   <CustomGridToolbar
                     onExport={handleExport}
                     handleImport={handleImport}
+                    selectedRows={selectedRows}
+                    handleBulkDelete={() => handleDialogOpen(null, true)}
                   />
                 ),
+              }}
+              onRowSelectionModelChange={(newSelection) => {
+                const selectedRowsData = filteredEmployee.filter((row) =>
+                  newSelection.includes(row.id)
+                );
+                setSelectedRows(selectedRowsData);
               }}
               sx={{
                 '& .MuiDataGrid-row:nth-of-type(odd)': {
@@ -405,13 +450,15 @@ const EmployeeProfileGrid = () => {
           handleModalClose();
         }}
       />
-      <ConfirmationDialog
-        open={dialogOpen}
-        onClose={handleDialogClose}
-        onConfirm={handleDelete}
-        title="Confirm Delete!"
-        message="Are you sure you want to delete this record?"
-      />
+      {onConfirm && (
+        <ConfirmationDialog
+          open={dialogOpen}
+          onClose={handleDialogClose}
+          onConfirm={onConfirm}
+          title="Confirm Delete!"
+          message={confirmMessage}
+        />
+      )}
     </>
   );
 };

@@ -14,9 +14,9 @@ const importEmployees = async (fileBuffer) => {
 
   for (let rowData of data) {
     rowData.employeeId =
-      rowData.employeeId != null
-        ? String(rowData.employeeId)
-        : rowData.employeeId;
+      rowData.employeeId && rowData.employeeId.result
+        ? String(rowData.employeeId.result)
+        : null;
     try {
       const { value, error } = validateEmployeeProfile(rowData, {
         abortEarly: false,
