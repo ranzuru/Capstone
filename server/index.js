@@ -16,6 +16,7 @@ import dengueMonitoringRoutes from './routes/dengueMonitoring.js';
 import studentMedicalRoutes from './routes/studentMedical.js';
 import medicineInventoryRoutes from './routes/medicineInventory.js';
 import clinicVisitRoutes from './routes/clinicVisit.js';
+// import logRoutes from './routes/log.js';
 
 const app = express();
 app.use(express.json({ limit: '50mb' }));
@@ -58,6 +59,7 @@ app.use('/dengueMonitoring', dengueMonitoringRoutes);
 app.use('/studentMedical', studentMedicalRoutes);
 app.use('/medicineInventory', medicineInventoryRoutes);
 app.use('/clinicVisit', clinicVisitRoutes);
+// app.use('/log', logRoutes);
 
 const startServer = async () => {
   try {
