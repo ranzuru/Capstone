@@ -1,9 +1,17 @@
 import { useState, useEffect } from 'react';
 import { DataGrid } from '@mui/x-data-grid';
 import axiosInstance from '../../config/axios-instance.js';
+import { Button } from '@mui/material';
+import useDewormMonitoringReport from '../report/useDewormReport.jsx';
 
 const DewormingGrid = () => {
   const [gridData, setGridData] = useState([]);
+
+  const { generatePdfDocument } = useDewormMonitoringReport();
+
+  const handleGenerateReport = () => {
+    generatePdfDocument(); // Call the function that opens the PDF
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -102,7 +110,13 @@ const DewormingGrid = () => {
     <div className="flex flex-col h-full">
       <div className="w-full max-w-screen-xl mx-auto px-8">
         <div className="mb-4 flex justify-between items-center">
-          <div className="flex items-center"></div>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleGenerateReport}
+          >
+            GENERATE REPORT
+          </Button>
         </div>
         <DataGrid
           rows={rows}

@@ -6,6 +6,7 @@ import {
   deleteStudentMedical,
   bulkDeleteStudentMedical,
   importMedical,
+  getStudentMedicalById,
 } from '../controller/studentMedicalController.js';
 import {
   getScreeningStatsBar,
@@ -26,5 +27,7 @@ router.post('/import', upload.single('file'), importMedical);
 
 router.get('/fetchBar', getScreeningStatsBar);
 router.get('/fetchBarTwo/:field', getHistogramData);
+
+router.get('/fetchPDFReport/:id', getStudentMedicalById);
 
 export default router;

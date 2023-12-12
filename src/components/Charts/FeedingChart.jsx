@@ -19,6 +19,7 @@ import { Container, Typography, Grid, Box } from '@mui/material';
 import bmiClassificationColors from '../../utils/bmiClassificationColors.js';
 import ReUseSelect from '../ReUseSelect.jsx';
 import { measurementTypeGraph } from '../../others/dropDownOptions.js';
+import renderCustomizedLabel from '../RenderCustomizedLabel';
 
 export const BmiChart = () => {
   const [data, setData] = useState([]);
@@ -187,9 +188,7 @@ export const MyPieChart = () => {
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  label={({ name, percent }) =>
-                    `${name}: ${(percent * 100).toFixed(0)}%`
-                  }
+                  label={renderCustomizedLabel}
                   outerRadius="85%"
                   fill="#8884d8"
                   dataKey="value"

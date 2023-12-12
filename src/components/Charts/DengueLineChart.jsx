@@ -50,8 +50,19 @@ const DengueCasesLineChart = ({ schoolYear }) => {
                 margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
               >
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" />
-                <YAxis />
+                <XAxis
+                  dataKey="month"
+                  interval={0}
+                  angle={-75}
+                  textAnchor="end"
+                />
+                <YAxis
+                  label={{
+                    value: 'Total number',
+                    angle: -90,
+                    position: 'insideLeft',
+                  }}
+                />
                 <Tooltip />
                 <Legend />
                 <Line

@@ -3,6 +3,7 @@ import AcademicYear from '../models/AcademicYear.js';
 import { handleError } from '../utils/handleError.js';
 import { validateFeeding } from '../schema/feedingProgramValidation.js';
 import importFeeding from '../services/importFeedingProgram.js';
+import moment from 'moment';
 // Create
 export const createFeeding = async (req, res) => {
   try {
@@ -163,5 +164,78 @@ export const importFeedingProgram = async (req, res) => {
     });
   } catch (err) {
     handleError(res, err);
+  }
+};
+
+// PDF Report
+
+export const getActiveSBFPBeneficiaries = async (req, res) => {
+  try {
+    const currentAcademicYear = await AcademicYear.findOne({
+      status: 'Active',
+    });
+
+    // If the current academic year is not found, handle accordingly
+    if (!currentAcademicYear) {
+      return res
+        .status(404)
+        .json({ message: 'Active academic year not found.' });
+    }
+
+    const beneficiaries = await FeedingProgram.find({
+      beneficiaryOfSBFP: true,
+      status: 'Active',
+      measurementType: 'PRE',
+      academicYear: currentAcademicYear._id,
+    });
+
+    const formattedBeneficiaries = beneficiaries.map((beneficiary) => {
+      // Format the name
+      let fullName = `${beneficiary.lastName}, ${beneficiary.firstName}`;
+      if (beneficiary.middleName) {
+        fullName += ` ${beneficiary.middleName.charAt(0)}.`;
+      }
+      if (beneficiary.nameExtension && beneficiary.nameExtension.trim()) {
+        fullName += ` ${beneficiary.nameExtension}`;
+      }
+
+      // Format dateOfBirth and dateMeasured
+      const dobFormatted = moment(beneficiary.dateOfBirth).format('MM/DD/YYYY');
+      const dateMeasuredFormatted = moment(beneficiary.dateMeasured).format(
+        'MM/DD/YYYY'
+      );
+
+      // Calculate age in years and months
+      const ageYears = moment().diff(moment(beneficiary.dateOfBirth), 'years');
+      const ageMonths =
+        moment().diff(moment(beneficiary.dateOfBirth), 'months') % 12;
+      const ageFormatted = `${ageYears}/${ageMonths}`;
+      const schoolYear = currentAcademicYear.schoolYear;
+      const genderFormatted = beneficiary.gender === 'Male' ? 'M' : 'F';
+
+      return {
+        Name: fullName,
+        Gender: genderFormatted,
+        GradeSection: `${beneficiary.grade}/${beneficiary.section}`,
+        DOB: dobFormatted,
+        DateMeasured: dateMeasuredFormatted,
+        Age: ageFormatted,
+        Weight: beneficiary.weightKg,
+        Height: beneficiary.heightCm,
+        BMI: beneficiary.bmi,
+        BMIClassification: beneficiary.bmiClassification,
+        HeightForAge: beneficiary.heightForAge,
+        SBFP: beneficiary.beneficiaryOfSBFP ? 'Yes' : 'No',
+        Remarks: beneficiary.remarks || '',
+        SchoolYear: schoolYear,
+      };
+    });
+
+    res.json({
+      SchoolYear: currentAcademicYear.schoolYear, // Provide the school year for the frontend to use
+      Beneficiaries: formattedBeneficiaries,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
 };

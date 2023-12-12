@@ -6,6 +6,7 @@ import {
   deleteFeeding,
   bulkDeleteFeedings,
   importFeedingProgram,
+  getActiveSBFPBeneficiaries,
 } from '../controller/feedingProgramController.js';
 import {
   getBmiClassificationCountsByYear,
@@ -28,5 +29,7 @@ router.post('/import', upload.single('file'), importFeedingProgram);
 router.get('/fetchBMIClassification', getBmiClassificationCountsByYear);
 router.get('/fetchComparisonPREAndPOST', getPrePostComparison);
 router.get('/fetchSBFP', getSBFPBeneficiariesPerGrade);
+
+router.get('/fetchPDF', getActiveSBFPBeneficiaries);
 
 export default router;

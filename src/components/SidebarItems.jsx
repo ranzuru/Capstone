@@ -55,7 +55,6 @@ export const sidebarItems = [
     to: '/app/events',
     primary: 'Events',
     icon: EventOutlined,
-    roles: ['Admin', 'School Nurse', 'District Nurse'],
   },
   {
     type: 'submenu',

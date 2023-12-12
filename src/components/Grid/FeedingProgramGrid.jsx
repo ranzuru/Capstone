@@ -18,6 +18,7 @@ import RecordInfoDialog from '../../components/Dialog/FeedingProgramDialog.jsx';
 import FeedingProgramForm from '../Form/FeedingProgramForm.jsx';
 import mapRecord from '../../utils/feedingProgramMapRecord.js';
 import { formatYearFromDate } from '../../utils/formatDateFromYear.js';
+import useSBFPReport from '../report/useSBFPReport.jsx';
 
 const FeedingProgramGrid = () => {
   const [formOpen, setFormOpen] = useState(false);
@@ -41,6 +42,12 @@ const FeedingProgramGrid = () => {
   const [filterModel, setFilterModel] = useState({
     items: [],
   });
+
+  const { generatePdfDocument } = useSBFPReport();
+
+  const handleGenerateReport = () => {
+    generatePdfDocument(); // Call the function that opens the PDF
+  };
 
   const showSnackbar = (message, severity) => {
     setSnackbarData({ message, severity });
@@ -371,6 +378,13 @@ const FeedingProgramGrid = () => {
               onClick={handleModalOpen}
             >
               New Record
+            </Button>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleGenerateReport}
+            >
+              GENERATE REPORT
             </Button>
             <div className="ml-2">
               <TextField

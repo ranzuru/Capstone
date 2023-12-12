@@ -6,6 +6,7 @@ import {
   deleteDengueMonitoring,
   importDengueMonitoring,
   bulkDeleteDengueMonitoring,
+  getDengueCasesForActiveYear,
 } from '../controller/dengueMonitoringController.js';
 import {
   getGroupedDengueData,
@@ -31,5 +32,7 @@ router.get('/fetchBar/:schoolYear', getGroupedDengueData);
 router.get('/fetchLine/:schoolYear', getMonthlyDengueCases);
 router.get('/fetchPie/:schoolYear', getCasesPerGrade);
 router.get('/fetchStatistics', calculateStatisticsByAcademicYear);
+
+router.get('/fetchPDFReport', getDengueCasesForActiveYear);
 
 export default router;

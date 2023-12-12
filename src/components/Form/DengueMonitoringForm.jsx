@@ -70,6 +70,7 @@ const DengueMonitoringForm = (props) => {
     schoolYear: '',
     grade: '',
     section: '',
+    adviser: '',
     dateOfOnset: null,
     dateOfAdmission: null,
     hospitalAdmission: '',
@@ -215,6 +216,7 @@ const DengueMonitoringForm = (props) => {
         'age',
         'grade',
         'section',
+        'adviser',
         'hospitalAdmission',
         'address',
         'status',
@@ -379,6 +381,14 @@ const DengueMonitoringForm = (props) => {
               </Grid>
             </Grid>
             <Grid container spacing={2}>
+              <Grid item xs={12} md={3}>
+                <FormInput
+                  control={control}
+                  name="adviser"
+                  label="Adviser"
+                  textType="combine"
+                />
+              </Grid>
               <Grid item xs={12} md={6}>
                 <FormInput
                   control={control}
