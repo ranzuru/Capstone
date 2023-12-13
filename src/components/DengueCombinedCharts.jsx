@@ -3,6 +3,7 @@ import { Paper, Grid, Typography } from '@mui/material';
 import DengueCasesByGradePieChart from './Charts/DenguePieChart';
 import DengueBarChart from './Charts/DengueBarChart';
 import DengueCasesLineChart from './Charts/DengueLineChart';
+import DengueSummary from './Charts/DengueSummary';
 import { SchoolYearSelect } from './SchoolYearSelect';
 import useFetchSchoolYears from '../hooks/useFetchSchoolYears';
 
@@ -44,6 +45,9 @@ const DengueCombinedCharts = () => {
         </Grid>
         <Grid item xs={12} md={6}>
           <DengueCasesByGradePieChart schoolYear={selectedYear} />
+        </Grid>
+        <Grid item xs={12} md={6}>
+          <DengueSummary schoolYear={selectedYear} />
         </Grid>
       </Grid>
     </Paper>

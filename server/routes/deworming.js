@@ -11,8 +11,8 @@ import {
 const router = express.Router();
 
 router.get('/fetch', fetchDataForDataGrid);
-router.get('/fetchBar', getDewormingStats);
-router.get('/fetchPie', getPieChartData);
+router.get('/fetchBar/:schoolYear', getDewormingStats);
+router.get('/fetchPie/:schoolYear', getPieChartData);
 
 router.get('/fetchPDFReport', getDewormReport);
 

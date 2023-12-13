@@ -44,28 +44,31 @@ const DengueCasesLineChart = ({ schoolYear }) => {
             <Typography variant="body1" paragraph>
               Tracks dengue cases by month. Helps to identify the trends.
             </Typography>
-            <ResponsiveContainer width="100%" height={300}>
+            <ResponsiveContainer width="100%" height={400}>
               <LineChart
                 data={monthlyData}
-                margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                margin={{ top: 5, right: 30, left: 20, bottom: 50 }}
               >
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis
                   dataKey="month"
-                  interval={0}
-                  angle={-75}
+                  interval={'preserveStartEnd'}
+                  angle={-45}
+                  height={70}
                   textAnchor="end"
                 />
                 <YAxis
                   label={{
-                    value: 'Total number',
+                    value: 'Number of Cases',
                     angle: -90,
                     position: 'insideLeft',
+                    style: { textAnchor: 'middle' },
                   }}
                 />
                 <Tooltip />
                 <Legend />
                 <Line
+                  name="Months"
                   type="monotone"
                   dataKey="totalCases"
                   stroke="#8884d8"

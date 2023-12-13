@@ -1,8 +1,21 @@
 import StudentMedical from '../../models/StudentMedical.js';
+import AcademicYear from '../../models/AcademicYear.js';
 
 export const getDewormingStats = async (req, res) => {
   try {
+    const { schoolYear } = req.params;
+
+    const academicYearDoc = await AcademicYear.findOne({ schoolYear });
+    if (!academicYearDoc) {
+      return res.status(404).json({ message: 'Academic year not found.' });
+    }
+
     const stats = await StudentMedical.aggregate([
+      {
+        $match: {
+          academicYear: academicYearDoc._id,
+        },
+      },
       {
         $group: {
           _id: {
@@ -103,7 +116,19 @@ export const getDewormingStats = async (req, res) => {
 
 export const getPieChartData = async (req, res) => {
   try {
+    const { schoolYear } = req.params;
+
+    const academicYearDoc = await AcademicYear.findOne({ schoolYear });
+    if (!academicYearDoc) {
+      return res.status(404).json({ message: 'Academic year not found.' });
+    }
+
     const aggregation = await StudentMedical.aggregate([
+      {
+        $match: {
+          academicYear: academicYearDoc._id,
+        },
+      },
       {
         $group: {
           _id: null,
