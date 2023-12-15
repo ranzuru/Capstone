@@ -73,7 +73,7 @@ export const BmiChart = () => {
 
 export const BmiClassificationLineChart = () => {
   const [data, setData] = useState([]);
-  const [selectedValue, setSelectedValue] = useState('');
+  const [selectedValue, setSelectedValue] = useState('Grade 1');
 
   useEffect(() => {
     const fetchData = async () => {

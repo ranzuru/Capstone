@@ -121,34 +121,36 @@ export const DewormedPieChart = ({ schoolYear }) => {
   const [data, setData] = useState([]);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axiosInstance.get(
-          `/deworming/fetchPie/${schoolYear}`
-        );
-        const keys = [
-          'total4Ps',
-          'totalNot4Ps',
-          'dewormed4Ps',
-          'dewormedNot4Ps',
-        ];
-        const labels = [
-          '4Ps Enrolled',
-          'Non-4Ps Enrolled',
-          'Dewormed 4Ps',
-          'Dewormed Non-4Ps',
-        ];
+    if (schoolYear) {
+      const fetchData = async () => {
+        try {
+          const response = await axiosInstance.get(
+            `/deworming/fetchPie/${schoolYear}`
+          );
+          const keys = [
+            'total4Ps',
+            'totalNot4Ps',
+            'dewormed4Ps',
+            'dewormedNot4Ps',
+          ];
+          const labels = [
+            '4Ps Enrolled',
+            'Non-4Ps Enrolled',
+            'Dewormed 4Ps',
+            'Dewormed Non-4Ps',
+          ];
 
-        const pieData = keys.map((key, index) => ({
-          name: labels[index],
-          value: response.data[key],
-        }));
-        setData(pieData);
-      } catch (error) {
-        console.error('Error fetching pie chart data:', error);
-      }
-    };
-    fetchData();
+          const pieData = keys.map((key, index) => ({
+            name: labels[index],
+            value: response.data[key],
+          }));
+          setData(pieData);
+        } catch (error) {
+          console.error('Error fetching pie chart data:', error);
+        }
+      };
+      fetchData();
+    }
   }, [schoolYear]);
 
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
@@ -196,4 +198,42 @@ export const DewormedPieChart = ({ schoolYear }) => {
 
 DewormedPieChart.propTypes = {
   schoolYear: PropTypes.string,
+};
+
+export const DewormSummary = ({ schoolYear }) => {
+  const [summary, setSummary] = useState('');
+
+  useEffect(() => {
+    if (schoolYear) {
+      const fetchSummaryData = async () => {
+        try {
+          const response = await axiosInstance.get(
+            `/deworming/fetchSummary/${schoolYear}`
+          );
+          setSummary(response.data.summary);
+        } catch (error) {
+          console.error('Failed to fetch deworm summary:', error);
+        }
+      };
+
+      fetchSummaryData();
+    }
+  }, [schoolYear]);
+
+  return (
+    <Container maxWidth="md">
+      <Box p={3}>
+        <Typography variant="h6" gutterBottom>
+          Dewormed Summary for {schoolYear}
+        </Typography>
+        <Typography variant="body1" className="whitespace-pre-line">
+          {summary || 'Loading...'}
+        </Typography>
+      </Box>
+    </Container>
+  );
+};
+
+DewormSummary.propTypes = {
+  schoolYear: PropTypes.string.isRequired,
 };

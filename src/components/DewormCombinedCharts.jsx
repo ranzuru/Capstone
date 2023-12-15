@@ -1,6 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Paper, Grid, Typography } from '@mui/material';
-import { DewormingBar, DewormedPieChart } from './Charts/DewormingChart';
+import {
+  DewormingBar,
+  DewormedPieChart,
+  DewormSummary,
+} from './Charts/DewormingChart';
 import { SchoolYearSelect } from './SchoolYearSelect';
 import useFetchSchoolYears from '../hooks/useFetchSchoolYears';
 
@@ -30,7 +34,6 @@ const DewormCombinedCharts = () => {
         <SchoolYearSelect
           selectedYear={selectedYear}
           onChange={handleSchoolYearChange}
-          style={{ width: '100%' }}
         />
       </div>
       <Grid container spacing={2}>
@@ -39,6 +42,9 @@ const DewormCombinedCharts = () => {
         </Grid>
         <Grid item xs={12} md={6}>
           <DewormedPieChart schoolYear={selectedYear} />
+        </Grid>
+        <Grid item xs={12} md={6}>
+          <DewormSummary schoolYear={selectedYear} />
         </Grid>
       </Grid>
     </Paper>

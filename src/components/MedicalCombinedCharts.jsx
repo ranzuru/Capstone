@@ -1,5 +1,5 @@
 import { Paper, Grid } from '@mui/material';
-import { StudentMedicalBar } from './Charts/MedicalChart';
+import { StudentMedicalBar, ScreeningPerGrade } from './Charts/MedicalChart';
 
 const MedicalCombinedCharts = () => {
   return (
@@ -8,8 +8,11 @@ const MedicalCombinedCharts = () => {
       style={{ padding: '20px', margin: '20px', height: '100%' }}
     >
       <Grid container spacing={2}>
-        <Grid item>
+        <Grid item xs={12} md={6}>
           <StudentMedicalBar />
+        </Grid>
+        <Grid item xs={12} md={6}>
+          <ScreeningPerGrade />
         </Grid>
       </Grid>
     </Paper>

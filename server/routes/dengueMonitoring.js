@@ -13,7 +13,7 @@ import {
   getMonthlyDengueCases,
   getCasesPerGrade,
   calculateComparisonStatistics,
-} from '../controller/analytics/dengueBarCharts.js';
+} from '../controller/analytics/dengueCharts.js';
 
 import multer from 'multer';
 const router = express.Router();
