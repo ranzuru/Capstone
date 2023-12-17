@@ -12,22 +12,27 @@ import {
 import { Container, Typography, Grid, Box } from '@mui/material';
 import ReUseSelect from '../ReUseSelect.jsx';
 import { gradeOptions } from '../../others/dropDownOptions';
+import { colorUtil } from '../../utils/colorUtil.js';
+import PropTypes from 'prop-types';
 
-export const StudentMedicalBar = () => {
+export const StudentMedicalBar = ({ schoolYear }) => {
   const [data, setData] = useState([]);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axiosInstance.get('/studentMedical/fetchBar');
-        setData(response.data);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    };
-
-    fetchData();
-  }, []);
+    if (schoolYear) {
+      const fetchData = async () => {
+        try {
+          const response = await axiosInstance.get(
+            `/studentMedical/fetchBar/${schoolYear}`
+          );
+          setData(response.data);
+        } catch (error) {
+          console.error('Error fetching data:', error);
+        }
+      };
+      fetchData();
+    }
+  }, [schoolYear]);
 
   // Assuming each data item has the name of the condition as the key and the count as the value
   // Find all unique condition keys across all data items, including 'Normal'
@@ -76,7 +81,7 @@ export const StudentMedicalBar = () => {
                   <Bar
                     key={key}
                     dataKey={key}
-                    fill={colorUtil(index)}
+                    fill={colorUtil(key, index)}
                     stackId="a"
                   />
                 ))}
@@ -89,15 +94,11 @@ export const StudentMedicalBar = () => {
   );
 };
 
-// Define your color scheme for each condition
-const colorUtil = (index) => {
-  const hue = index * 137.508; // Use golden angle approximation for good distribution
-  const saturation = 50 + (index % 4) * 10; // Alternate between 50%, 60%, 70%, and 80%
-  const lightness = 50 + (index % 3) * 5; // Alternate between 50%, 55%, and 60%
-  return `hsl(${hue % 360}, ${saturation}%, ${lightness}%)`;
+StudentMedicalBar.propTypes = {
+  schoolYear: PropTypes.string.isRequired,
 };
 
-export const ScreeningPerGrade = () => {
+export const ScreeningPerGrade = ({ schoolYear }) => {
   const [data, setData] = useState([]);
   const [selectedValue, setSelectedValue] = useState('Grade 1');
 
@@ -105,7 +106,7 @@ export const ScreeningPerGrade = () => {
     const fetchData = async () => {
       try {
         const response = await axiosInstance.get(
-          `/studentMedical/fetchScreeningPerGrade/${selectedValue}`
+          `/studentMedical/fetchScreeningPerGrade/${schoolYear}/${selectedValue}`
         );
         setData(response.data);
       } catch (error) {
@@ -113,10 +114,10 @@ export const ScreeningPerGrade = () => {
       }
     };
 
-    if (selectedValue) {
+    if (schoolYear && selectedValue) {
       fetchData();
     }
-  }, [selectedValue]);
+  }, [schoolYear, selectedValue]);
 
   const handleChange = (event) => {
     setSelectedValue(event.target.value);
@@ -131,7 +132,11 @@ export const ScreeningPerGrade = () => {
       });
       return acc;
     }, [])
-    .sort();
+    .sort((a, b) => {
+      if (a === 'Normal') return -1;
+      if (b === 'Normal') return 1;
+      return a.localeCompare(b);
+    });
 
   return (
     <Container maxWidth="md">
@@ -139,7 +144,7 @@ export const ScreeningPerGrade = () => {
         <Grid item xs={12}>
           <Box p={3}>
             <Typography variant="h6" gutterBottom>
-              Prevalence of Health Screening Concerns by Grade
+              Health Screening Concerns by Grade
             </Typography>
             <Typography variant="body1" paragraph>
               Detailed Breakdown of Non-Normal Findings in Student Health
@@ -185,7 +190,7 @@ export const ScreeningPerGrade = () => {
                   <Bar
                     key={key}
                     dataKey={key}
-                    fill={colorUtil(index)}
+                    fill={colorUtil(key, index)}
                     stackId="a"
                   />
                 ))}
@@ -196,4 +201,46 @@ export const ScreeningPerGrade = () => {
       </Grid>
     </Container>
   );
+};
+
+ScreeningPerGrade.propTypes = {
+  schoolYear: PropTypes.string.isRequired,
+};
+
+export const MedicalSummary = ({ schoolYear }) => {
+  const [summary, setSummary] = useState('');
+
+  useEffect(() => {
+    if (schoolYear) {
+      const fetchSummaryData = async () => {
+        try {
+          const response = await axiosInstance.get(
+            `/studentMedical/fetchComparisonStatistics/${schoolYear}`
+          );
+          setSummary(response.data.summary);
+        } catch (error) {
+          console.error('Failed to fetch medical summary:', error);
+        }
+      };
+
+      fetchSummaryData();
+    }
+  }, [schoolYear]);
+
+  return (
+    <Container maxWidth="md">
+      <Box p={3}>
+        <Typography variant="h6" gutterBottom>
+          Medical Summary for {schoolYear}
+        </Typography>
+        <Typography variant="body1" className="whitespace-pre-line">
+          {summary || 'Loading...'}
+        </Typography>
+      </Box>
+    </Container>
+  );
+};
+
+MedicalSummary.propTypes = {
+  schoolYear: PropTypes.string.isRequired,
 };

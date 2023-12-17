@@ -229,7 +229,7 @@ const fetchDewormedReportsSummary = async (academicYearIds) => {
     },
     {
       $lookup: {
-        from: AcademicYear.collection.name, // Make sure this is the correct name of your academic year collection
+        from: AcademicYear.collection.name,
         localField: 'academicYear',
         foreignField: '_id',
         as: 'academicYearDetails',

@@ -13,6 +13,7 @@ import {
   getData,
   getGradeWiseScreeningIssues,
   getScreeningIssuesByDynamicAgeGroup,
+  calculateComparisonStatistics,
 } from '../controller/analytics/medicalCharts.js';
 import multer from 'multer';
 const router = express.Router();
@@ -27,12 +28,19 @@ router.delete('/delete/:id', deleteStudentMedical);
 router.delete('/bulkDelete', bulkDeleteStudentMedical);
 router.post('/import', upload.single('file'), importMedical);
 
-router.get('/fetchBar', getScreeningStatsBar);
+router.get('/fetchBar/:schoolYear', getScreeningStatsBar);
 router.get('/fetchBarTwo/:field', getData);
-router.get('/fetchScreeningPerGrade/:grade', getGradeWiseScreeningIssues);
+router.get(
+  '/fetchScreeningPerGrade/:schoolYear/:grade',
+  getGradeWiseScreeningIssues
+);
 router.get(
   '/fetchScreeningPerAgeGroup/:screeningField',
   getScreeningIssuesByDynamicAgeGroup
+);
+router.get(
+  '/fetchComparisonStatistics/:schoolYear',
+  calculateComparisonStatistics
 );
 
 router.get('/fetchPDFReport/:id', getStudentMedicalById);
