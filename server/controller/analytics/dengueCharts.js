@@ -1,15 +1,7 @@
 import DengueMonitoring from '../../models/DengueMonitoring.js';
 import AcademicYear from '../../models/AcademicYear.js';
 import _ from 'lodash';
-import {
-  mean,
-  median,
-  mode,
-  max,
-  min,
-  standardDeviation,
-} from 'simple-statistics';
-import { analyzeTextForCommonWords } from '../../utils/textAnalysis.js'; // Adjust path as needed
+import { mean, median, mode, variance } from 'simple-statistics';
 
 export const getGroupedDengueData = async (req, res) => {
   try {
@@ -222,10 +214,56 @@ export const getCasesPerGrade = async (req, res) => {
   }
 };
 
-// ANALYTICS SECTION
+// Analytics Comparison Detail
+export const calculateComparisonStatistics = async (req, res) => {
+  try {
+    const { schoolYear } = req.params;
 
-const fetchDengueReports = async () => {
+    if (!schoolYear) {
+      return res
+        .status(400)
+        .json({ message: 'No selected school year provided.' });
+    }
+
+    // Parsing the selected school year to find the previous year
+    const [startYear, endYear] = schoolYear.split('-').map(Number);
+    const previousSchoolYear = `${startYear - 1}-${endYear - 1}`;
+
+    // Find documents for the selected and previous academic years
+    const academicYears = await AcademicYear.find({
+      schoolYear: { $in: [schoolYear, previousSchoolYear] },
+    }).lean();
+
+    if (!academicYears.length) {
+      return res.status(404).json({ message: 'Academic years not found.' });
+    }
+
+    // Fetch reports for the academic years
+    const academicYearIds = academicYears.map((year) => year._id);
+    const reports = await fetchDengueReportsSummary(academicYearIds);
+
+    // Process and structure the response
+    const processedData = processComparisonData(reports, academicYears);
+    // summary
+    const descriptiveSummary = generateComparisonSummary(processedData);
+
+    res.json({
+      data: processedData, // The raw data
+      summary: descriptiveSummary, // The descriptive summary
+    });
+  } catch (error) {
+    console.error('Error calculating comparison statistics:', error.message);
+    return res.status(500).send('Error in processing request');
+  }
+};
+
+const fetchDengueReportsSummary = async (academicYearIds) => {
   return DengueMonitoring.aggregate([
+    {
+      $match: {
+        academicYear: { $in: academicYearIds },
+      },
+    },
     {
       $lookup: {
         from: AcademicYear.collection.name,
@@ -302,6 +340,7 @@ const fetchDengueReports = async () => {
         academicYear: '$_id',
         totalCases: 1,
         details: 1,
+        hospitalizedCases: 1,
         hospitalizationRate: {
           $cond: [
             { $eq: ['$totalCases', 0] },
@@ -322,47 +361,136 @@ const fetchDengueReports = async () => {
   ]);
 };
 
-const processReportData = (reports) => {
-  return reports.map((report) => {
-    const remarks = report.allRemarks ?? [];
-    const filteredRemarks = remarks.filter(
-      (remark) => remark && remark.trim().length > 0
+const processComparisonData = (reports, academicYears) => {
+  const processedData = {};
+
+  academicYears.forEach((academicYear) => {
+    const yearReports = reports.filter(
+      (report) => report.academicYear === academicYear.schoolYear
     );
 
-    const ages = report.details.map((detail) => detail.age);
-    return {
-      academicYear: report.academicYear,
-      totalCases: report.totalCases,
-      hospitalizationRate: report.hospitalizationRate
-        ? report.hospitalizationRate.toFixed(2)
-        : null,
-      genderBreakdown: _.countBy(report.details, 'gender'),
-      ageStats: ages.length ? calculateAgeStats(ages) : null,
-      caseDurationAverage: report.caseDurationAverage
-        ? Math.round(report.caseDurationAverage)
-        : null,
-      remarksAnalysis: analyzeTextForCommonWords(filteredRemarks),
+    const totalCases = yearReports.reduce(
+      (sum, report) => sum + report.totalCases,
+      0
+    );
+    const hospitalizedCases = yearReports.reduce(
+      (sum, report) => sum + report.hospitalizedCases,
+      0
+    );
+    const hospitalizationRate =
+      yearReports.length > 0 ? yearReports[0].hospitalizationRate : 0;
+
+    const ageData = yearReports.flatMap((report) =>
+      report.details.map((detail) => detail.age)
+    );
+    const genderData = yearReports.flatMap((report) =>
+      report.details.map((detail) => detail.gender)
+    );
+
+    let ageStats = getStatistics(ageData);
+    const genderBreakdown = _.countBy(genderData);
+
+    processedData[academicYear.schoolYear] = {
+      totalCases,
+      hospitalizedCases,
+      hospitalizationRate: hospitalizationRate.toFixed(2),
+      ageStats,
+      genderBreakdown,
     };
   });
+
+  return processedData;
 };
 
-const calculateAgeStats = (ages) => {
+// Utility function to calculate statistics
+const getStatistics = (data) => {
+  if (data.length === 0) {
+    return {
+      mean: null,
+      median: null,
+      mode: null,
+      range: null,
+      standardDeviation: null,
+    };
+  }
   return {
-    mean: mean(ages),
-    median: median(ages),
-    mode: mode(ages),
-    range: max(ages) - min(ages),
-    standardDeviation: standardDeviation(ages),
+    mean: mean(data),
+    median: median(data),
+    mode: mode(data),
+    range: _.max(data) - _.min(data),
+    standardDeviation: Math.sqrt(variance(data)),
   };
 };
 
-export const calculateStatisticsByAcademicYear = async (req, res) => {
-  try {
-    const reports = await fetchDengueReports();
-    const processedData = processReportData(reports);
-    res.json(processedData);
-  } catch (error) {
-    console.error('Error calculating statistics:', error.message);
-    res.status(500).send('Error in processing request');
+const generateComparisonSummary = (data) => {
+  const years = Object.keys(data).sort(); // Ensure chronological order
+  let summary = '';
+
+  if (years.length === 0) {
+    return 'No academic year data available for analysis.';
+  } else if (years.length === 1) {
+    // Handling the case with data for only one year
+    const year = years[0];
+    const yearData = data[year];
+    summary += `For the school year ${year}, there were ${yearData.totalCases} reported cases of dengue. `;
+    summary += `Out of these, ${yearData.hospitalizedCases} cases required hospitalization, which is a rate of ${yearData.hospitalizationRate}%. `;
+    summary += `This suggests that ${
+      yearData.hospitalizationRate > 10 ? 'a significant' : 'a small'
+    } number of dengue cases were severe enough to require hospital care. `;
+    summary += `The average age of affected individuals was ${yearData.ageStats.mean.toFixed(
+      2
+    )} years. `;
+    summary += `Gender-wise, there were ${
+      yearData.genderBreakdown.Male
+    } male and ${yearData.genderBreakdown.Female} female cases, indicating ${
+      yearData.genderBreakdown.Male > yearData.genderBreakdown.Female
+        ? 'a higher prevalence among males'
+        : 'a more balanced distribution between genders'
+    }.\n`;
+  } else {
+    // Comparative analysis for two years
+    const [firstYear, secondYear] = years;
+    const firstData = data[firstYear],
+      secondData = data[secondYear];
+
+    summary += `Comparing the school years ${firstYear} and ${secondYear}, `;
+    summary += `the number of dengue cases was ${
+      firstData.totalCases > secondData.totalCases ? 'higher' : 'lower'
+    } in ${firstYear} with ${firstData.totalCases} cases, compared to ${
+      secondData.totalCases
+    } in ${secondYear}. `;
+    summary += `The hospitalization rate ${
+      parseFloat(firstData.hospitalizationRate) >
+      parseFloat(secondData.hospitalizationRate)
+        ? 'decreased'
+        : 'increased'
+    } from ${firstData.hospitalizationRate}% to ${
+      secondData.hospitalizationRate
+    }%, `;
+    summary += `suggesting that the cases were ${
+      parseFloat(firstData.hospitalizationRate) >
+      parseFloat(secondData.hospitalizationRate)
+        ? 'more severe'
+        : 'less severe'
+    } or the healthcare response was ${
+      parseFloat(firstData.hospitalizationRate) >
+      parseFloat(secondData.hospitalizationRate)
+        ? 'less effective'
+        : 'more effective'
+    } in ${secondYear}. `;
+    summary += `The average age of those affected slightly ${
+      firstData.ageStats.mean > secondData.ageStats.mean
+        ? 'decreased'
+        : 'increased'
+    } from ${firstData.ageStats.mean.toFixed(
+      2
+    )} to ${secondData.ageStats.mean.toFixed(2)} years. `;
+    summary += `Regarding gender distribution, the number of male cases was ${
+      firstData.genderBreakdown.Male > secondData.genderBreakdown.Male
+        ? 'higher'
+        : 'lower'
+    } in ${firstYear} compared to ${secondYear}.`;
   }
+
+  return summary;
 };

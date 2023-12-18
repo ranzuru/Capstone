@@ -15,22 +15,26 @@ import {
 } from 'recharts';
 import { Container, Typography, Grid, Box } from '@mui/material';
 import renderCustomizedLabel from '../RenderCustomizedLabel';
+import PropTypes from 'prop-types';
 
-export const DewormingBar = () => {
+export const DewormingBar = ({ schoolYear }) => {
   const [data, setData] = useState([]);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axiosInstance.get('/deworming/fetchBar');
-        setData(response.data);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    };
-
-    fetchData();
-  }, []);
+    if (schoolYear) {
+      const fetchData = async () => {
+        try {
+          const response = await axiosInstance.get(
+            `/deworming/fetchBar/${schoolYear}`
+          );
+          setData(response.data);
+        } catch (error) {
+          console.error('Error fetching data:', error);
+        }
+      };
+      fetchData();
+    }
+  }, [schoolYear]);
 
   return (
     <Container maxWidth="md">
@@ -45,14 +49,19 @@ export const DewormingBar = () => {
               categorized by participation in the 4Ps program.
             </Typography>
             <ResponsiveContainer width="100%" height={400}>
-              <BarChart width={600} height={300} data={data}>
+              <BarChart
+                width={600}
+                height={300}
+                data={data}
+                margin={{ top: 0, right: 0, left: 0, bottom: 50 }}
+              >
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis
                   dataKey="grade"
                   label={{
                     value: 'Grade Level',
                     position: 'insideBottom',
-                    offset: -1,
+                    offset: -20,
                   }}
                 />
                 <YAxis
@@ -60,6 +69,7 @@ export const DewormingBar = () => {
                     value: 'Total number',
                     angle: -90,
                     position: 'insideLeft',
+                    style: { textAnchor: 'middle' },
                   }}
                 />
                 <Tooltip />
@@ -103,38 +113,45 @@ export const DewormingBar = () => {
   );
 };
 
-export const DewormedPieChart = () => {
+DewormingBar.propTypes = {
+  schoolYear: PropTypes.string,
+};
+
+export const DewormedPieChart = ({ schoolYear }) => {
   const [data, setData] = useState([]);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axiosInstance.get('/deworming/fetchPie');
-        const keys = [
-          'total4Ps',
-          'totalNot4Ps',
-          'dewormed4Ps',
-          'dewormedNot4Ps',
-        ];
-        const labels = [
-          '4Ps Enrolled',
-          'Non-4Ps Enrolled',
-          'Dewormed 4Ps',
-          'Dewormed Non-4Ps',
-        ];
+    if (schoolYear) {
+      const fetchData = async () => {
+        try {
+          const response = await axiosInstance.get(
+            `/deworming/fetchPie/${schoolYear}`
+          );
+          const keys = [
+            'total4Ps',
+            'totalNot4Ps',
+            'dewormed4Ps',
+            'dewormedNot4Ps',
+          ];
+          const labels = [
+            '4Ps Enrolled',
+            'Non-4Ps Enrolled',
+            'Dewormed 4Ps',
+            'Dewormed Non-4Ps',
+          ];
 
-        const pieData = keys.map((key, index) => ({
-          name: labels[index],
-          value: response.data[key],
-        }));
-        setData(pieData);
-      } catch (error) {
-        console.error('Error fetching pie chart data:', error);
-      }
-    };
-
-    fetchData();
-  }, []);
+          const pieData = keys.map((key, index) => ({
+            name: labels[index],
+            value: response.data[key],
+          }));
+          setData(pieData);
+        } catch (error) {
+          console.error('Error fetching pie chart data:', error);
+        }
+      };
+      fetchData();
+    }
+  }, [schoolYear]);
 
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
 
@@ -177,4 +194,46 @@ export const DewormedPieChart = () => {
       </Grid>
     </Container>
   );
+};
+
+DewormedPieChart.propTypes = {
+  schoolYear: PropTypes.string,
+};
+
+export const DewormSummary = ({ schoolYear }) => {
+  const [summary, setSummary] = useState('');
+
+  useEffect(() => {
+    if (schoolYear) {
+      const fetchSummaryData = async () => {
+        try {
+          const response = await axiosInstance.get(
+            `/deworming/fetchSummary/${schoolYear}`
+          );
+          setSummary(response.data.summary);
+        } catch (error) {
+          console.error('Failed to fetch deworm summary:', error);
+        }
+      };
+
+      fetchSummaryData();
+    }
+  }, [schoolYear]);
+
+  return (
+    <Container maxWidth="md">
+      <Box p={3}>
+        <Typography variant="h6" gutterBottom>
+          Dewormed Summary for {schoolYear}
+        </Typography>
+        <Typography variant="body1" className="whitespace-pre-line">
+          {summary || 'Loading...'}
+        </Typography>
+      </Box>
+    </Container>
+  );
+};
+
+DewormSummary.propTypes = {
+  schoolYear: PropTypes.string.isRequired,
 };

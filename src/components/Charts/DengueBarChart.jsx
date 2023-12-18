@@ -53,7 +53,7 @@ const DengueBarChart = ({ schoolYear }) => {
                   label={{
                     value: 'Ages',
                     position: 'insideBottom',
-                    offset: -2,
+                    offset: -20,
                   }}
                 />
                 <YAxis
@@ -64,7 +64,11 @@ const DengueBarChart = ({ schoolYear }) => {
                   }}
                 />
                 <Tooltip />
-                <Legend />
+                <Legend
+                  align="center"
+                  verticalAlign="bottom"
+                  wrapperStyle={{ position: 'relative', bottom: -5 }}
+                />
                 <Bar dataKey="Male" fill="#8884d8" />
                 <Bar dataKey="Female" fill="#82ca9d" />
               </BarChart>

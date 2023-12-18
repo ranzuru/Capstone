@@ -47,6 +47,10 @@ const dengueMonitoringSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    adviser: {
+      type: String,
+      required: true,
+    },
     dateOfOnset: {
       type: Date,
       required: true,

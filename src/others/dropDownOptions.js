@@ -144,15 +144,15 @@ export const measurementTypeGraph = ['ALL', 'PRE', 'POST'].map((measType) => ({
 }));
 
 export const navigationItems = [
-  { label: 'Dashboard', value: 'dashboard' },
-  { label: 'Users', value: 'users' },
-  { label: 'Roles', value: 'roles' },
-  { label: 'Academic Year', value: 'academicYear' },
-  { label: 'Clinic Records', value: 'clinicRecords' },
-  { label: 'Medicine Inventory', value: 'medicineInventory' },
-  { label: 'Events', value: 'events' },
-  { label: 'Profile', value: 'profile' },
-  { label: 'Programs', value: 'programs' },
-  { label: 'Analytics', value: 'analytics' },
-  { label: 'Logs', value: 'logs' },
+  { label: 'Dashboard', value: 'Dashboard' },
+  { label: 'Users', value: 'Users' },
+  { label: 'Roles', value: 'Roles' },
+  { label: 'Academic Year', value: 'Academic Year' },
+  { label: 'Clinic Records', value: 'Clinic Records' },
+  { label: 'Medicine Inventory', value: 'Medicine Inventory' },
+  { label: 'Events', value: 'Events' },
+  { label: 'Profile', value: 'Profile' },
+  { label: 'Programs', value: 'Programs' },
+  { label: 'Analytics', value: 'Analytics' },
+  { label: 'Logs', value: 'Logs' },
 ];

@@ -3,7 +3,7 @@ import { FormControl, InputLabel, MenuItem, Select } from '@mui/material';
 
 const ReUseSelect = ({ label, value, onChange, options, ...props }) => {
   return (
-    <FormControl fullWidth>
+    <FormControl sx={{ width: 'auto', minWidth: 120 }} size="small">
       <InputLabel>{label}</InputLabel>
       <Select value={value} label={label} onChange={onChange} {...props}>
         {options.map((option, index) => (

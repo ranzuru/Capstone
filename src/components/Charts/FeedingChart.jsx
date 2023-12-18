@@ -1,11 +1,9 @@
 import { useState, useEffect } from 'react';
 import {
   BarChart,
-  LineChart,
   PieChart,
   Pie,
   Bar,
-  Line,
   Cell,
   XAxis,
   YAxis,
@@ -16,27 +14,29 @@ import {
 } from 'recharts';
 import axiosInstance from '../../config/axios-instance.js';
 import { Container, Typography, Grid, Box } from '@mui/material';
-import bmiClassificationColors from '../../utils/bmiClassificationColors.js';
-import ReUseSelect from '../ReUseSelect.jsx';
-import { measurementTypeGraph } from '../../others/dropDownOptions.js';
+import renderCustomizedLabel from '../RenderCustomizedLabel';
+import { generateColor } from '../../utils/colorUtil.js';
+import PropTypes from 'prop-types';
 
-export const BmiChart = () => {
+export const BmiChart = ({ schoolYear }) => {
   const [data, setData] = useState([]);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axiosInstance.get(
-          '/feedingProgram/fetchComparisonPREAndPOST'
-        );
-        setData(response.data);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    };
+    if (schoolYear) {
+      const fetchData = async () => {
+        try {
+          const response = await axiosInstance.get(
+            `/feedingProgram/fetchComparisonPREAndPOST/${schoolYear}`
+          );
+          setData(response.data);
+        } catch (error) {
+          console.error('Error fetching data:', error);
+        }
+      };
 
-    fetchData();
-  }, []);
+      fetchData();
+    }
+  }, [schoolYear]);
 
   return (
     <Container maxWidth="md">
@@ -44,10 +44,10 @@ export const BmiChart = () => {
         <Grid item xs={12}>
           <Box p={3}>
             <Typography variant="h6" gutterBottom>
-              Stacked bar
+              Nutritional Status Improvement After Feeding Program
             </Typography>
             <Typography variant="body1" paragraph>
-              This bar graph shows the distribution of screening results.
+              Comparison of Pre and Post-Intervention BMI Classifications
             </Typography>
             <ResponsiveContainer width="100%" height={400}>
               <BarChart
@@ -70,104 +70,29 @@ export const BmiChart = () => {
   );
 };
 
-export const BmiClassificationLineChart = () => {
-  const [data, setData] = useState([]);
-  const [selectedValue, setSelectedValue] = useState('');
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axiosInstance.get(
-          `/feedingProgram/fetchBMIClassification?measurementType=${selectedValue}`
-        );
-        setData(response.data);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    };
-
-    if (selectedValue) {
-      fetchData();
-    }
-  }, [selectedValue]);
-
-  const handleChange = (event) => {
-    setSelectedValue(event.target.value);
-  };
-
-  // Define the list of BMI classifications
-  const bmiClassifications = [
-    'Severely Wasted',
-    'Wasted',
-    'Normal',
-    'Overweight',
-    'Obese',
-  ];
-
-  return (
-    <>
-      <Container maxWidth="md">
-        <Grid container spacing={0}>
-          <Grid item xs={12}>
-            <Box p={3}>
-              <Typography variant="h6" gutterBottom>
-                Line Chart
-              </Typography>
-              <Typography variant="body1" paragraph>
-                dummy.
-              </Typography>
-              <ReUseSelect
-                label="Choose an Option"
-                value={selectedValue}
-                onChange={handleChange}
-                options={measurementTypeGraph}
-              />
-              <ResponsiveContainer width="100%" height={400}>
-                <LineChart
-                  data={data}
-                  margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="schoolYear" />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  {bmiClassifications.map((classification, index) => (
-                    <Line
-                      key={index}
-                      type="monotone"
-                      dataKey={classification}
-                      stroke={bmiClassificationColors[classification]} // Set the stroke color using the mapping
-                      activeDot={{ r: 8 }}
-                    />
-                  ))}
-                </LineChart>
-              </ResponsiveContainer>
-            </Box>
-          </Grid>
-        </Grid>
-      </Container>
-    </>
-  );
+BmiChart.propTypes = {
+  schoolYear: PropTypes.string.isRequired,
 };
 
-export const MyPieChart = () => {
+export const BeneficiaryImpactChart = ({ schoolYear }) => {
   const [data, setData] = useState([]);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axiosInstance.get('/feedingProgram/fetchSBFP');
-        setData(response.data);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    };
+    if (schoolYear) {
+      const fetchData = async () => {
+        try {
+          const response = await axiosInstance.get(
+            `/feedingProgram/fetchBeneficiaryImpact/${schoolYear}` // Change this to your actual endpoint
+          );
+          setData(response.data);
+        } catch (error) {
+          console.error('Error fetching data:', error);
+        }
+      };
 
-    fetchData();
-  }, []);
-
-  const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#FF6384'];
+      fetchData();
+    }
+  }, [schoolYear]);
 
   return (
     <Container maxWidth="md">
@@ -175,10 +100,75 @@ export const MyPieChart = () => {
         <Grid item xs={12}>
           <Box p={3}>
             <Typography variant="h6" gutterBottom>
-              PIE CHART
+              Health Metrics Comparison: POST vs PRE Measurements
             </Typography>
             <Typography variant="body1" paragraph>
-              dummy.
+              Comparison of average BMI, weight, and height
+            </Typography>
+            <ResponsiveContainer width="100%" height={400}>
+              <BarChart
+                data={data}
+                margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="measurementType" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey="averageBMI" fill="#8884d8" name="Average BMI" />
+                <Bar
+                  dataKey="averageWeight"
+                  fill="#82ca9d"
+                  name="Average Weight (kg)"
+                />
+                <Bar
+                  dataKey="averageHeight"
+                  fill="#ffc658"
+                  name="Average Height (cm)"
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          </Box>
+        </Grid>
+      </Grid>
+    </Container>
+  );
+};
+
+BeneficiaryImpactChart.propTypes = {
+  schoolYear: PropTypes.string.isRequired,
+};
+
+export const MyPieChart = ({ schoolYear }) => {
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    if (schoolYear) {
+      const fetchData = async () => {
+        try {
+          const response = await axiosInstance.get(
+            `/feedingProgram/fetchSBFP/${schoolYear}`
+          );
+          setData(response.data);
+        } catch (error) {
+          console.error('Error fetching data:', error);
+        }
+      };
+
+      fetchData();
+    }
+  }, [schoolYear]);
+
+  return (
+    <Container maxWidth="md">
+      <Grid container spacing={0}>
+        <Grid item xs={12}>
+          <Box p={3}>
+            <Typography variant="h6" gutterBottom>
+              Distribution of SBFP Beneficiaries by Grade Level
+            </Typography>
+            <Typography variant="body1" paragraph>
+              Proportional Representation Across Educational Stages
             </Typography>
             <ResponsiveContainer width="100%" height={400}>
               <PieChart margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
@@ -187,18 +177,13 @@ export const MyPieChart = () => {
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  label={({ name, percent }) =>
-                    `${name}: ${(percent * 100).toFixed(0)}%`
-                  }
+                  label={renderCustomizedLabel}
                   outerRadius="85%"
                   fill="#8884d8"
                   dataKey="value"
                 >
                   {data.map((entry, index) => (
-                    <Cell
-                      key={`cell-${index}`}
-                      fill={COLORS[index % COLORS.length]}
-                    />
+                    <Cell key={`cell-${index}`} fill={generateColor(index)} />
                   ))}
                 </Pie>
                 <Tooltip />
@@ -210,4 +195,46 @@ export const MyPieChart = () => {
       </Grid>
     </Container>
   );
+};
+
+MyPieChart.propTypes = {
+  schoolYear: PropTypes.string.isRequired,
+};
+
+export const FeedingSummary = ({ schoolYear }) => {
+  const [summary, setSummary] = useState('');
+
+  useEffect(() => {
+    if (schoolYear) {
+      const fetchSummaryData = async () => {
+        try {
+          const response = await axiosInstance.get(
+            `/feedingProgram/fetchComparisonStatistics/${schoolYear}`
+          );
+          setSummary(response.data.summary);
+        } catch (error) {
+          console.error('Failed to fetch medical summary:', error);
+        }
+      };
+
+      fetchSummaryData();
+    }
+  }, [schoolYear]);
+
+  return (
+    <Container maxWidth="md">
+      <Box p={3}>
+        <Typography variant="h6" gutterBottom>
+          Feeding Summary for {schoolYear}
+        </Typography>
+        <Typography variant="body1" className="whitespace-pre-line">
+          {summary || 'Loading...'}
+        </Typography>
+      </Box>
+    </Container>
+  );
+};
+
+FeedingSummary.propTypes = {
+  schoolYear: PropTypes.string.isRequired,
 };

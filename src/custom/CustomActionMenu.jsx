@@ -3,7 +3,13 @@ import PropTypes from 'prop-types';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import { MenuItem, Tooltip, Menu, IconButton } from '@mui/material';
 
-const ActionMenu = ({ onEdit, onDelete, onView, onArchive }) => {
+const ActionMenu = ({
+  onEdit,
+  onDelete,
+  onView,
+  onArchive,
+  onMedicalReport,
+}) => {
   const [anchorEl, setAnchorEl] = useState(null);
 
   const handleClick = (event) => {
@@ -73,6 +79,16 @@ const ActionMenu = ({ onEdit, onDelete, onView, onArchive }) => {
             Archive
           </MenuItem>
         )}
+        {onMedicalReport && (
+          <MenuItem
+            onClick={() => {
+              onMedicalReport();
+              handleClose();
+            }}
+          >
+            Report
+          </MenuItem>
+        )}
       </Menu>
     </div>
   );
@@ -82,7 +98,8 @@ ActionMenu.propTypes = {
   onEdit: PropTypes.func,
   onDelete: PropTypes.func,
   onView: PropTypes.func,
-  onArchive: PropTypes.func, // Added prop type for archive
+  onArchive: PropTypes.func,
+  onMedicalReport: PropTypes.func,
 };
 
 export default ActionMenu;

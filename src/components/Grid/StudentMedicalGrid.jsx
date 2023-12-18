@@ -18,6 +18,7 @@ import RecordInfoDialog from '../../components/Dialog/studentMedicalDialog.jsx';
 import StudentMedicalForm from '../Form/StudentMedicalForm.jsx';
 import mapRecord from '../../utils/studentMedicalMapRecord.js';
 import { formatYearFromDate } from '../../utils/formatDateFromYear.js';
+import useStudentMedicalReport from '../report/useStudentMedicalReport.jsx';
 
 const StudentMedicalGrid = () => {
   const [formOpen, setFormOpen] = useState(false);
@@ -40,6 +41,11 @@ const StudentMedicalGrid = () => {
   const [filterModel, setFilterModel] = useState({
     items: [],
   });
+  const { generatePdfDocument } = useStudentMedicalReport();
+
+  const handleGenerateReport = (recordId) => {
+    generatePdfDocument(recordId);
+  };
 
   const showSnackbar = (message, severity) => {
     setSnackbarData({ message, severity });
@@ -143,6 +149,7 @@ const StudentMedicalGrid = () => {
           onEdit={() => handleEdit(params.row.id)}
           onDelete={() => handleDialogOpen(params.row.id)}
           onView={() => handleInfoDialogOpen(params.row.id)}
+          onMedicalReport={() => handleGenerateReport(params.row.id)}
         />
       ),
     },

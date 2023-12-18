@@ -1,4 +1,5 @@
 import StudentMedical from '../models/StudentMedical.js';
+import AcademicYear from '../models/AcademicYear.js';
 
 // Function to fetch and format data for the datagrid
 export const fetchDataForDataGrid = async (req, res) => {
@@ -73,5 +74,115 @@ const countDewormedStudents = async (grade) => {
     return result;
   } catch (error) {
     return { is4p: 0, not4p: 0 }; // Return 0 counts in case of error
+  }
+};
+``;
+
+export const getDewormReport = async (req, res) => {
+  try {
+    const currentAcademicYear = await AcademicYear.findOne({
+      status: 'Active',
+    });
+    if (!currentAcademicYear) {
+      return res
+        .status(404)
+        .json({ message: 'Active academic year not found.' });
+    }
+
+    const dewormReport = await StudentMedical.aggregate([
+      {
+        $match: {
+          academicYear: currentAcademicYear._id,
+        },
+      },
+      {
+        $group: {
+          _id: { grade: '$grade', is4p: '$is4p' },
+          dewormedCount: {
+            $sum: {
+              $cond: ['$deworming', 1, 0],
+            },
+          },
+          totalCount: { $sum: 1 },
+        },
+      },
+      {
+        $group: {
+          _id: '$_id.grade',
+          dewormed4Ps: {
+            $sum: {
+              $cond: ['$_id.is4p', '$dewormedCount', 0],
+            },
+          },
+          enrolled4Ps: {
+            $sum: {
+              $cond: ['$_id.is4p', '$totalCount', 0],
+            },
+          },
+          dewormedNon4Ps: {
+            $sum: {
+              $cond: [{ $not: ['$_id.is4p'] }, '$dewormedCount', 0],
+            },
+          },
+          enrolledNon4Ps: {
+            $sum: {
+              $cond: [{ $not: ['$_id.is4p'] }, '$totalCount', 0],
+            },
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          grade: '$_id',
+          enrolled4Ps: 1,
+          dewormed4Ps: 1,
+          enrolledNon4Ps: 1,
+          dewormedNon4Ps: 1,
+          totalEnrolled: { $add: ['$enrolled4Ps', '$enrolledNon4Ps'] },
+          totalDewormed: { $add: ['$dewormed4Ps', '$dewormedNon4Ps'] },
+        },
+      },
+      {
+        $addFields: {
+          dewormedPercentage: {
+            $cond: [
+              { $eq: ['$totalEnrolled', 0] },
+              '0.00%',
+              {
+                $concat: [
+                  {
+                    $toString: {
+                      $round: [
+                        {
+                          $multiply: [
+                            { $divide: ['$totalDewormed', '$totalEnrolled'] },
+                            100,
+                          ],
+                        },
+                        2,
+                      ],
+                    },
+                  },
+                  '%',
+                ],
+              },
+            ],
+          },
+        },
+      },
+      {
+        $sort: { grade: 1 },
+      },
+    ]);
+
+    res.json({
+      SchoolYear: currentAcademicYear.schoolYear,
+      DewormReport: dewormReport,
+    });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: 'Error generating deworming report: ' + error.message });
   }
 };
