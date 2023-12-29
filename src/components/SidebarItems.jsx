@@ -41,14 +41,20 @@ export const sidebarItems = [
   {
     type: 'link',
     to: '/app/clinic-records',
-    primary: 'Clinic Records',
+    primary: 'Clinic Visit',
     icon: AssignmentOutlinedIcon,
   },
   {
-    type: 'link',
-    to: '/app/medicine-inventory',
+    type: 'submenu',
     primary: 'Medicine Inventory',
     icon: MedicalServicesOutlined,
+    submenuLinks: [
+      { to: '/app/medicine-item', primary: 'Item' },
+      { to: '/app/medicine-batch', primary: 'Batch' },
+      { to: '/app/medicine-in', primary: 'In' },
+      { to: '/app/medicine-dispense', primary: 'Dispense' },
+      { to: '/app/medicine-adjustment', primary: 'Adjustment' },
+    ],
   },
   {
     type: 'link',

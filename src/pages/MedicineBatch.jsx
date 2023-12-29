@@ -1,12 +1,12 @@
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import Grid from '../components/Grid/logGrid';
+import Grid from '../components/Grid/MedicineBatchGrid';
 
-const Logs = () => {
+const MedicineBatch = () => {
   return (
     <div className="flex flex-col">
       <div className="flex-grow overflow-hidden">
-        <Header title="Logs" />
+        <Header title="Medicine Inventory: Item Quantity per Batch" />
         <div className="flex flex-col items-center justify-center h-full p-4">
           <div className="flex items-center justify-center w-full">
             <Grid />
@@ -18,4 +18,4 @@ const Logs = () => {
   );
 };
 
-export default Logs;
+export default MedicineBatch;
