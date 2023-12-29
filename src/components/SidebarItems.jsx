@@ -6,7 +6,7 @@ import {
   MedicalServicesOutlined,
   EventOutlined,
   AutoGraphOutlined,
-  ReceiptLongOutlined,
+  // ReceiptLongOutlined,
   ExitToAppOutlined,
 } from '@mui/icons-material';
 import SpaOutlinedIcon from '@mui/icons-material/SpaOutlined';
@@ -49,11 +49,11 @@ export const sidebarItems = [
     primary: 'Medicine Inventory',
     icon: MedicalServicesOutlined,
     submenuLinks: [
-      { to: '/app/medicine-item', primary: 'Item' },
-      { to: '/app/medicine-batch', primary: 'Batch' },
-      { to: '/app/medicine-in', primary: 'In' },
-      { to: '/app/medicine-dispense', primary: 'Dispense' },
-      { to: '/app/medicine-adjustment', primary: 'Adjustment' },
+      { to: '/app/medicine-item', primary: 'Medicine Item' },
+      { to: '/app/medicine-batch', primary: 'Medicine Batch' },
+      { to: '/app/medicine-in', primary: 'Medicine In' },
+      { to: '/app/medicine-dispense', primary: 'Medicine Dispense' },
+      { to: '/app/medicine-adjustment', primary: 'Medicine Adjustment' },
     ],
   },
   {
@@ -98,12 +98,12 @@ export const sidebarItems = [
       { to: '/app/feeding-analytics', primary: 'Feeding Analytics' },
     ],
   },
-  {
-    type: 'link',
-    to: '/app/logs',
-    primary: 'Logs',
-    icon: ReceiptLongOutlined,
-  },
+  // {
+  //   type: 'link',
+  //   to: '/app/logs',
+  //   primary: 'Logs',
+  //   icon: ReceiptLongOutlined,
+  // },
   {
     type: 'link',
     to: '/',
