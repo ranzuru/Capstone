@@ -18,6 +18,7 @@ import RecordInfoDialog from '../../components/Dialog/EmployeeMedicalDialog.jsx'
 import EmployeeMedicalForm from '../Form/EmployeeMedicalForm.jsx';
 import mapRecord from '../../utils/employeeMedicalMapRecord.js';
 import { formatYearFromDate } from '../../utils/formatDateFromYear.js';
+import { useSchoolYear } from '../../hooks/useSchoolYear.js';
 
 const EmployeeMedicalGrid = () => {
   const [formOpen, setFormOpen] = useState(false);
@@ -40,6 +41,7 @@ const EmployeeMedicalGrid = () => {
   const [filterModel, setFilterModel] = useState({
     items: [],
   });
+  const { activeSchoolYear } = useSchoolYear();
 
   const showSnackbar = (message, severity) => {
     setSnackbarData({ message, severity });
@@ -73,7 +75,11 @@ const EmployeeMedicalGrid = () => {
   const fetchRecord = useCallback(async () => {
     setIsLoading(true);
     try {
-      const response = await axiosInstance.get('employeeMedical/fetch');
+      const response = await axiosInstance.get(
+        `employeeMedical/fetch?schoolYear=${encodeURIComponent(
+          activeSchoolYear
+        )}`
+      );
       const updatedRecords = response.data.map(mapRecord);
       setRecords(updatedRecords);
     } catch (error) {
@@ -82,11 +88,13 @@ const EmployeeMedicalGrid = () => {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [activeSchoolYear]);
 
   useEffect(() => {
-    fetchRecord();
-  }, [fetchRecord]);
+    if (activeSchoolYear) {
+      fetchRecord();
+    }
+  }, [activeSchoolYear, fetchRecord]);
 
   const refreshStudents = () => {
     fetchRecord();

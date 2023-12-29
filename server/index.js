@@ -1,7 +1,6 @@
 import dotenv from 'dotenv';
 dotenv.config();
 import express from 'express';
-import session from 'express-session';
 import cookieParser from 'cookie-parser';
 import connectDB from './mongodb/Connect.js';
 import cors from 'cors';
@@ -20,27 +19,15 @@ import clinicVisitRoutes from './routes/clinicVisit.js';
 import employeeMedicalRoutes from './routes/employeeMedical.js';
 import feedingProgramRoutes from './routes/feedingProgram.js';
 import dewormingRoutes from './routes/deworming.js';
+import resetPasswordRoutes from './routes/resetPassword.js';
 
 const app = express();
 app.use(express.json({ limit: '50mb' }));
 app.use(cookieParser());
 
-app.use(
-  session({
-    secret: process.env.SESSION_SECRET, // replace with a real secret key
-    resave: false,
-    saveUninitialized: true,
-    cookie: {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production', // enable in production
-      maxAge: 1000 * 60 * 60 * 24, // 24 hours
-    },
-  })
-);
-
 const corsOptions = {
-  origin: 'http://localhost:5173', // Replace with your frontend's URL
-  credentials: true, // This is important for cookies
+  origin: 'http://127.0.0.1:5173',
+  credentials: true,
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   allowedHeaders: ['Content-Type', 'Authorization'],
 };
@@ -66,6 +53,7 @@ app.use('/clinicVisit', clinicVisitRoutes);
 app.use('/employeeMedical', employeeMedicalRoutes);
 app.use('/feedingProgram', feedingProgramRoutes);
 app.use('/deworming', dewormingRoutes);
+app.use('/passwordReset', resetPasswordRoutes);
 
 const startServer = async () => {
   try {

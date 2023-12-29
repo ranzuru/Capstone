@@ -3,10 +3,11 @@ import { DataGrid } from '@mui/x-data-grid';
 import axiosInstance from '../../config/axios-instance.js';
 import { Button } from '@mui/material';
 import useDewormMonitoringReport from '../report/useDewormReport.jsx';
+import { useSchoolYear } from '../../hooks/useSchoolYear.js';
 
 const DewormingGrid = () => {
   const [gridData, setGridData] = useState([]);
-
+  const { activeSchoolYear } = useSchoolYear();
   const { generatePdfDocument } = useDewormMonitoringReport();
 
   const handleGenerateReport = () => {
@@ -16,15 +17,20 @@ const DewormingGrid = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axiosInstance.get('/deworming/fetch');
+        // Include the school year in the request
+        const response = await axiosInstance.get(
+          `/deworming/fetch?schoolYear=${encodeURIComponent(activeSchoolYear)}`
+        );
         setGridData(response.data);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
     };
 
-    fetchData();
-  }, []);
+    if (activeSchoolYear) {
+      fetchData();
+    }
+  }, [activeSchoolYear]);
 
   const columns = [
     { field: 'grade', headerName: 'Grade', width: 150 },

@@ -1,55 +1,124 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { TextField, Button, Paper, Typography } from '@mui/material';
 import schoolLogo from '/assets/DonjuanTransparent.webp';
 import { useAuth } from '../hooks/useAuth';
 import OtpInput from './OtpInput';
+import CustomSnackbar from '../custom/CustomSnackbar';
+import usePasswordReset from '../hooks/useResetPassword';
+import EmailDialog from './EmailDialog';
 
 const LoginForm = () => {
   const [email, setEmail] = useState('');
+  const [emailDialogOpen, setEmailDialogOpen] = useState(false);
   const [password, setPassword] = useState('');
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState('info');
   const [showOTPDialog, setShowOTPDialog] = useState(false);
+  const [otpError, setOtpError] = useState('');
   const navigate = useNavigate();
+  const { sendPasswordResetEmail, status } = usePasswordReset();
 
-  const { login, verifyOTP, resendOTP } = useAuth();
+  const { user, login, verifyOTP, resendOTP, error, otpDetails } = useAuth();
+
+  const handleEmailDialogOpen = () => {
+    setEmailDialogOpen(true);
+  };
+
+  const handleEmailDialogClose = () => {
+    setEmailDialogOpen(false);
+  };
+  useEffect(() => {
+    if (user) {
+      navigate('/app/dashboard');
+    }
+  }, [user, navigate]);
+
+  useEffect(() => {
+    if (otpDetails.otpToken && !error) {
+      setShowOTPDialog(true);
+    }
+  }, [otpDetails, error]);
+
+  useEffect(() => {
+    if (error) {
+      // If the error is related to OTP, show it in the OTP dialog
+      if (showOTPDialog) {
+        setOtpError(error); // Set OTP-specific error
+        setSnackbarOpen(false); // Do not show the snackbar if OTP dialog is active
+      } else {
+        // If the error is not related to OTP, show the snackbar
+        setSnackbarMessage(error);
+        setSnackbarSeverity('error');
+        setSnackbarOpen(true);
+        setShowOTPDialog(false); // Close the OTP dialog if open
+        setOtpError(''); // Clear OTP-specific error
+      }
+    }
+  }, [error, showOTPDialog]);
+
+  useEffect(() => {
+    if (status) {
+      setSnackbarMessage(status.message);
+      setSnackbarSeverity(status.type);
+      setSnackbarOpen(true);
+    }
+  }, [status]);
 
   const handleOTPDialogClose = () => {
-    setShowOTPDialog(false); // Close the OTP dialog
+    setShowOTPDialog(false);
   };
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    try {
-      await login(email, password);
-      setShowOTPDialog(true);
-    } catch (error) {
-      console.error('Login error:', error);
-    }
+    await login(email, password);
   };
 
   const handleOTPVerification = async (otp) => {
-    try {
-      await verifyOTP(otp);
-      navigate('/app/dashboard');
-    } catch (error) {
-      console.error('OTP Verification error:', error);
-      setShowOTPDialog(false);
-    }
+    await verifyOTP(otp);
+    setOtpError('');
   };
 
   const handleResendOTP = async () => {
-    try {
-      await resendOTP();
-    } catch (error) {
-      console.error('Resend OTP error:', error);
+    await resendOTP();
+  };
+
+  const handleSnackbarClose = () => {
+    setSnackbarOpen(false);
+  };
+
+  const handleEmailSubmit = async (email) => {
+    await sendPasswordResetEmail(email);
+    // Check the status and set snackbar properties accordingly
+    if (status && status.type === 'success') {
+      setSnackbarMessage(status.message);
+      setSnackbarSeverity('success');
+    } else if (status && status.type === 'error') {
+      setSnackbarMessage(status.message);
+      setSnackbarSeverity('error');
     }
+    setSnackbarOpen(true); // Show the snackbar
+    handleEmailDialogClose(); // Close the dialog
   };
 
   return (
     <>
+      <EmailDialog
+        open={emailDialogOpen}
+        handleClose={handleEmailDialogClose}
+        onEmailSubmit={handleEmailSubmit}
+      />
+      <CustomSnackbar
+        open={snackbarOpen}
+        handleClose={handleSnackbarClose}
+        severity={snackbarSeverity}
+        message={snackbarMessage}
+      />
       {showOTPDialog ? (
         <OtpInput
           open={showOTPDialog}
+          error={otpError}
           onClose={handleOTPDialogClose}
           onVerify={handleOTPVerification}
           onResend={handleResendOTP}
@@ -92,7 +161,11 @@ const LoginForm = () => {
                     </Button>
                   </div>
                 </form>
-                <Button color="primary" className="mt-6">
+                <Button
+                  color="primary"
+                  className="mt-6"
+                  onClick={handleEmailDialogOpen}
+                >
                   Forgot your password? Reset Password
                 </Button>
               </Paper>

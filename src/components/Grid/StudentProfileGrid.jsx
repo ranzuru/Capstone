@@ -16,6 +16,7 @@ import exportDataToExcel from '../../utils/exportToExcel.js';
 import HeaderMapping from '../../constant/studentHeaderMapping.js';
 import ConfirmationDialog from '../../custom/CustomConfirmDialog.jsx';
 import StudentInfoDialog from '../Dialog/StudentInfoDialog.jsx';
+import { useSchoolYear } from '../../hooks/useSchoolYear.js';
 // Form
 import StudentProfileForm from '../Form/StudentProfileForm.jsx';
 
@@ -40,6 +41,7 @@ const StudentProfileGrid = () => {
   const [filterModel, setFilterModel] = useState({
     items: [],
   });
+  const { activeSchoolYear } = useSchoolYear();
 
   const showSnackbar = (message, severity) => {
     setSnackbarData({ message, severity });
@@ -104,7 +106,11 @@ const StudentProfileGrid = () => {
   const fetchRecord = useCallback(async () => {
     setIsLoading(true);
     try {
-      const response = await axiosInstance.get('studentProfile/fetch');
+      const response = await axiosInstance.get(
+        `/studentProfile/fetch?schoolYear=${encodeURIComponent(
+          activeSchoolYear
+        )}`
+      );
       const updatedRecords = response.data.map(mapRecord);
       setStudents(updatedRecords);
     } catch (error) {
@@ -113,11 +119,13 @@ const StudentProfileGrid = () => {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [activeSchoolYear]);
 
   useEffect(() => {
-    fetchRecord();
-  }, [fetchRecord]);
+    if (activeSchoolYear) {
+      fetchRecord();
+    }
+  }, [activeSchoolYear, fetchRecord]);
 
   const refreshStudents = () => {
     fetchRecord();

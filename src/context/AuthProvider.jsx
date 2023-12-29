@@ -1,4 +1,4 @@
-import { createContext, useState } from 'react';
+import { createContext, useState, useCallback } from 'react';
 import axiosInstance from '../config/axios-instance';
 import PropTypes from 'prop-types';
 
@@ -6,51 +6,95 @@ export const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [otpDetails, setOtpDetails] = useState({ otpToken: '', userId: '' });
+  const [error, setError] = useState(null); // New state for error management
 
-  const login = async (email, password) => {
+  const login = useCallback(async (email, password) => {
+    setError(null); // Reset errors on new login attempt
     try {
-      await axiosInstance.post('/auth/login', { email, password });
-      // Handle any necessary state updates or actions post-login
-    } catch (error) {
-      console.error('Login error:', error);
-    }
-  };
-
-  const verifyOTP = async (otp) => {
-    try {
-      const response = await axiosInstance.post('/auth/verify-otp', {
-        otp,
+      const response = await axiosInstance.post('/auth/login', {
+        email,
+        password,
       });
-      setUser(response.data); // Set user data on successful OTP verification
+      const { otpToken, userId } = response.data;
+      setOtpDetails({ otpToken, userId });
     } catch (error) {
-      console.error('OTP Verification error:', error);
+      setError(error.response?.data?.message || 'An unknown error occurred'); // Store the error message
     }
-  };
+  }, []);
 
-  const resendOTP = async () => {
+  const verifyOTP = useCallback(
+    async (otp) => {
+      setError(null); // Reset errors on new OTP attempt
+      try {
+        const response = await axiosInstance.post('/auth/verify-otp', {
+          otp,
+          otpToken: otpDetails.otpToken,
+          userId: otpDetails.userId,
+        });
+        setUser(response.data.user);
+        setOtpDetails({ otpToken: '', userId: '' }); // Clear OTP details after successful verification
+      } catch (error) {
+        let errorMessage = 'OTP verification failed';
+        if (error.response) {
+          if (error.response.status === 400) {
+            errorMessage = 'Invalid OTP. Please try again.';
+          } else if (error.response.status === 401) {
+            errorMessage = 'Session expired. Please login again.';
+          } else {
+            errorMessage = error.response.data.message || errorMessage;
+          }
+        }
+        setError(errorMessage);
+      }
+    },
+    [otpDetails]
+  );
+
+  const resendOTP = useCallback(async () => {
+    setError(null); // It might not be necessary to reset errors here
     try {
-      await axiosInstance.post('/auth/resend-otp');
+      const response = await axiosInstance.post('/auth/resend-otp', {
+        userId: otpDetails.userId,
+      });
+      const { otpToken } = response.data;
+      setOtpDetails((prevDetails) => ({ ...prevDetails, otpToken }));
     } catch (error) {
-      console.error('Resend OTP error:', error);
+      setError(error.response?.data?.message || 'An unknown error occurred'); // Store the error message
     }
-  };
+  }, [otpDetails.userId]);
 
-  const logout = async () => {
+  const logout = useCallback(async () => {
     try {
       await axiosInstance.post('/auth/logout');
       setUser(null); // Clear user state
+      setError(null); // Reset errors on logout
     } catch (error) {
       console.error('Logout error:', error);
+      setError(error.response?.data?.message || 'An unknown error occurred'); // Store the error message
     }
-  };
+  }, []);
 
   AuthProvider.propTypes = {
     children: PropTypes.node.isRequired,
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, verifyOTP, resendOTP, logout }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        setUser,
+        login,
+        verifyOTP,
+        resendOTP,
+        logout,
+        error,
+        otpDetails,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
 };
+
+export default AuthProvider;

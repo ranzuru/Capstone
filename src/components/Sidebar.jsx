@@ -4,7 +4,7 @@ import { sidebarItems } from '../components/SidebarItems';
 import SidebarLink from '../components/SidebarLink';
 import SidebarSubmenu from '../components/SidebarSubmenu';
 import MenuOutlinedIcon from '@mui/icons-material/MenuOutlined';
-import { useAuth } from '../hooks/useAuth';
+// import { useAuth } from '../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 
 function Sidebar() {
@@ -12,7 +12,24 @@ function Sidebar() {
   const [openedSubmenu, setOpenedSubmenu] = useState('');
   const navigate = useNavigate();
 
-  const { logout } = useAuth();
+  // const { user, logout } = useAuth();
+
+  // const navigationScopes = user?.role?.navigationScopes || [];
+  // const logoutItem = sidebarItems.find((item) => item.primary === 'Logout');
+
+  // const itemsToDisplay = sidebarItems
+  //   .filter((item) => {
+  //     if (item.type === 'link' && item.primary !== 'Logout') {
+  //       return navigationScopes.includes(item.primary);
+  //     } else if (item.type === 'submenu') {
+  //       item.submenuLinks = item.submenuLinks.filter((subItem) =>
+  //         navigationScopes.includes(subItem.primary)
+  //       );
+  //       return item.submenuLinks.length > 0;
+  //     }
+  //     return false;
+  //   })
+  //   .concat(logoutItem ? [logoutItem] : []); // Ensure logout is always included
 
   const itemsToDisplay = sidebarItems;
 
@@ -22,7 +39,7 @@ function Sidebar() {
 
   const handleLogout = async () => {
     try {
-      await logout(); // Call the logout function
+      // await logout();
       navigate('/');
     } catch (error) {
       console.error('Logout error:', error);
@@ -63,13 +80,6 @@ function Sidebar() {
       </div>
       {!isSidebarCollapsed && (
         <>
-          <div className="flex justify-center mb-2">
-            {/* <img
-              src={userImage}
-              alt={userName}
-              className="rounded-full h-24 w-24 object-cover"
-            /> */}
-          </div>
           <div className="text-center mb-6 text-white">
             <h1 className="text-lg font-semibold">Hello</h1>
           </div>

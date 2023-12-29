@@ -40,6 +40,7 @@ export const createFeeding = async (req, res) => {
 
 // Read all
 export const getAllFeedings = async (req, res) => {
+  const { schoolYear } = req.query;
   const { type } = req.params;
 
   if (!['PRE', 'POST'].includes(type.toUpperCase())) {
@@ -47,15 +48,48 @@ export const getAllFeedings = async (req, res) => {
   }
 
   try {
-    // Adjust the query to filter by the measurement type.
-    const feedings = await FeedingProgram.find({
-      measurementType: type.toUpperCase(),
-    }).populate('academicYear');
+    let feedings;
+
+    if (schoolYear) {
+      // Use aggregation pipeline when schoolYear is provided
+      const aggregation = [
+        {
+          $match: { measurementType: type.toUpperCase() },
+        },
+        {
+          $lookup: {
+            from: 'academicyears',
+            localField: 'academicYear',
+            foreignField: '_id',
+            as: 'academicYearInfo',
+          },
+        },
+        { $unwind: '$academicYearInfo' },
+        { $match: { 'academicYearInfo.schoolYear': schoolYear } },
+        {
+          $addFields: {
+            'academicYear.schoolYear': '$academicYearInfo.schoolYear',
+          },
+        },
+        { $project: { academicYearInfo: 0 } },
+      ];
+      feedings = await FeedingProgram.aggregate(aggregation);
+    } else {
+      // Use find with populate when schoolYear is not provided
+      feedings = await FeedingProgram.find({
+        measurementType: type.toUpperCase(),
+      }).populate({
+        path: 'academicYear',
+        select: 'schoolYear',
+      });
+    }
+
     res.send(feedings);
   } catch (err) {
     handleError(res, err);
   }
 };
+
 // Update
 export const updateFeeding = async (req, res) => {
   try {
