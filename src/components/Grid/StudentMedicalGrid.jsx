@@ -18,6 +18,8 @@ import RecordInfoDialog from '../../components/Dialog/studentMedicalDialog.jsx';
 import StudentMedicalForm from '../Form/StudentMedicalForm.jsx';
 import mapRecord from '../../utils/studentMedicalMapRecord.js';
 import { formatYearFromDate } from '../../utils/formatDateFromYear.js';
+import useStudentMedicalReport from '../report/useStudentMedicalReport.jsx';
+import { useSchoolYear } from '../../hooks/useSchoolYear.js';
 
 const StudentMedicalGrid = () => {
   const [formOpen, setFormOpen] = useState(false);
@@ -40,6 +42,12 @@ const StudentMedicalGrid = () => {
   const [filterModel, setFilterModel] = useState({
     items: [],
   });
+  const { generatePdfDocument } = useStudentMedicalReport();
+  const { activeSchoolYear } = useSchoolYear();
+
+  const handleGenerateReport = (recordId) => {
+    generatePdfDocument(recordId);
+  };
 
   const showSnackbar = (message, severity) => {
     setSnackbarData({ message, severity });
@@ -73,7 +81,11 @@ const StudentMedicalGrid = () => {
   const fetchRecord = useCallback(async () => {
     setIsLoading(true);
     try {
-      const response = await axiosInstance.get('studentMedical/fetch');
+      const response = await axiosInstance.get(
+        `studentMedical/fetch?schoolYear=${encodeURIComponent(
+          activeSchoolYear
+        )}`
+      );
       const updatedRecords = response.data.map(mapRecord);
       setRecords(updatedRecords);
     } catch (error) {
@@ -82,11 +94,13 @@ const StudentMedicalGrid = () => {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [activeSchoolYear]);
 
   useEffect(() => {
-    fetchRecord();
-  }, [fetchRecord]);
+    if (activeSchoolYear) {
+      fetchRecord();
+    }
+  }, [activeSchoolYear, fetchRecord]);
 
   const refreshStudents = () => {
     fetchRecord();
@@ -143,6 +157,7 @@ const StudentMedicalGrid = () => {
           onEdit={() => handleEdit(params.row.id)}
           onDelete={() => handleDialogOpen(params.row.id)}
           onView={() => handleInfoDialogOpen(params.row.id)}
+          onMedicalReport={() => handleGenerateReport(params.row.id)}
         />
       ),
     },

@@ -47,6 +47,9 @@ const RecordInfoDialog = ({ open, onClose, record }) => {
                 Section: <span className="text-gray-600">{record.section}</span>
               </Typography>
               <Typography variant="subtitle1" className="font-semibold">
+                Adviser: <span className="text-gray-600">{record.adviser}</span>
+              </Typography>
+              <Typography variant="subtitle1" className="font-semibold">
                 Date of Onset:{' '}
                 <span className="text-gray-600">
                   {formatYearFromDate(record.dateOfOnset)}
@@ -107,6 +110,7 @@ RecordInfoDialog.propTypes = {
     schoolYear: PropTypes.string,
     grade: PropTypes.string,
     section: PropTypes.string,
+    adviser: PropTypes.string,
     dateOfOnset: PropTypes.string,
     dateOfAdmission: PropTypes.string,
     hospitalAdmission: PropTypes.string,

@@ -41,8 +41,36 @@ export const createEmployeeMedical = async (req, res) => {
 // Read all
 export const getAllEmployeeMedicals = async (req, res) => {
   try {
-    const employeeMedicals =
-      await EmployeeMedical.find().populate('academicYear');
+    const { schoolYear } = req.query;
+    let employeeMedicals;
+
+    if (schoolYear) {
+      const aggregation = [
+        {
+          $lookup: {
+            from: 'academicyears',
+            localField: 'academicYear',
+            foreignField: '_id',
+            as: 'academicYearInfo',
+          },
+        },
+        { $unwind: '$academicYearInfo' },
+        { $match: { 'academicYearInfo.schoolYear': schoolYear } },
+        {
+          $addFields: {
+            'academicYear.schoolYear': '$academicYearInfo.schoolYear',
+          },
+        },
+        { $project: { academicYearInfo: 0 } },
+      ];
+      employeeMedicals = await EmployeeMedical.aggregate(aggregation);
+    } else {
+      employeeMedicals = await EmployeeMedical.find().populate({
+        path: 'academicYear',
+        select: 'schoolYear',
+      });
+    }
+
     res.send(employeeMedicals);
   } catch (err) {
     handleError(res, err);

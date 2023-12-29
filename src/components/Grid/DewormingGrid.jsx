@@ -1,22 +1,36 @@
 import { useState, useEffect } from 'react';
 import { DataGrid } from '@mui/x-data-grid';
 import axiosInstance from '../../config/axios-instance.js';
+import { Button } from '@mui/material';
+import useDewormMonitoringReport from '../report/useDewormReport.jsx';
+import { useSchoolYear } from '../../hooks/useSchoolYear.js';
 
 const DewormingGrid = () => {
   const [gridData, setGridData] = useState([]);
+  const { activeSchoolYear } = useSchoolYear();
+  const { generatePdfDocument } = useDewormMonitoringReport();
+
+  const handleGenerateReport = () => {
+    generatePdfDocument(); // Call the function that opens the PDF
+  };
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axiosInstance.get('/deworming/fetch');
+        // Include the school year in the request
+        const response = await axiosInstance.get(
+          `/deworming/fetch?schoolYear=${encodeURIComponent(activeSchoolYear)}`
+        );
         setGridData(response.data);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
     };
 
-    fetchData();
-  }, []);
+    if (activeSchoolYear) {
+      fetchData();
+    }
+  }, [activeSchoolYear]);
 
   const columns = [
     { field: 'grade', headerName: 'Grade', width: 150 },
@@ -102,7 +116,13 @@ const DewormingGrid = () => {
     <div className="flex flex-col h-full">
       <div className="w-full max-w-screen-xl mx-auto px-8">
         <div className="mb-4 flex justify-between items-center">
-          <div className="flex items-center"></div>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleGenerateReport}
+          >
+            GENERATE REPORT
+          </Button>
         </div>
         <DataGrid
           rows={rows}

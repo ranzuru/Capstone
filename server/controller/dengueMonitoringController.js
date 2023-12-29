@@ -3,6 +3,7 @@ import AcademicYear from '../models/AcademicYear.js';
 import { handleError } from '../utils/handleError.js';
 import { validateDengue } from '../schema/dengueMonitoringValidation.js';
 import importDengue from '../services/importDengue.js';
+import moment from 'moment';
 
 // create
 export const createDengueMonitoring = async (req, res) => {
@@ -41,8 +42,37 @@ export const createDengueMonitoring = async (req, res) => {
 // read
 export const getAllDengueMonitoring = async (req, res) => {
   try {
-    const dengueMonitoring =
-      await DengueMonitoring.find().populate('academicYear');
+    const { schoolYear } = req.query;
+    let dengueMonitoring;
+
+    if (schoolYear) {
+      // Use aggregation pipeline when schoolYear is provided
+      const aggregation = [
+        {
+          $lookup: {
+            from: 'academicyears',
+            localField: 'academicYear',
+            foreignField: '_id',
+            as: 'academicYearInfo',
+          },
+        },
+        { $unwind: '$academicYearInfo' },
+        { $match: { 'academicYearInfo.schoolYear': schoolYear } },
+        {
+          $addFields: {
+            'academicYear.schoolYear': '$academicYearInfo.schoolYear',
+          },
+        },
+        { $project: { academicYearInfo: 0 } },
+      ];
+      dengueMonitoring = await DengueMonitoring.aggregate(aggregation);
+    } else {
+      dengueMonitoring = await DengueMonitoring.find().populate({
+        path: 'academicYear',
+        select: 'schoolYear',
+      });
+    }
+
     res.send(dengueMonitoring);
   } catch (err) {
     handleError(res, err);
@@ -161,5 +191,58 @@ export const importDengueMonitoring = async (req, res) => {
     });
   } catch (err) {
     handleError(res, err);
+  }
+};
+
+// PDF Report
+export const getDengueCasesForActiveYear = async (req, res) => {
+  try {
+    const currentAcademicYear = await AcademicYear.findOne({
+      status: 'Active',
+    });
+    if (!currentAcademicYear) {
+      return res
+        .status(404)
+        .json({ message: 'Active academic year not found.' });
+    }
+
+    const cases = await DengueMonitoring.find({
+      status: 'Active',
+      academicYear: currentAcademicYear._id,
+    });
+
+    const formattedCases = cases.map((caseItem) => {
+      let fullName = `${caseItem.lastName}, ${caseItem.firstName}`;
+      if (caseItem.middleName) {
+        fullName += ` ${caseItem.middleName.charAt(0)}.`;
+      }
+      if (caseItem.nameExtension && caseItem.nameExtension.trim()) {
+        fullName += ` ${caseItem.nameExtension}`;
+      }
+      const genderFormatted = caseItem.gender === 'Male' ? 'M' : 'F';
+      return {
+        Name: fullName,
+        Gender: genderFormatted,
+        Age: caseItem.age,
+        GradeSection: `${caseItem.grade}/${caseItem.section}`,
+        Adviser: caseItem.adviser,
+        Address: caseItem.address,
+        DateOfOnset: moment(caseItem.dateOfOnset).format('MM/DD/YYYY'),
+        DateOfAdmission: caseItem.dateOfAdmission
+          ? moment(caseItem.dateOfAdmission).format('MM/DD/YYYY')
+          : '',
+        HospitalOfAdmission: caseItem.hospitalAdmission || '',
+        DateOfDischarge: caseItem.dateOfDischarge
+          ? moment(caseItem.dateOfDischarge).format('MM/DD/YYYY')
+          : '',
+      };
+    });
+
+    res.json({
+      SchoolYear: currentAcademicYear.schoolYear,
+      DengueCases: formattedCases,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
 };

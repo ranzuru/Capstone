@@ -35,7 +35,38 @@ export const createEmployee = async (req, res) => {
 
 export const getAllEmployees = async (req, res) => {
   try {
-    const employees = await EmployeeProfile.find().populate('academicYear');
+    const { schoolYear } = req.query;
+    let employees;
+
+    if (schoolYear) {
+      // Use aggregation pipeline when schoolYear is provided
+      const aggregation = [
+        {
+          $lookup: {
+            from: 'academicyears', // Make sure this matches your collection name for academic years
+            localField: 'academicYear',
+            foreignField: '_id',
+            as: 'academicYearInfo',
+          },
+        },
+        { $unwind: '$academicYearInfo' },
+        { $match: { 'academicYearInfo.schoolYear': schoolYear } },
+        {
+          $addFields: {
+            'academicYear.schoolYear': '$academicYearInfo.schoolYear',
+          },
+        },
+        { $project: { academicYearInfo: 0 } },
+      ];
+      employees = await EmployeeProfile.aggregate(aggregation);
+    } else {
+      // Use find with populate when schoolYear is not provided
+      employees = await EmployeeProfile.find().populate({
+        path: 'academicYear',
+        select: 'schoolYear',
+      });
+    }
+
     res.status(200).json(employees);
   } catch (err) {
     handleError(res, err);

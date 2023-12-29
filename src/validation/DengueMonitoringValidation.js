@@ -12,6 +12,7 @@ const DengueValidation = Yup.object().shape({
   schoolYear: Yup.string().required('School year is required'),
   grade: Yup.string().required('Grade is required'),
   section: Yup.string().required('Section is required'),
+  adviser: Yup.string().required('Adviser is required'),
   dateOfOnset: Yup.date().required('Date of onset is required'),
   dateOfAdmission: Yup.date().nullable(),
   hospitalAdmission: Yup.string().nullable(),

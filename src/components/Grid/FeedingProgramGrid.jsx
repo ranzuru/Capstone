@@ -18,6 +18,8 @@ import RecordInfoDialog from '../../components/Dialog/FeedingProgramDialog.jsx';
 import FeedingProgramForm from '../Form/FeedingProgramForm.jsx';
 import mapRecord from '../../utils/feedingProgramMapRecord.js';
 import { formatYearFromDate } from '../../utils/formatDateFromYear.js';
+import useSBFPReport from '../report/useSBFPReport.jsx';
+import { useSchoolYear } from '../../hooks/useSchoolYear.js';
 
 const FeedingProgramGrid = () => {
   const [formOpen, setFormOpen] = useState(false);
@@ -41,6 +43,13 @@ const FeedingProgramGrid = () => {
   const [filterModel, setFilterModel] = useState({
     items: [],
   });
+
+  const { activeSchoolYear } = useSchoolYear();
+  const { generatePdfDocument } = useSBFPReport();
+
+  const handleGenerateReport = () => {
+    generatePdfDocument(); // Call the function that opens the PDF
+  };
 
   const showSnackbar = (message, severity) => {
     setSnackbarData({ message, severity });
@@ -75,23 +84,32 @@ const FeedingProgramGrid = () => {
     return params.row.beneficiaryOfSBFP ? 'Yes' : 'No';
   };
 
-  const fetchRecord = useCallback(async (type = 'PRE') => {
-    setIsLoading(true);
-    try {
-      const response = await axiosInstance.get(`feedingProgram/fetch/${type}`);
-      const updatedRecords = response.data.map(mapRecord);
-      setRecords(updatedRecords);
-    } catch (error) {
-      console.error('An error occurred while fetching roles:', error);
-      setIsLoading(false);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+  const fetchRecord = useCallback(
+    async (type = 'PRE') => {
+      setIsLoading(true);
+      try {
+        // Include the school year in the request
+        const response = await axiosInstance.get(
+          `feedingProgram/fetch/${type}?schoolYear=${encodeURIComponent(
+            activeSchoolYear
+          )}`
+        );
+        const updatedRecords = response.data.map(mapRecord);
+        setRecords(updatedRecords);
+      } catch (error) {
+        console.error('An error occurred while fetching records:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [activeSchoolYear]
+  ); // Add activeSchoolYear as a dependency
 
   useEffect(() => {
-    fetchRecord(currentType);
-  }, [fetchRecord, currentType]);
+    if (activeSchoolYear) {
+      fetchRecord(currentType); // Pass the currentType to the fetchRecord function
+    }
+  }, [fetchRecord, currentType, activeSchoolYear]);
 
   const refreshStudents = () => {
     fetchRecord();
@@ -371,6 +389,13 @@ const FeedingProgramGrid = () => {
               onClick={handleModalOpen}
             >
               New Record
+            </Button>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleGenerateReport}
+            >
+              GENERATE REPORT
             </Button>
             <div className="ml-2">
               <TextField

@@ -1,157 +1,105 @@
 import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
+import setCookie from '../utils/setCookie.js';
 import { sendOTP, verifyOTP } from './otpController.js';
 
-// Controller to create a new user in MongoDB
-export const register = async (req, res) => {
-  const { firstName, lastName, email, password, role } = req.body;
-
-  try {
-    // Check if user already exists
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return res.status(409).json({ message: 'User already exists' });
-    }
-
-    // Hash password
-    const hashedPassword = await bcrypt.hash(password, 10); // 10 is the salt rounds
-
-    // Create new user
-    const user = new User({
-      firstName,
-      lastName,
-      email,
-      password: hashedPassword,
-      role,
-      status: 'Active', // Assuming default status is 'Active'
-    });
-
-    // Save user
-    await user.save();
-
-    res.status(201).json({ message: 'User registered successfully' });
-  } catch (error) {
-    res
-      .status(500)
-      .json({ message: 'Internal server error', error: error.message });
-  }
-};
-// Update
-export const updateUser = async (req, res) => {
-  const { id } = req.params; // Assuming you're passing the user ID in the URL
-  const { firstName, lastName, email, password, role, status } = req.body;
-
-  try {
-    // Find user by ID
-    const user = await User.findById(id);
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-
-    // Optional: Check if the email is being updated and already exists
-    if (email && email !== user.email) {
-      const existingUser = await User.findOne({ email });
-      if (existingUser) {
-        return res.status(409).json({ message: 'Email already in use' });
-      }
-    }
-
-    // Update fields
-    user.firstName = firstName || user.firstName;
-    user.lastName = lastName || user.lastName;
-    user.email = email || user.email;
-    user.role = role || user.role;
-    user.status = status || user.status;
-
-    // Hash new password if provided
-    if (password) {
-      user.password = await bcrypt.hash(password, 10); // Re-hash new password
-    }
-
-    // Save updated user
-    await user.save();
-
-    res.status(200).json({ message: 'User updated successfully' });
-  } catch (error) {
-    res
-      .status(500)
-      .json({ message: 'Internal server error', error: error.message });
-  }
-};
+// Helper functions to generate tokens
+const generateAccessToken = (user) =>
+  jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '15m' });
+const generateRefreshToken = (user) =>
+  jwt.sign({ userId: user._id }, process.env.REFRESH_TOKEN_SECRET, {
+    expiresIn: '1d',
+  });
 
 // Login
 export const login = async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    const user = await User.findOne({ email });
-    if (!user || user.status !== 'Active') {
-      return res
-        .status(401)
-        .json({ message: 'Authentication failed or account is inactive' });
+    const user = await User.findOne({ email }).select('+password');
+    if (!user) {
+      return res.status(401).json({ message: 'Invalid email or password' });
+    }
+
+    if (user.status !== 'Active') {
+      return res.status(403).json({ message: 'Account is inactive' });
     }
 
     const match = await bcrypt.compare(password, user.password);
     if (!match) {
-      return res.status(401).json({ message: 'Authentication failed' });
+      return res.status(401).json({ message: 'Invalid email or password' });
     }
 
     // If password match, proceed to send OTP
-    const otpToken = await sendOTP(user.email); // Assuming sendOTP handles OTP sending and returns a token
-
-    // Save relevant data in the session
-    req.session.userId = user._id; // Save user ID in session
-    req.session.isOTPRequested = true; // Flag to indicate that OTP has been requested
-    req.session.otpToken = otpToken; // Save OTP token in session for later verification
-
-    return res.status(200).json({ message: 'OTP sent, please verify' });
+    const otpToken = await sendOTP(user.email);
+    return res
+      .status(200)
+      .json({ otpToken, userId: user._id, message: 'OTP sent, please verify' });
   } catch (error) {
     console.error('Login error:', error);
-    res
-      .status(500)
-      .json({ message: 'Internal server error', error: error.message });
+    res.status(500).json({ message: 'Internal server error' });
   }
 };
 
 export const verifyLoginOTP = async (req, res) => {
-  const { otp } = req.body;
+  const { otp, otpToken, userId } = req.body;
 
   try {
-    // Check if an OTP request was made and an OTP token is stored in the session
-    if (!req.session.isOTPRequested || !req.session.otpToken) {
-      return res.status(401).json({ message: 'OTP verification failed' });
-    }
-
-    const isValid = verifyOTP(req.session.otpToken, otp);
+    const isValid = verifyOTP(otpToken, otp);
     if (!isValid) {
-      return res.status(401).json({ message: 'OTP verification failed' });
+      return res.status(400).json({ message: 'OTP verification failed' });
     }
 
-    const user = await User.findById(req.session.userId);
+    const user = await User.findById(userId).populate(
+      'role',
+      'roleName navigationScopes'
+    );
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    // Update the session to indicate the user is fully authenticated
-    req.session.isAuthenticated = true;
+    const userResponse = {
+      _id: user._id,
+      email: user.email,
+      name: user.firstName,
+      role: {
+        roleName: user.role.roleName,
+        navigationScopes: user.role.navigationScopes,
+      },
+    };
 
-    res.status(200).json({ message: 'OTP verified successfully' });
-  } catch (error) {
+    // Generate JWT tokens
+    const accessToken = generateAccessToken(user);
+    const refreshToken = generateRefreshToken(user);
+
+    setCookie(res, 'accessToken', accessToken, { maxAge: 15 * 60 * 1000 });
+    setCookie(res, 'refreshToken', refreshToken);
+
     res
-      .status(500)
-      .json({ message: 'Internal server error', error: error.message });
+      .status(200)
+      .json({ message: 'OTP verified successfully', user: userResponse });
+  } catch (error) {
+    if (
+      error.name === 'TokenExpiredError' ||
+      error.name === 'JsonWebTokenError'
+    ) {
+      res
+        .status(401)
+        .json({ message: 'OTP verification failed or OTP expired' });
+    } else {
+      res
+        .status(500)
+        .json({ message: 'Internal server error', error: error.message });
+    }
   }
 };
 
 export const resendOTP = async (req, res) => {
-  try {
-    // Check if a user ID is stored in the session
-    if (!req.session.userId) {
-      return res.status(401).json({ message: 'No session found' });
-    }
+  const { userId } = req.body;
 
-    // Find the user by the ID stored in the session
-    const user = await User.findById(req.session.userId);
+  try {
+    const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
@@ -159,10 +107,7 @@ export const resendOTP = async (req, res) => {
     // Resend OTP
     const otpToken = await sendOTP(user.email);
 
-    // Update the session with the new OTP token
-    req.session.otpToken = otpToken;
-
-    res.status(200).json({ message: 'OTP resent successfully' });
+    res.status(200).json({ otpToken, message: 'OTP resent successfully' });
   } catch (error) {
     res
       .status(500)
@@ -170,11 +115,46 @@ export const resendOTP = async (req, res) => {
   }
 };
 
+// Logout is handled client-side by discarding the JWT
 export const logout = (req, res) => {
-  req.session.destroy((err) => {
-    if (err) {
-      return res.status(500).json({ message: 'Error logging out' });
+  res.clearCookie('accessToken');
+  res.clearCookie('refreshToken');
+  res.status(200).json({ message: 'Logout successful' });
+};
+
+// Refresh token
+export const refreshAccessToken = async (req, res) => {
+  const { refreshToken } = req.cookies;
+
+  if (!refreshToken) {
+    return res.status(401).json({ message: 'Refresh token not found' });
+  }
+
+  try {
+    // Verify the refresh token
+    const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
+
+    const user = await User.findById(decoded.userId);
+    if (!user) {
+      return res.status(401).json({ message: 'User not found' });
     }
-    res.status(200).json({ message: 'Logout successful' });
-  });
+
+    const newAccessToken = generateAccessToken(user);
+
+    const newRefreshToken = generateRefreshToken(user);
+
+    setCookie(res, 'refreshToken', newRefreshToken);
+
+    setCookie(res, 'accessToken', newAccessToken, { maxAge: 15 * 60 * 1000 });
+
+    res.status(200).json({ message: 'Access token refreshed successfully' });
+  } catch (error) {
+    console.error('Error refreshing access token:', error);
+    res.clearCookie('refreshToken');
+    if (error instanceof jwt.TokenExpiredError) {
+      res.status(401).json({ message: 'Invalid refresh token' });
+    } else {
+      res.status(500).json({ message: 'Internal Server Error' });
+    }
+  }
 };

@@ -7,6 +7,7 @@ import PersonIcon from '@mui/icons-material/Person';
 import FaceIcon from '@mui/icons-material/Face';
 import LocalHospitalIcon from '@mui/icons-material/LocalHospital';
 import RiceBowlIcon from '@mui/icons-material/RiceBowl';
+import { SchoolYearDashboard } from './SchoolYearDashboard';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -69,6 +70,9 @@ const Dashboard = () => {
                   subtitle="Students eligible for feeding program."
                   onCardClick={handleCardClickFeeding}
                 />
+              </Grid>
+              <Grid item xs={12} sm={6} md={4} lg={3}>
+                <SchoolYearDashboard />
               </Grid>
             </Grid>
           </div>

@@ -9,14 +9,22 @@ import {
   Typography,
 } from '@mui/material';
 import PropTypes from 'prop-types';
+import Alert from '@mui/material/Alert'; // Import Alert component for error display
 
-const OTPInput = ({ open, onClose, onVerify, onResend }) => {
+const OTPInput = ({ open, onClose, onVerify, onResend, error }) => {
   const [otp, setOtp] = useState('');
   const [timer, setTimer] = useState(60);
 
   useEffect(() => {
+    if (!open) {
+      setOtp(''); // Reset OTP input when dialog closes
+      setTimer(60); // Reset the timer when dialog closes
+    }
+  }, [open]);
+
+  useEffect(() => {
     let interval;
-    if (timer > 0) {
+    if (open && timer > 0) {
       interval = setInterval(() => {
         setTimer((prevTimer) => prevTimer - 1);
       }, 1000);
@@ -24,23 +32,22 @@ const OTPInput = ({ open, onClose, onVerify, onResend }) => {
       clearInterval(interval);
     }
     return () => clearInterval(interval);
-  }, [timer]);
+  }, [open, timer]);
 
   const handleResend = () => {
     onResend();
     setTimer(60); // Reset the timer
   };
 
-  const handleClose = () => {
-    onClose();
-    setOtp(''); // Reset OTP input
-    setTimer(60); // Reset the timer
-  };
-
   return (
-    <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
+    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle>Enter OTP</DialogTitle>
       <DialogContent>
+        {error && (
+          <Alert severity="error" style={{ marginBottom: 10 }}>
+            {error}
+          </Alert>
+        )}
         <TextField
           label="OTP"
           variant="outlined"
@@ -67,7 +74,7 @@ const OTPInput = ({ open, onClose, onVerify, onResend }) => {
         )}
       </DialogContent>
       <DialogActions>
-        <Button onClick={handleClose} color="primary">
+        <Button onClick={onClose} color="primary">
           Cancel
         </Button>
         <Button
@@ -87,6 +94,7 @@ OTPInput.propTypes = {
   onClose: PropTypes.func.isRequired,
   onVerify: PropTypes.func.isRequired,
   onResend: PropTypes.func.isRequired,
+  error: PropTypes.string,
 };
 
 export default OTPInput;

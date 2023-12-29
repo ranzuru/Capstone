@@ -17,6 +17,8 @@ import dengueHeaderMappings from '../../constant/dengueHeaderMapping.js';
 import ConfirmationDialog from '../../custom/CustomConfirmDialog.jsx';
 import RecordInfoDialog from '../../components/Dialog/dengueInfoDialog.jsx';
 import DengueMonitoringForm from '../Form/DengueMonitoringForm.jsx';
+import useDengueReport from '../report/useDengueReport.jsx';
+import { useSchoolYear } from '../../hooks/useSchoolYear.js';
 
 const DengueMonitoringGrid = () => {
   const [formOpen, setFormOpen] = useState(false);
@@ -39,6 +41,12 @@ const DengueMonitoringGrid = () => {
   const [filterModel, setFilterModel] = useState({
     items: [],
   });
+  const { generatePdfDocument } = useDengueReport();
+  const { activeSchoolYear } = useSchoolYear();
+
+  const handleGenerateReport = () => {
+    generatePdfDocument();
+  };
 
   const showSnackbar = (message, severity) => {
     setSnackbarData({ message, severity });
@@ -90,6 +98,7 @@ const DengueMonitoringGrid = () => {
       gender: record.gender || 'N/A',
       dateOfBirth: record.dateOfBirth || 'N/A',
       age: record.age || 'N/A',
+      adviser: record.adviser || 'N/A',
       dateOfOnset: record.dateOfOnset || 'N/A',
       dateOfAdmission: record.dateOfAdmission
         ? formatYearFromDate(record.dateOfAdmission)
@@ -107,20 +116,25 @@ const DengueMonitoringGrid = () => {
   const fetchRecord = useCallback(async () => {
     setIsLoading(true);
     try {
-      const response = await axiosInstance.get('dengueMonitoring/fetch');
+      const response = await axiosInstance.get(
+        `/dengueMonitoring/fetch?schoolYear=${encodeURIComponent(
+          activeSchoolYear
+        )}`
+      );
       const updatedRecords = response.data.map(mapRecord);
       setRecords(updatedRecords);
     } catch (error) {
-      console.error('An error occurred while fetching roles:', error);
-      setIsLoading(false);
+      console.error('An error occurred while fetching records:', error);
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [activeSchoolYear]);
 
   useEffect(() => {
-    fetchRecord();
-  }, [fetchRecord]);
+    if (activeSchoolYear) {
+      fetchRecord();
+    }
+  }, [activeSchoolYear, fetchRecord]);
 
   const refreshStudents = () => {
     fetchRecord();
@@ -384,6 +398,13 @@ const DengueMonitoringGrid = () => {
       <div className="flex flex-col h-full">
         <div className="w-full max-w-screen-xl mx-auto px-8">
           <div className="mb-4 flex justify-end items-center">
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleGenerateReport}
+            >
+              GENERATE REPORT
+            </Button>
             <Button
               variant="contained"
               color="primary"

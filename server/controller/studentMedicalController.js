@@ -3,6 +3,7 @@ import AcademicYear from '../models/AcademicYear.js';
 import { handleError } from '../utils/handleError.js';
 import { validateStudentMedical } from '../schema/studentMedicalValidation.js';
 import importStudentMedical from '../services/importStudentMedical.js';
+import moment from 'moment';
 
 // Create
 export const createStudentMedical = async (req, res) => {
@@ -41,8 +42,37 @@ export const createStudentMedical = async (req, res) => {
 // Read all
 export const getAllStudentMedicals = async (req, res) => {
   try {
-    const studentMedicals =
-      await StudentMedical.find().populate('academicYear');
+    const { schoolYear } = req.query;
+    let studentMedicals;
+
+    if (schoolYear) {
+      // Use aggregation pipeline when schoolYear is provided
+      const aggregation = [
+        {
+          $lookup: {
+            from: 'academicyears',
+            localField: 'academicYear',
+            foreignField: '_id',
+            as: 'academicYearInfo',
+          },
+        },
+        { $unwind: '$academicYearInfo' },
+        { $match: { 'academicYearInfo.schoolYear': schoolYear } },
+        {
+          $addFields: {
+            'academicYear.schoolYear': '$academicYearInfo.schoolYear',
+          },
+        },
+        { $project: { academicYearInfo: 0 } },
+      ];
+      studentMedicals = await StudentMedical.aggregate(aggregation);
+    } else {
+      studentMedicals = await StudentMedical.find().populate({
+        path: 'academicYear',
+        select: 'schoolYear',
+      });
+    }
+
     res.send(studentMedicals);
   } catch (err) {
     handleError(res, err);
@@ -157,6 +187,83 @@ export const importMedical = async (req, res) => {
     res.status(201).json({
       message: 'Student Medical Records imported successfully',
       count: studentMedicalRecords.length,
+    });
+  } catch (err) {
+    handleError(res, err);
+  }
+};
+
+// Fetch each health record
+export const getStudentMedicalById = async (req, res) => {
+  try {
+    const currentAcademicYear = await AcademicYear.findOne({
+      status: 'Active',
+    });
+    if (!currentAcademicYear) {
+      return res
+        .status(404)
+        .json({ message: 'Active academic year not found.' });
+    }
+
+    const studentMedical = await StudentMedical.findById(req.params.id);
+    if (!studentMedical)
+      return res.status(404).send('Student medical record not found');
+
+    // Formatting the single studentMedical record
+    let fullName = `${studentMedical.lastName}, ${studentMedical.firstName}`;
+    if (studentMedical.middleName) {
+      fullName += ` ${studentMedical.middleName.charAt(0)}.`;
+    }
+    if (studentMedical.nameExtension && studentMedical.nameExtension.trim()) {
+      fullName += ` ${studentMedical.nameExtension}`;
+    }
+    const dobFormatted = moment(studentMedical.dateOfBirth).format(
+      'MMMM D, YYYY'
+    );
+    const dateMeasuredFormatted = moment(studentMedical.dateMeasured).format(
+      'MM/DD/YYYY'
+    );
+
+    const formattedRecord = {
+      Name: fullName,
+      LRN: studentMedical.lrn,
+      Age: studentMedical.age.toString(),
+      DOB: dobFormatted,
+      GradeSection: `${studentMedical.grade}/${studentMedical.section}`,
+      DateOfExamination: dateMeasuredFormatted,
+      Temperature: `${studentMedical.temperature}°C`,
+      BloodPressure: `${studentMedical.bloodPressure} mmHg`,
+      HeartRate: `${studentMedical.heartRate} bpm`,
+      PulseRate: `${studentMedical.pulseRate} bpm`,
+      RespiratoryRate: `${studentMedical.respiratoryRate} bpm`,
+      WeightKg: `${studentMedical.weightKg} kg`,
+      HeightCm: `${studentMedical.heightCm} cm`,
+      BMI: studentMedical.bmi.toString(),
+      BMIClassification: studentMedical.bmiClassification,
+      HeightForAge: studentMedical.heightForAge,
+      VisionScreening: studentMedical.visionScreening,
+      AuditoryScreening: studentMedical.auditoryScreening,
+      SkinScreening: studentMedical.skinScreening,
+      ScalpScreening: studentMedical.scalpScreening,
+      EyesScreening: studentMedical.eyesScreening,
+      EarScreening: studentMedical.earScreening,
+      NoseScreening: studentMedical.noseScreening,
+      MouthScreening: studentMedical.mouthScreening,
+      ThroatScreening: studentMedical.throatScreening,
+      NeckScreening: studentMedical.neckScreening,
+      LungScreening: studentMedical.lungScreening,
+      HeartScreening: studentMedical.heartScreening,
+      Abdomen: studentMedical.abdomen,
+      Deformities: studentMedical.deformities,
+      IronSupplementation: studentMedical.ironSupplementation ? 'Yes' : 'No',
+      Deworming: studentMedical.deworming ? 'Yes' : 'No',
+      Menarche: studentMedical.menarche || '',
+      Remarks: studentMedical.remarks || '',
+    };
+
+    res.json({
+      SchoolYear: currentAcademicYear.schoolYear,
+      HealthRecord: formattedRecord,
     });
   } catch (err) {
     handleError(res, err);
