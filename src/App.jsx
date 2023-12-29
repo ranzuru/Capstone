@@ -1,10 +1,10 @@
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-// import { AuthProvider } from './context/AuthProvider'; IBALIK AFTER
+import { AuthProvider } from './context/AuthProvider'; //Eh comment out pag development
 import { ThemeProvider } from '@mui/material/styles';
 import Login from './components/Login';
 import theme from './theme/theme';
 import LayoutWithSidebar from './components/LayoutWithSidebar';
-// import ProtectedRoute from './utils/ProtectedRoute'; IBALIK AFTER
+import ProtectedRoute from './utils/ProtectedRoute'; //Eh comment out pag development
 import PageNotFound from './pages/PageNotFound';
 import { SchoolYearProvider } from './context/SchoolYearContext';
 // Analytics
@@ -25,7 +25,7 @@ import Dashboard from './components/Dashboard';
 import AcademicYear from './pages/AcademicYear';
 import Events from './pages/Events';
 import EmployeeProfile from './pages/EmployeeProfile';
-import Logs from './pages/Logs';
+// import Logs from './pages/Logs';
 import ManageUser from './pages/ManageUser';
 import MedicineItem from './pages/MedicineItem';
 import MedicineBatch from './pages/MedicineBatch';
@@ -41,64 +41,88 @@ function App() {
     <>
       <ThemeProvider theme={theme}>
         <Router>
-          {/* <AuthProvider> */}
-          <SchoolYearProvider>
-            <Routes>
-              <Route path="/" element={<Login />} />
-              <Route path="/reset-password" element={<PasswordResetPage />} />
-              {/* <Route element={<ProtectedRoute />}> */}
-              <Route path="/app" element={<LayoutWithSidebar />}>
-                <Route path="dashboard" element={<Dashboard />} />
-                <Route path="manage-users" element={<ManageUser />} />
-                <Route path="students-profile" element={<StudentProfile />} />
-                <Route path="employee-profile" element={<EmployeeProfile />} />
-                <Route path="academic-year" element={<AcademicYear />} />
-                <Route path="role" element={<Role />} />
-                <Route path="medicine-item" element={<MedicineItem />} />
-                <Route path="medicine-batch" element={<MedicineBatch />} />
-                <Route path="medicine-in" element={<MedicineIn />} />
-                <Route path="medicine-dispense" element={<MedicineDispense />} />
-                <Route path="medicine-adjustment" element={<MedicineAdjustment />} />
-                <Route path="events" element={<Events />} />
-                <Route path="logs" element={<Logs />} />
-                <Route path="clinic-records" element={<ClinicVisitPage />} />
-                <Route
-                  path="dengue-monitoring"
-                  element={<DengueMonitoring />}
-                />
-                <Route
-                  path="dewormed-monitoring"
-                  element={<DewormingMonitoring />}
-                />
-                <Route path="faculty-checkup" element={<FacultyCheckup />} />
-                <Route path="feeding-program" element={<FeedingProgram />} />
-                <Route path="medical-checkup" element={<MedicalCheckup />} />
-                <Route
-                  path="clinic-analytics"
-                  element={<ClinicVisitorAnalytics />}
-                />
-                <Route
-                  path="dengue-analytics"
-                  element={<DengueMonitoringAnalytics />}
-                />
-                <Route
-                  path="dewormed-analytics"
-                  element={<DewormedMonitoringAnalytics />}
-                />
-                <Route
-                  path="feeding-analytics"
-                  element={<FeedingProgramAnalytics />}
-                />
-                <Route
-                  path="medical-analytics"
-                  element={<MedicalCheckupAnalytics />}
-                />
-              </Route>
-              {/* </Route> */}
-              <Route path="*" element={<PageNotFound />} />
-            </Routes>
-          </SchoolYearProvider>
-          {/* </AuthProvider> */}
+          <AuthProvider>
+            <SchoolYearProvider>
+              <Routes>
+                <Route path="/" element={<Login />} />
+                <Route path="/reset-password" element={<PasswordResetPage />} />
+                <Route element={<ProtectedRoute />}>
+                  <Route path="/app" element={<LayoutWithSidebar />}>
+                    <Route path="dashboard" element={<Dashboard />} />
+                    <Route path="manage-users" element={<ManageUser />} />
+                    <Route
+                      path="students-profile"
+                      element={<StudentProfile />}
+                    />
+                    <Route
+                      path="employee-profile"
+                      element={<EmployeeProfile />}
+                    />
+                    <Route path="academic-year" element={<AcademicYear />} />
+                    <Route path="role" element={<Role />} />
+                    <Route path="medicine-item" element={<MedicineItem />} />
+                    <Route path="medicine-batch" element={<MedicineBatch />} />
+                    <Route path="medicine-in" element={<MedicineIn />} />
+                    <Route
+                      path="medicine-dispense"
+                      element={<MedicineDispense />}
+                    />
+                    <Route
+                      path="medicine-adjustment"
+                      element={<MedicineAdjustment />}
+                    />
+                    <Route path="events" element={<Events />} />
+                    {/* <Route path="logs" element={<Logs />} /> */}
+                    <Route
+                      path="clinic-records"
+                      element={<ClinicVisitPage />}
+                    />
+                    <Route
+                      path="dengue-monitoring"
+                      element={<DengueMonitoring />}
+                    />
+                    <Route
+                      path="dewormed-monitoring"
+                      element={<DewormingMonitoring />}
+                    />
+                    <Route
+                      path="faculty-checkup"
+                      element={<FacultyCheckup />}
+                    />
+                    <Route
+                      path="feeding-program"
+                      element={<FeedingProgram />}
+                    />
+                    <Route
+                      path="medical-checkup"
+                      element={<MedicalCheckup />}
+                    />
+                    <Route
+                      path="clinic-analytics"
+                      element={<ClinicVisitorAnalytics />}
+                    />
+                    <Route
+                      path="dengue-analytics"
+                      element={<DengueMonitoringAnalytics />}
+                    />
+                    <Route
+                      path="dewormed-analytics"
+                      element={<DewormedMonitoringAnalytics />}
+                    />
+                    <Route
+                      path="feeding-analytics"
+                      element={<FeedingProgramAnalytics />}
+                    />
+                    <Route
+                      path="medical-analytics"
+                      element={<MedicalCheckupAnalytics />}
+                    />
+                  </Route>
+                </Route>
+                <Route path="*" element={<PageNotFound />} />
+              </Routes>
+            </SchoolYearProvider>
+          </AuthProvider>
         </Router>
       </ThemeProvider>
     </>
