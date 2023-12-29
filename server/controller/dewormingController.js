@@ -3,6 +3,7 @@ import AcademicYear from '../models/AcademicYear.js';
 
 // Function to fetch and format data for the datagrid
 export const fetchDataForDataGrid = async (req, res) => {
+  const { schoolYear } = req.query;
   const grades = [
     'Grade 1',
     'Grade 2',
@@ -15,8 +16,8 @@ export const fetchDataForDataGrid = async (req, res) => {
   try {
     const data = await Promise.all(
       grades.map(async (grade) => {
-        const enrolledCounts = await countStudentsInProfile(grade);
-        const dewormedCounts = await countDewormedStudents(grade);
+        const enrolledCounts = await countStudentsInProfile(grade, schoolYear);
+        const dewormedCounts = await countDewormedStudents(grade, schoolYear);
         return {
           grade: grade,
           enrolled: enrolledCounts,
@@ -31,14 +32,34 @@ export const fetchDataForDataGrid = async (req, res) => {
   }
 };
 
-const countStudentsInProfile = async (grade) => {
+const countStudentsInProfile = async (grade, schoolYear) => {
   try {
-    const counts = await StudentMedical.aggregate([
-      { $match: { grade: grade, status: 'Active' } },
-      { $group: { _id: '$is4p', count: { $sum: 1 } } },
-    ]);
+    const pipeline = [
+      {
+        $lookup: {
+          from: 'academicyears', // Replace with your AcademicYear collection name
+          localField: 'academicYear', // Replace with the field that references AcademicYear in StudentMedical
+          foreignField: '_id',
+          as: 'academicYearInfo',
+        },
+      },
+      { $unwind: '$academicYearInfo' },
+      {
+        $match: {
+          'academicYearInfo.schoolYear': schoolYear,
+          grade: grade,
+        },
+      },
+      {
+        $group: {
+          _id: '$is4p',
+          count: { $sum: 1 },
+        },
+      },
+    ];
 
-    // Transform the aggregation result into a more readable format
+    const counts = await StudentMedical.aggregate(pipeline);
+
     const result = counts.reduce(
       (acc, curr) => {
         const key = curr._id ? 'is4p' : 'not4p';
@@ -50,18 +71,38 @@ const countStudentsInProfile = async (grade) => {
 
     return result;
   } catch (error) {
-    return { is4p: 0, not4p: 0 }; // Return 0 counts in case of error
+    console.error('Error in countStudentsInProfile:', error);
+    return { is4p: 0, not4p: 0 };
   }
 };
-
-const countDewormedStudents = async (grade) => {
+const countDewormedStudents = async (grade, schoolYear) => {
   try {
-    const counts = await StudentMedical.aggregate([
-      { $match: { grade: grade, deworming: true, status: 'Active' } },
-      { $group: { _id: '$is4p', count: { $sum: 1 } } },
-    ]);
+    const pipeline = [
+      {
+        $lookup: {
+          from: 'academicyears',
+          localField: 'academicYear',
+          foreignField: '_id',
+          as: 'academicYearInfo',
+        },
+      },
+      { $unwind: '$academicYearInfo' },
+      {
+        $match: {
+          'academicYearInfo.schoolYear': schoolYear,
+          grade: grade,
+          deworming: true,
+        },
+      },
+      {
+        $group: {
+          _id: '$is4p',
+          count: { $sum: 1 },
+        },
+      },
+    ];
+    const counts = await StudentMedical.aggregate(pipeline);
 
-    // Transform the aggregation result into a more readable format
     const result = counts.reduce(
       (acc, curr) => {
         const key = curr._id ? 'is4p' : 'not4p';
@@ -73,10 +114,10 @@ const countDewormedStudents = async (grade) => {
 
     return result;
   } catch (error) {
-    return { is4p: 0, not4p: 0 }; // Return 0 counts in case of error
+    console.error('Error in countDewormedStudents:', error);
+    return { is4p: 0, not4p: 0 };
   }
 };
-``;
 
 export const getDewormReport = async (req, res) => {
   try {

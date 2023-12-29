@@ -41,8 +41,37 @@ export const createStudentProfile = async (req, res) => {
 // Read
 export const getAllStudentProfiles = async (req, res) => {
   try {
-    const studentProfiles =
-      await StudentProfile.find().populate('academicYear');
+    const { schoolYear } = req.query;
+    let studentProfiles;
+
+    if (schoolYear) {
+      // Use aggregation pipeline when schoolYear is provided
+      const aggregation = [
+        {
+          $lookup: {
+            from: 'academicyears',
+            localField: 'academicYear',
+            foreignField: '_id',
+            as: 'academicYearInfo',
+          },
+        },
+        { $unwind: '$academicYearInfo' },
+        { $match: { 'academicYearInfo.schoolYear': schoolYear } },
+        {
+          $addFields: {
+            'academicYear.schoolYear': '$academicYearInfo.schoolYear',
+          },
+        },
+        { $project: { academicYearInfo: 0 } },
+      ];
+      studentProfiles = await StudentProfile.aggregate(aggregation);
+    } else {
+      studentProfiles = await StudentProfile.find().populate({
+        path: 'academicYear',
+        select: 'schoolYear',
+      });
+    }
+
     res.send(studentProfiles);
   } catch (err) {
     handleError(res, err);

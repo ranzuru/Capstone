@@ -42,8 +42,37 @@ export const createDengueMonitoring = async (req, res) => {
 // read
 export const getAllDengueMonitoring = async (req, res) => {
   try {
-    const dengueMonitoring =
-      await DengueMonitoring.find().populate('academicYear');
+    const { schoolYear } = req.query;
+    let dengueMonitoring;
+
+    if (schoolYear) {
+      // Use aggregation pipeline when schoolYear is provided
+      const aggregation = [
+        {
+          $lookup: {
+            from: 'academicyears',
+            localField: 'academicYear',
+            foreignField: '_id',
+            as: 'academicYearInfo',
+          },
+        },
+        { $unwind: '$academicYearInfo' },
+        { $match: { 'academicYearInfo.schoolYear': schoolYear } },
+        {
+          $addFields: {
+            'academicYear.schoolYear': '$academicYearInfo.schoolYear',
+          },
+        },
+        { $project: { academicYearInfo: 0 } },
+      ];
+      dengueMonitoring = await DengueMonitoring.aggregate(aggregation);
+    } else {
+      dengueMonitoring = await DengueMonitoring.find().populate({
+        path: 'academicYear',
+        select: 'schoolYear',
+      });
+    }
+
     res.send(dengueMonitoring);
   } catch (err) {
     handleError(res, err);

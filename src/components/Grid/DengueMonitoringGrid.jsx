@@ -18,6 +18,7 @@ import ConfirmationDialog from '../../custom/CustomConfirmDialog.jsx';
 import RecordInfoDialog from '../../components/Dialog/dengueInfoDialog.jsx';
 import DengueMonitoringForm from '../Form/DengueMonitoringForm.jsx';
 import useDengueReport from '../report/useDengueReport.jsx';
+import { useSchoolYear } from '../../hooks/useSchoolYear.js';
 
 const DengueMonitoringGrid = () => {
   const [formOpen, setFormOpen] = useState(false);
@@ -41,6 +42,7 @@ const DengueMonitoringGrid = () => {
     items: [],
   });
   const { generatePdfDocument } = useDengueReport();
+  const { activeSchoolYear } = useSchoolYear();
 
   const handleGenerateReport = () => {
     generatePdfDocument();
@@ -114,20 +116,25 @@ const DengueMonitoringGrid = () => {
   const fetchRecord = useCallback(async () => {
     setIsLoading(true);
     try {
-      const response = await axiosInstance.get('dengueMonitoring/fetch');
+      const response = await axiosInstance.get(
+        `/dengueMonitoring/fetch?schoolYear=${encodeURIComponent(
+          activeSchoolYear
+        )}`
+      );
       const updatedRecords = response.data.map(mapRecord);
       setRecords(updatedRecords);
     } catch (error) {
-      console.error('An error occurred while fetching roles:', error);
-      setIsLoading(false);
+      console.error('An error occurred while fetching records:', error);
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [activeSchoolYear]);
 
   useEffect(() => {
-    fetchRecord();
-  }, [fetchRecord]);
+    if (activeSchoolYear) {
+      fetchRecord();
+    }
+  }, [activeSchoolYear, fetchRecord]);
 
   const refreshStudents = () => {
     fetchRecord();

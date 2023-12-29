@@ -16,6 +16,7 @@ import exportDataToExcel from '../../utils/exportToExcel.js';
 import EmployeeHeader from '../../constant/employeeHeaderMapping.js';
 import ConfirmationDialog from '../../custom/CustomConfirmDialog.jsx';
 import EmployeeInfoDialog from '../Dialog/employeeInfoDialog.jsx';
+import { useSchoolYear } from '../../hooks/useSchoolYear.js';
 // Form
 import EmployeeProfileForm from '../Form/EmployeeProfileForm.jsx';
 
@@ -40,6 +41,7 @@ const EmployeeProfileGrid = () => {
   const [filterModel, setFilterModel] = useState({
     items: [],
   });
+  const { activeSchoolYear } = useSchoolYear();
 
   const showSnackbar = (message, severity) => {
     setSnackbarData({ message, severity });
@@ -100,7 +102,11 @@ const EmployeeProfileGrid = () => {
   const fetchRecord = useCallback(async () => {
     setIsLoading(true);
     try {
-      const response = await axiosInstance.get('employeeProfile/fetch');
+      const response = await axiosInstance.get(
+        `employeeProfile/fetch?schoolYear=${encodeURIComponent(
+          activeSchoolYear
+        )}`
+      );
       const updatedRecords = response.data.map(mapRecord);
       setEmployees(updatedRecords);
     } catch (error) {
@@ -109,11 +115,13 @@ const EmployeeProfileGrid = () => {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [activeSchoolYear]);
 
   useEffect(() => {
-    fetchRecord();
-  }, [fetchRecord]);
+    if (activeSchoolYear) {
+      fetchRecord();
+    }
+  }, [activeSchoolYear, fetchRecord]);
 
   const refreshEmployee = () => {
     fetchRecord();

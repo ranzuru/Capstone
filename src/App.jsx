@@ -1,11 +1,12 @@
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import { AuthProvider } from './context/AuthProvider';
+// import { AuthProvider } from './context/AuthProvider'; IBALIK AFTER
 import { ThemeProvider } from '@mui/material/styles';
 import Login from './components/Login';
 import theme from './theme/theme';
-import LayoutWithSidebar from './utils/LayoutWithSidebar';
-// import ProtectedRoute from './utils/ProtectedRoute';
+import LayoutWithSidebar from './components/LayoutWithSidebar';
+// import ProtectedRoute from './utils/ProtectedRoute'; IBALIK AFTER
 import PageNotFound from './pages/PageNotFound';
+import { SchoolYearProvider } from './context/SchoolYearContext';
 // Analytics
 import ClinicVisitorAnalytics from './pages/Analytics/ClinicVisitorAnalytics';
 import DengueMonitoringAnalytics from './pages/Analytics/DengueMonitoringAnalytics';
@@ -29,15 +30,18 @@ import ManageUser from './pages/ManageUser';
 import MedicineInventory from './pages/MedicineInventory';
 import StudentProfile from './pages/StudentProfile';
 import Role from './pages/Role';
+import PasswordResetPage from './pages/PasswordReset';
 
 function App() {
   return (
     <>
       <ThemeProvider theme={theme}>
-        <AuthProvider>
-          <Router>
+        <Router>
+          {/* <AuthProvider> */}
+          <SchoolYearProvider>
             <Routes>
               <Route path="/" element={<Login />} />
+              <Route path="/reset-password" element={<PasswordResetPage />} />
               {/* <Route element={<ProtectedRoute />}> */}
               <Route path="/app" element={<LayoutWithSidebar />}>
                 <Route path="dashboard" element={<Dashboard />} />
@@ -88,8 +92,9 @@ function App() {
               {/* </Route> */}
               <Route path="*" element={<PageNotFound />} />
             </Routes>
-          </Router>
-        </AuthProvider>
+          </SchoolYearProvider>
+          {/* </AuthProvider> */}
+        </Router>
       </ThemeProvider>
     </>
   );
