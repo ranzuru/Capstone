@@ -197,18 +197,23 @@ export const importDengueMonitoring = async (req, res) => {
 // PDF Report
 export const getDengueCasesForActiveYear = async (req, res) => {
   try {
-    const currentAcademicYear = await AcademicYear.findOne({
-      status: 'Active',
-    });
-    if (!currentAcademicYear) {
+    const { schoolYear } = req.query;
+
+    if (!schoolYear) {
       return res
-        .status(404)
-        .json({ message: 'Active academic year not found.' });
+        .status(400)
+        .json({ message: 'School year query is required.' });
     }
 
+    const academicYear = await AcademicYear.findOne({
+      schoolYear: schoolYear,
+    });
+
+    if (!academicYear) {
+      return res.status(404).json({ message: 'Academic year not found.' });
+    }
     const cases = await DengueMonitoring.find({
-      status: 'Active',
-      academicYear: currentAcademicYear._id,
+      academicYear: academicYear._id,
     });
 
     const formattedCases = cases.map((caseItem) => {
@@ -239,7 +244,7 @@ export const getDengueCasesForActiveYear = async (req, res) => {
     });
 
     res.json({
-      SchoolYear: currentAcademicYear.schoolYear,
+      SchoolYear: academicYear.schoolYear,
       DengueCases: formattedCases,
     });
   } catch (error) {

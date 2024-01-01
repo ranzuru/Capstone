@@ -1,16 +1,20 @@
 import { useState, useEffect } from 'react';
 import axiosInstance from '../../config/axios-instance';
 import generatePDF from '../../utils/PDFMakeUtil';
+import { useSchoolYear } from '../../hooks/useSchoolYear';
 
 const useDengueReport = () => {
   const [dengueCases, setDengueCases] = useState([]);
   const [schoolYear, setSchoolYear] = useState('');
+  const { activeSchoolYear } = useSchoolYear();
 
   useEffect(() => {
     const fetchDengueCases = async () => {
       try {
         const response = await axiosInstance.get(
-          '/dengueMonitoring/fetchPDFReport'
+          `/dengueMonitoring/fetchPDFReport?schoolYear=${encodeURIComponent(
+            activeSchoolYear
+          )}`
         );
         setDengueCases(response.data.DengueCases);
         setSchoolYear(response.data.SchoolYear);
@@ -20,7 +24,7 @@ const useDengueReport = () => {
     };
 
     fetchDengueCases();
-  }, []);
+  }, [activeSchoolYear]);
 
   const generatePdfDocument = () => {
     const columns = [

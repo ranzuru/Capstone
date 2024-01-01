@@ -1,15 +1,21 @@
 import { useState, useEffect } from 'react';
 import axiosInstance from '../../config/axios-instance';
 import generatePDF from '../../utils/PDFMakeUtil';
+import { useSchoolYear } from '../../hooks/useSchoolYear';
 
 const useDewormMonitoringReport = () => {
   const [dewormReportData, setDewormReportData] = useState([]);
   const [schoolYear, setSchoolYear] = useState('');
+  const { activeSchoolYear } = useSchoolYear();
 
   useEffect(() => {
     const fetchDewormReport = async () => {
       try {
-        const response = await axiosInstance.get('/deworming/fetchPDFReport');
+        const response = await axiosInstance.get(
+          `/deworming/fetchPDFReport?schoolYear=${encodeURIComponent(
+            activeSchoolYear
+          )}`
+        );
         setDewormReportData(response.data.DewormReport);
         setSchoolYear(response.data.SchoolYear);
       } catch (error) {
@@ -18,7 +24,7 @@ const useDewormMonitoringReport = () => {
     };
 
     fetchDewormReport();
-  }, []);
+  }, [activeSchoolYear]);
 
   const columnWidths = [
     'auto',

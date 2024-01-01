@@ -60,9 +60,11 @@ export const verifyLoginOTP = async (req, res) => {
     }
 
     const userResponse = {
-      _id: user._id,
+      // _id: user._id,
+      userId: user.userId,
       email: user.email,
-      name: user.firstName,
+      firstName: user.firstName,
+      lastName: user.lastName,
       role: {
         roleName: user.role.roleName,
         navigationScopes: user.role.navigationScopes,

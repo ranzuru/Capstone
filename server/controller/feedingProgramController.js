@@ -205,22 +205,25 @@ export const importFeedingProgram = async (req, res) => {
 
 export const getActiveSBFPBeneficiaries = async (req, res) => {
   try {
-    const currentAcademicYear = await AcademicYear.findOne({
-      status: 'Active',
-    });
+    const { schoolYear } = req.query;
 
-    // If the current academic year is not found, handle accordingly
-    if (!currentAcademicYear) {
+    if (!schoolYear) {
       return res
-        .status(404)
-        .json({ message: 'Active academic year not found.' });
+        .status(400)
+        .json({ message: 'School year query is required.' });
     }
 
+    const academicYear = await AcademicYear.findOne({
+      schoolYear: schoolYear,
+    });
+
+    if (!academicYear) {
+      return res.status(404).json({ message: 'Academic year not found.' });
+    }
     const beneficiaries = await FeedingProgram.find({
       beneficiaryOfSBFP: true,
-      status: 'Active',
       measurementType: 'PRE',
-      academicYear: currentAcademicYear._id,
+      academicYear: academicYear._id,
     });
 
     const formattedBeneficiaries = beneficiaries.map((beneficiary) => {
@@ -244,7 +247,7 @@ export const getActiveSBFPBeneficiaries = async (req, res) => {
       const ageMonths =
         moment().diff(moment(beneficiary.dateOfBirth), 'months') % 12;
       const ageFormatted = `${ageYears}/${ageMonths}`;
-      const schoolYear = currentAcademicYear.schoolYear;
+      const schoolYear = academicYear.schoolYear;
       const genderFormatted = beneficiary.gender === 'Male' ? 'M' : 'F';
 
       return {
@@ -266,7 +269,7 @@ export const getActiveSBFPBeneficiaries = async (req, res) => {
     });
 
     res.json({
-      SchoolYear: currentAcademicYear.schoolYear, // Provide the school year for the frontend to use
+      SchoolYear: academicYear.schoolYear, // Provide the school year for the frontend to use
       Beneficiaries: formattedBeneficiaries,
     });
   } catch (error) {

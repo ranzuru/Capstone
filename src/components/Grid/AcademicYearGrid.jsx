@@ -1,27 +1,21 @@
 import { useState, useEffect, useCallback } from 'react';
 import { DataGrid } from '@mui/x-data-grid';
-
+import { statusColors } from '../../utils/statusColor.js';
 import ActionMenu from '../../custom/CustomActionMenu';
 
-import {
-  Paper,
-  DialogTitle,
-  DialogContentText,
-  DialogContent,
-  DialogActions,
-  Dialog,
-  Button,
-} from '@mui/material';
+import { Paper, Button } from '@mui/material';
 
 import AcademicYearForm from '../Form/AcademicYearForm.jsx';
 import axiosInstance from '../../config/axios-instance.js';
 import StatusCell from '../StatusCell.jsx';
 import CustomSnackbar from '../../custom/CustomSnackbar.jsx';
+import ConfirmationDialog from '../../custom/CustomConfirmDialog.jsx';
 
 const AcademicYearGrid = () => {
   const [formOpen, setFormOpen] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [recordIdToDelete, setRecordIdToDelete] = useState(null);
+  const [dialogTitle, setDialogTitle] = useState('');
+  const [dialogMessage, setDialogMessage] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [academicYearRecords, setAcademicYearRecords] = useState([]);
   const [selectedRecord, setSelectedRecord] = useState(null);
@@ -30,6 +24,32 @@ const AcademicYearGrid = () => {
     message: '',
     severity: 'success',
   });
+  const [confirmAction, setConfirmAction] = useState(() => () => {});
+
+  const openSetActiveDialog = (recordId) => {
+    setDialogTitle('Set Academic Year Active');
+    setDialogMessage(
+      'Are you sure you want to set this academic year as active?'
+    );
+    setConfirmAction(() => () => handleSetActive(recordId));
+    setDialogOpen(true);
+  };
+
+  const openSetCompletedDialog = (recordId) => {
+    setDialogTitle('Set Academic Year Completed');
+    setDialogMessage(
+      'Are you sure you want to set this academic year as completed?'
+    );
+    setConfirmAction(() => () => handleSetCompleted(recordId));
+    setDialogOpen(true);
+  };
+
+  const openDeleteDialog = (recordId) => {
+    setDialogTitle('Delete Academic Year');
+    setDialogMessage('Are you sure you want to delete this academic year?');
+    setConfirmAction(() => () => handleDelete(recordId));
+    setDialogOpen(true);
+  };
 
   const showSnackbar = (message, severity) => {
     setSnackbarData({ message, severity });
@@ -40,32 +60,8 @@ const AcademicYearGrid = () => {
     setSnackbarOpen(false);
   };
 
-  const handleDialogOpen = (recordId) => {
-    setRecordIdToDelete(recordId);
-    setDialogOpen(true);
-  };
-
   const handleDialogClose = () => {
-    setRecordIdToDelete(null);
     setDialogOpen(false);
-  };
-
-  const academicYearStatusColor = {
-    Active: {
-      bgColor: '#DFF0D8',
-      textColor: '#4CAF50',
-      borderColor: '#4CAF50',
-    },
-    Completed: {
-      bgColor: '#D9EDF7',
-      textColor: '#2196F3',
-      borderColor: '#2196F3',
-    },
-    Pending: {
-      bgColor: '#EBDEF0',
-      textColor: '#8E44AD',
-      borderColor: '#8E44AD',
-    },
   };
 
   const mapRecord = (record) => {
@@ -130,10 +126,7 @@ const AcademicYearGrid = () => {
       headerName: 'Status',
       width: 100,
       renderCell: (params) => (
-        <StatusCell
-          value={params.value}
-          colorMapping={academicYearStatusColor}
-        />
+        <StatusCell value={params.value} colorMapping={statusColors} />
       ),
     },
     {
@@ -145,18 +138,28 @@ const AcademicYearGrid = () => {
       renderCell: (params) => (
         <ActionMenu
           onEdit={() => handleEdit(params.row.id)}
-          onDelete={() => handleDialogOpen(params.row.id)}
+          onDelete={() => openDeleteDialog(params.row.id)}
+          onActive={
+            params.row.status === 'Pending'
+              ? () => openSetActiveDialog(params.row.id)
+              : null
+          }
+          OnComplete={
+            params.row.status === 'Active'
+              ? () => openSetCompletedDialog(params.row.id)
+              : null
+          }
         />
       ),
     },
   ];
 
-  const handleDelete = async () => {
+  const handleDelete = async (academicYearId) => {
     try {
-      await axiosInstance.delete(`academicYear/delete/${recordIdToDelete}`);
+      await axiosInstance.delete(`academicYear/delete/${academicYearId}`);
 
       const updatedRecords = academicYearRecords.filter(
-        (record) => record.id !== recordIdToDelete
+        (record) => record.id !== academicYearId
       );
       setAcademicYearRecords(updatedRecords);
       showSnackbar('Academic year successfully deleted.', 'success');
@@ -175,6 +178,56 @@ const AcademicYearGrid = () => {
     handleDialogClose();
   };
 
+  const handleSetActive = async (academicYearId) => {
+    try {
+      await axiosInstance.put(`academicYear/setActive/${academicYearId}`);
+
+      const updatedRecords = academicYearRecords.map((record) =>
+        record.id === academicYearId ? { ...record, status: 'Active' } : record
+      );
+      setAcademicYearRecords(updatedRecords);
+      showSnackbar('Academic year set to active.', 'success');
+    } catch (error) {
+      console.error('Error setting the academic year active:', error);
+      let errorMessage =
+        'Failed to set the academic year active. Please try again.';
+      // The server might send the detailed message in 'error.response.data.message'
+      if (
+        error.response &&
+        error.response.data &&
+        error.response.data.message
+      ) {
+        errorMessage = error.response.data.message;
+      }
+      showSnackbar(errorMessage, 'error');
+    }
+    setSnackbarOpen(true);
+    handleDialogClose();
+  };
+  const handleSetCompleted = async (academicYearId) => {
+    try {
+      await axiosInstance.put(`academicYear/setCompleted/${academicYearId}`);
+
+      // Update the state to reflect the changes
+      const updatedRecords = academicYearRecords.map((record) =>
+        record.id === academicYearId
+          ? { ...record, status: 'Completed' }
+          : record
+      );
+      setAcademicYearRecords(updatedRecords);
+      showSnackbar('Academic year set to completed.', 'success');
+    } catch (error) {
+      // Handle error
+      console.error('Error setting the academic year completed:', error);
+      showSnackbar(
+        'Failed to set the academic year completed. Please try again.',
+        'error'
+      );
+    }
+    setSnackbarOpen(true);
+    handleDialogClose();
+  };
+
   const handleModalOpen = () => {
     setFormOpen(true);
   };
@@ -190,6 +243,14 @@ const AcademicYearGrid = () => {
         handleClose={handleCloseSnackbar}
         severity={snackbarData.severity}
         message={snackbarData.message}
+      />
+
+      <ConfirmationDialog
+        open={dialogOpen}
+        onClose={() => setDialogOpen(false)}
+        onConfirm={confirmAction}
+        title={dialogTitle}
+        message={dialogMessage}
       />
 
       <div className="flex flex-col h-full">
@@ -243,22 +304,6 @@ const AcademicYearGrid = () => {
             />
           </Paper>
         </div>
-        <Dialog open={dialogOpen} onClose={handleDialogClose}>
-          <DialogTitle>Confirm Delete!</DialogTitle>
-          <DialogContent>
-            <DialogContentText>
-              Are you sure you want to delete this record?
-            </DialogContentText>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleDialogClose} color="primary">
-              Cancel
-            </Button>
-            <Button onClick={handleDelete} color="primary">
-              Confirm
-            </Button>
-          </DialogActions>
-        </Dialog>
       </div>
     </>
   );

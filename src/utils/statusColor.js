@@ -14,4 +14,14 @@ export const statusColors = {
     textColor: '#8E44AD',
     borderColor: '#8E44AD',
   },
+  Completed: {
+    bgColor: '#D9EDF7',
+    textColor: '#2196F3',
+    borderColor: '#2196F3',
+  },
+  Pending: {
+    bgColor: '#EBDEF0',
+    textColor: '#8E44AD',
+    borderColor: '#8E44AD',
+  },
 };

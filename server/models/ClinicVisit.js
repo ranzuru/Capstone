@@ -12,7 +12,6 @@ const schema = new mongoose.Schema(
     },
     patientId: {
       type: String,
-      required: true,
     },
     gender: {
       type: String,
@@ -52,11 +51,9 @@ const schema = new mongoose.Schema(
     medicine: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'medicineIn',
-      required: true,
     },
     quantity: {
       type: Number,
-      required: true,
     },
     malady: {
       type: String,

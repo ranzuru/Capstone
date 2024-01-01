@@ -1,15 +1,15 @@
-import Header from '../../components/Header';
-import Footer from '../../components/Footer';
-import ClinicVisitCombined from '../../components/ClinicVisitCombinedCharts';
+import Header from '../components/Header';
+import Footer from '../components/Footer';
+import ProfileSettings from '../components/ProfileSettings';
 
-const ClinicVisitorAnalytics = () => {
+const Role = () => {
   return (
     <div className="flex flex-col">
       <div className="flex-grow overflow-hidden">
-        <Header title="Dengue Analytics" />
+        <Header title="Account Settings" />
         <div className="flex flex-col items-center justify-center h-full p-4">
           <div className="flex items-center justify-center w-full">
-            <ClinicVisitCombined />
+            <ProfileSettings />
           </div>
         </div>
         <Footer />
@@ -17,4 +17,5 @@ const ClinicVisitorAnalytics = () => {
     </div>
   );
 };
-export default ClinicVisitorAnalytics;
+
+export default Role;

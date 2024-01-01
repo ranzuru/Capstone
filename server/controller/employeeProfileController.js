@@ -94,7 +94,7 @@ export const getEmployeeProfiles = async (req, res) => {
     const total = await EmployeeProfile.countDocuments(searchQuery);
     const employeeProfiles = await EmployeeProfile.find(
       searchQuery,
-      'employeeId lastName firstName middleName nameExtension gender dateOfBirth age role'
+      'employeeId lastName firstName middleName nameExtension gender mobileNumber dateOfBirth age role '
     )
       .skip((page - 1) * limit)
       .limit(limit);

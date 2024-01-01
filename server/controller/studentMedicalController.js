@@ -196,18 +196,32 @@ export const importMedical = async (req, res) => {
 // Fetch each health record
 export const getStudentMedicalById = async (req, res) => {
   try {
-    const currentAcademicYear = await AcademicYear.findOne({
-      status: 'Active',
-    });
-    if (!currentAcademicYear) {
+    const { id } = req.params;
+    const { schoolYear } = req.query;
+
+    if (!schoolYear) {
       return res
-        .status(404)
-        .json({ message: 'Active academic year not found.' });
+        .status(400)
+        .json({ message: 'School year query is required.' });
     }
 
-    const studentMedical = await StudentMedical.findById(req.params.id);
-    if (!studentMedical)
-      return res.status(404).send('Student medical record not found');
+    const academicYear = await AcademicYear.findOne({ schoolYear });
+    if (!academicYear) {
+      return res.status(404).json({ message: 'Academic year not found.' });
+    }
+
+    const studentMedical = await StudentMedical.findOne({
+      _id: id,
+      academicYear: academicYear._id, // Ensure the record is linked to the correct academic year
+    });
+
+    if (!studentMedical) {
+      return res
+        .status(404)
+        .send(
+          'Student medical record not found for the specified academic year.'
+        );
+    }
 
     // Formatting the single studentMedical record
     let fullName = `${studentMedical.lastName}, ${studentMedical.firstName}`;
@@ -262,7 +276,7 @@ export const getStudentMedicalById = async (req, res) => {
     };
 
     res.json({
-      SchoolYear: currentAcademicYear.schoolYear,
+      SchoolYear: academicYear.schoolYear,
       HealthRecord: formattedRecord,
     });
   } catch (err) {

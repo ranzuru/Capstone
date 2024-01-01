@@ -28,7 +28,8 @@ const InfoDialog = ({ open, onClose, record }) => {
                 Type: <span className="text-gray-600">{record.type}</span>
               </Typography>
               <Typography variant="subtitle1" className="font-semibold">
-                Patient ID (LRN/ Employee ID): <span className="text-gray-600">{record.patientId}</span>
+                Patient ID (LRN/ Employee ID):{' '}
+                <span className="text-gray-600">{record.patientId}</span>
               </Typography>
               <Typography variant="subtitle1" className="font-semibold">
                 Gender: <span className="text-gray-600">{record.gender}</span>
@@ -42,7 +43,7 @@ const InfoDialog = ({ open, onClose, record }) => {
               <Typography variant="subtitle1" className="font-semibold">
                 Age: <span className="text-gray-600">{record.age}</span>
               </Typography>
-              
+
               <Typography variant="subtitle1" className="font-semibold">
                 School Year:{' '}
                 <span className="text-gray-600">{record.schoolYear}</span>
@@ -54,7 +55,8 @@ const InfoDialog = ({ open, onClose, record }) => {
                 Section: <span className="text-gray-600">{record.section}</span>
               </Typography>
               <Typography variant="subtitle1" className="font-semibold">
-                Contact Number: <span className="text-gray-600">{record.mobileNumber}</span>
+                Contact Number:{' '}
+                <span className="text-gray-600">{record.mobileNumber}</span>
               </Typography>
               <Typography variant="subtitle1" className="font-semibold">
                 Address: <span className="text-gray-600">{record.address}</span>
@@ -72,7 +74,10 @@ const InfoDialog = ({ open, onClose, record }) => {
                 Reason/s: <span className="text-gray-600">{record.reason}</span>
               </Typography>
               <Typography variant="subtitle1" className="font-semibold">
-                Medicine (Quantity): <span className="text-gray-600">{record.product} ({record.quantity})</span>
+                Medicine (Quantity):{' '}
+                <span className="text-gray-600">
+                  {record.product} ({record.quantity})
+                </span>
               </Typography>
               <Typography variant="subtitle1" className="font-semibold">
                 Remarks: <span className="text-gray-600">{record.remarks}</span>
@@ -127,8 +132,8 @@ InfoDialog.propTypes = {
     issueDate: PropTypes.string,
     malady: PropTypes.string,
     reason: PropTypes.string,
-    product: PropTypes.string,
-    quantity: PropTypes.string,
+    product: PropTypes.arrayOf(PropTypes.string),
+    quantity: PropTypes.number,
     remarks: PropTypes.string,
     createdAt: PropTypes.string,
     updatedAt: PropTypes.string,

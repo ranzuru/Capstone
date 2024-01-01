@@ -7,7 +7,7 @@ import axiosInstance from '../config/axios-instance';
 import debounce from 'lodash/debounce';
 import SearchIcon from '@mui/icons-material/Search';
 
-const AutoComplete = ({ onSelect, type, isTypeOther  }) => {
+const AutoComplete = ({ onSelect, type, isTypeOther }) => {
   const [inputValue, setInputValue] = useState('');
   const [options, setOptions] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -16,8 +16,12 @@ const AutoComplete = ({ onSelect, type, isTypeOther  }) => {
     const fetchProfiles = async (searchValue) => {
       setLoading(true);
       try {
+        const url =
+          type === 'Student'
+            ? 'studentProfile/fetchProfile'
+            : 'employeeProfile/fetchEmployee';
         const response = await axiosInstance.get(
-          `/${type === 'Student' ? 'studentProfile' : 'facultyProfile'}/fetchProfile?search=${encodeURIComponent(searchValue)}`
+          `/${url}?search=${encodeURIComponent(searchValue)}`
         );
         setOptions(response.data.data);
       } catch (error) {
@@ -46,9 +50,11 @@ const AutoComplete = ({ onSelect, type, isTypeOther  }) => {
     <Autocomplete
       options={options}
       getOptionLabel={(option) =>
-        `[${option.lrn || option.employeeId}] ${option.lastName}, ${option.firstName}${
-          option.middleName ? ` ${option.middleName}` : ''
-        }${option.nameExtension ? ` ${option.nameExtension}` : ''}`
+        `[${option.lrn || option.employeeId}] ${option.lastName}, ${
+          option.firstName
+        }${option.middleName ? ` ${option.middleName}` : ''}${
+          option.nameExtension ? ` ${option.nameExtension}` : ''
+        }`
       }
       fullWidth
       popupIcon={<SearchIcon />}
@@ -92,7 +98,7 @@ const AutoComplete = ({ onSelect, type, isTypeOther  }) => {
 
 AutoComplete.propTypes = {
   onSelect: PropTypes.func, // Optional callback for additional handling when a student is selected
-  type: PropTypes.oneOf(['Student', 'Faculty']).isRequired,
+  type: PropTypes.oneOf(['Student', 'Faculty', 'Other']).isRequired,
   isTypeOther: PropTypes.bool.isRequired,
 };
 

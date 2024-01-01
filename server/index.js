@@ -20,6 +20,7 @@ import employeeMedicalRoutes from './routes/employeeMedical.js';
 import feedingProgramRoutes from './routes/feedingProgram.js';
 import dewormingRoutes from './routes/deworming.js';
 import resetPasswordRoutes from './routes/resetPassword.js';
+import dashboardRoutes from './routes/dashboard.js';
 
 const app = express();
 app.use(express.json({ limit: '50mb' }));
@@ -53,6 +54,7 @@ app.use('/clinicVisit', clinicVisitRoutes);
 app.use('/employeeMedical', employeeMedicalRoutes);
 app.use('/feedingProgram', feedingProgramRoutes);
 app.use('/deworming', dewormingRoutes);
+app.use('/dashboard', dashboardRoutes);
 app.use('/passwordReset', resetPasswordRoutes);
 
 const startServer = async () => {
