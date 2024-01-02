@@ -5,8 +5,9 @@ const setCookie = (res, name, value, options = {}) => {
     httpOnly: true,
     secure: isProduction,
     sameSite: isProduction ? 'None' : 'Lax',
-    maxAge: 24 * 60 * 60 * 1000, // 1 day in milliseconds for both production and development
+    maxAge: 24 * 60 * 60 * 1000, // 1 day in milliseconds
     path: '/',
+    ...(isProduction && { domain: '.onrender.com' }), // Include the domain only in production
   };
 
   res.cookie(name, value, { ...defaultOptions, ...options });
