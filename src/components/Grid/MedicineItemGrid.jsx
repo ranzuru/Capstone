@@ -52,7 +52,6 @@ const Grid = () => {
   };
 
   const mapRecord = (record) => {
-
     return {
       id: record._id,
       itemId: record.itemId || 'N/A',
@@ -60,12 +59,8 @@ const Grid = () => {
       quantity: record.quantity || 0,
       dosagePer: record.dosagePer || 'N/A',
       description: record.description || '',
-      createdAt: record.createdAt
-        ? formatYearFromDate(record.createdAt)
-        : null,
-      updatedAt: record.updatedAt
-        ? formatYearFromDate(record.updatedAt)
-        : null,
+      createdAt: record.createdAt ? formatYearFromDate(record.createdAt) : null,
+      updatedAt: record.updatedAt ? formatYearFromDate(record.updatedAt) : null,
       status: record.status || 'N/A',
     };
   };
@@ -75,7 +70,6 @@ const Grid = () => {
     try {
       const response = await axiosInstance.get('medicineInventory/getAllItem');
       const updatedRecords = response.data.map(mapRecord);
-      console.log(updatedRecords)
       setRecords(updatedRecords);
     } catch (error) {
       console.error('An error occurred while fetching data:', error);
@@ -156,7 +150,9 @@ const Grid = () => {
 
   const handleDelete = async () => {
     try {
-      await axiosInstance.delete(`medicineInventory/deleteItem/${recordIdToDelete}`);
+      await axiosInstance.delete(
+        `medicineInventory/deleteItem/${recordIdToDelete}`
+      );
 
       const updatedRecords = records.filter(
         (record) => record.id !== recordIdToDelete
@@ -167,10 +163,7 @@ const Grid = () => {
       if (error.response && error.response.data && error.response.data.error) {
         showSnackbar(`Delete Error: ${error.response.data.error}`, 'error');
       } else {
-        showSnackbar(
-          'Failed to delete the record. Please try again.',
-          'error'
-        );
+        showSnackbar('Failed to delete the record. Please try again.', 'error');
       }
     }
     setSnackbarOpen(true); // Open the snackbar with the message
@@ -229,12 +222,8 @@ const Grid = () => {
       }));
 
     exportDataToExcel(filteredData, excelHeaders, 'MedicineItem', {
-      dateFields: [
-        'created',
-      ], // adjust based on transformed data
-      excludeColumns: [
-        'action',
-      ], // adjust based on transformed data
+      dateFields: ['created'], // adjust based on transformed data
+      excludeColumns: ['action'], // adjust based on transformed data
     });
   };
 
@@ -254,7 +243,7 @@ const Grid = () => {
   );
   return (
     <>
-    <CustomSnackbar
+      <CustomSnackbar
         open={snackbarOpen}
         handleClose={handleCloseSnackbar}
         severity={snackbarData.severity}
@@ -300,11 +289,7 @@ const Grid = () => {
                 },
               }}
               slots={{
-                toolbar: () => (
-                  <CustomGridToolbar
-                    onExport={handleExport}
-                  />
-                ),
+                toolbar: () => <CustomGridToolbar onExport={handleExport} />,
               }}
               sx={{
                 '& .MuiDataGrid-row:nth-of-type(odd)': {

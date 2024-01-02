@@ -27,7 +27,7 @@ app.use(express.json({ limit: '50mb' }));
 app.use(cookieParser());
 
 const corsOptions = {
-  origin: 'http://127.0.0.1:5173',
+  origin: process.env.CORS_ORIGIN,
   credentials: true,
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   allowedHeaders: ['Content-Type', 'Authorization'],
