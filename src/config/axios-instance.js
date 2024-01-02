@@ -5,7 +5,7 @@ const axiosInstance = axios.create({
   withCredentials: true,
 });
 
-let isRefreshing = false; // Flag to indicate token refresh in progress
+let isRefreshing = false;
 
 axiosInstance.interceptors.response.use(
   (response) => response, // Return the response if successful
