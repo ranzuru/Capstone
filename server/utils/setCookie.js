@@ -6,7 +6,7 @@ const setCookie = (res, name, value, options = {}) => {
     secure: isProduction,
     sameSite: isProduction ? 'None' : 'Lax',
     maxAge: 24 * 60 * 60 * 1000, // 1 day in milliseconds for both production and development
-    // ... add the domain option if needed for production
+    path: '/',
   };
 
   res.cookie(name, value, { ...defaultOptions, ...options });
