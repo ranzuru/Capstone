@@ -1,5 +1,5 @@
-import * as pdfFonts from 'pdfmake/build/vfs_fonts.js';
 import pdfMake from 'pdfmake/build/pdfmake';
+import * as pdfFonts from 'pdfmake/build/vfs_fonts.js';
 import PropTypes from 'prop-types';
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
