@@ -1,4 +1,5 @@
 import AcademicYear from '../models/AcademicYear.js'; // Import the AcademicYear model
+import { createLog } from './createLogController.js';
 
 const handleError = (error, res) => {
   console.error('An error occurred:', error.message);
@@ -15,6 +16,15 @@ export const createAcademicYear = async (req, res) => {
     const newAcademicYear = new AcademicYear(req.body);
     const savedAcademicYear = await newAcademicYear.save();
     res.status(201).json(savedAcademicYear);
+
+    // LOG
+    await createLog({
+      user: 'n/a',
+      section: 'Academic Year',
+      action: 'CREATE/ POST',
+      description: JSON.stringify(savedAcademicYear),
+    });
+    
   } catch (error) {
     handleError(error, res);
   }
@@ -54,6 +64,7 @@ export const getAcademicYear = async (req, res) => {
       return res.status(404).json({ message: 'Academic Year not found' });
     }
     res.status(200).json(academicYear);
+
   } catch (error) {
     handleError(error, res);
   }
@@ -70,6 +81,15 @@ export const updateAcademicYear = async (req, res) => {
       return res.status(404).json({ message: 'Academic Year not found' });
     }
     res.status(200).json(updatedAcademicYear);
+
+    // LOG
+    await createLog({
+      user: 'n/a',
+      section: 'Academic Year',
+      action: 'UPDATE/ PUT',
+      description: JSON.stringify(updatedAcademicYear),
+    });
+    
   } catch (error) {
     handleError(error, res);
   }
@@ -84,6 +104,15 @@ export const deleteAcademicYear = async (req, res) => {
       return res.status(404).json({ message: 'Academic Year not found' });
     }
     res.status(200).json({ message: 'Academic Year deleted successfully' });
+
+    // LOG
+    await createLog({
+      user: 'n/a',
+      section: 'Academic Year',
+      action: 'DELETE',
+      description: deletedAcademicYear,
+    });
+    
   } catch (error) {
     handleError(error, res);
   }

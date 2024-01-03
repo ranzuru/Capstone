@@ -3,6 +3,7 @@ import MedicineItemSchema from '../models/MedicineItem.js';
 import AcademicYear from '../models/AcademicYear.js';
 import { handleError } from '../utils/handleError.js';
 import { validate } from '../schema/clinicVisitValidation.js';
+import { createLog } from './createLogController.js';
 
 // create
 export const post = async (req, res) => {
@@ -24,6 +25,16 @@ export const post = async (req, res) => {
     });
 
     await newData.save();
+
+    // LOG
+    await createLog({
+      user: 'n/a',
+      section: 'Clinic Visit',
+      action: 'CREATE/ POST',
+      description: JSON.stringify(newData),
+    });
+    
+
     const createdData = await ClinicVisitSchema.findById(
       newData._id
     ).populate('academicYear');
@@ -33,6 +44,7 @@ export const post = async (req, res) => {
     response.schoolYear = academicYear.schoolYear; // add the schoolYear string
 
     res.status(201).send(response);
+    
   } catch (err) {
     handleError(res, err);
   }
@@ -56,7 +68,9 @@ export const getAll = async (req, res) => {
           itemData: product,
         };
       }));
+
     res.send(populatedData);
+
   } catch (err) {
     handleError(res, err);
   }
@@ -85,10 +99,19 @@ export const update = async (req, res) => {
     if (!newData)
       return res.status(404).send('data not found');
 
+    // LOG
+    await createLog({
+      user: 'n/a',
+      section: 'Clinic Visit',
+      action: 'UPDATE/ PUT',
+      description: JSON.stringify(newData),
+    });
+
     const response = newData.toObject(); // Convert to a plain JavaScript object
     response.schoolYear = newData.academicYear.schoolYear; // Add the schoolYear string
 
     res.send(response);
+    
   } catch (err) {
     handleError(res, err);
   }
@@ -103,6 +126,15 @@ export const deleteData = async (req, res) => {
       return res.status(404).send('record not found');
 
     res.send(data);
+
+    // LOG
+    await createLog({
+      user: 'n/a',
+      section: 'Clinic Visit',
+      action: 'DELETE',
+      description: JSON.stringify(data),
+    });
+    
   } catch (err) {
     handleError(res, err);
   }

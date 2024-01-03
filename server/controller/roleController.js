@@ -1,4 +1,5 @@
 import Role from '../models/Role.js'; // Assuming RoleModel is in the same directory
+import { createLog } from './createLogController.js';
 
 export const createRole = async (req, res) => {
   try {
@@ -12,6 +13,15 @@ export const createRole = async (req, res) => {
     const newRole = new Role(req.body);
     await newRole.save();
     res.status(201).json(newRole);
+
+    // LOG
+    await createLog({
+      user: 'n/a',
+      section: 'User Role',
+      action: 'CREATE/ POST',
+      description: JSON.stringify(newRole),
+    });
+
   } catch (error) {
     // Handle errors, including potential violations of the unique constraint
     res.status(400).json({ error: error.message });
@@ -49,6 +59,15 @@ export const updateRole = async (req, res) => {
       return res.status(404).json({ error: 'Role not found' });
     }
     res.json(updatedRole);
+
+    // LOG
+    await createLog({
+      user: 'n/a',
+      section: 'User Role',
+      action: 'UPDATE',
+      description: JSON.stringify(updatedRole),
+    });
+
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
@@ -61,6 +80,15 @@ export const deleteRole = async (req, res) => {
       return res.status(404).json({ error: 'Role not found' });
     }
     res.status(200).json({ message: 'Role deleted successfully' });
+
+    // LOG
+    await createLog({
+      user: 'n/a',
+      section: 'User Role',
+      action: 'DELETE',
+      description: JSON.stringify(role),
+    });
+
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -85,6 +113,15 @@ export const deleteBulkRoles = async (req, res) => {
     res
       .status(200)
       .json({ message: `Successfully deleted ${result.deletedCount} roles` });
+
+    // LOG
+    await createLog({
+      user: 'n/a',
+      section: 'User Role',
+      action: 'BULK DELETE',
+      description: `User Roles IDs: ${roleIds} \nNumber of IDs: ${result.deletedCount}`,
+    });
+
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

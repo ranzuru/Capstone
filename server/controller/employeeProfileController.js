@@ -3,6 +3,7 @@ import AcademicYear from '../models/AcademicYear.js';
 import { handleError } from '../utils/handleError.js';
 import { validateEmployeeProfile } from '../schema/employeeProfileValidation.js';
 import importEmployees from '../services/importEmployeeProfile.js';
+import { createLog } from './createLogController.js';
 
 export const createEmployee = async (req, res) => {
   try {
@@ -20,6 +21,15 @@ export const createEmployee = async (req, res) => {
     });
 
     await employeeProfile.save();
+
+    // LOG
+    await createLog({
+      user: 'n/a',
+      section: 'Employee Profile',
+      action: 'CREATE/ POST',
+      description: JSON.stringify(employeeProfile),
+    });
+
     const populatedEmployeeProfile = await EmployeeProfile.findById(
       employeeProfile._id
     ).populate('academicYear');
@@ -27,7 +37,8 @@ export const createEmployee = async (req, res) => {
     const response = populatedEmployeeProfile.toObject();
     response.schoolYear = academicYear.schoolYear;
 
-    res.status(201).send(response);
+    res.status(201).send(response);   
+
   } catch (err) {
     handleError(res, err);
   }
@@ -128,10 +139,19 @@ export const updateEmployee = async (req, res) => {
       return res.status(404).send('Employee not found');
     }
 
+    // LOG
+    await createLog({
+      user: 'n/a',
+      section: 'Employee Profile',
+      action: 'UPDATE/ PUT',
+      description: JSON.stringify(updatedEmployee),
+    });
+
     const response = updatedEmployee.toObject();
     response.schoolYear = updatedEmployee.academicYear.schoolYear;
 
     res.status(200).send(response);
+
   } catch (err) {
     handleError(res, err);
   }
@@ -146,6 +166,15 @@ export const deleteEmployee = async (req, res) => {
       return res.status(404).send('Employee not found');
     }
     res.status(200).send('Employee deleted successfully');
+
+    // LOG
+    await createLog({
+      user: 'n/a',
+      section: 'Employee Profile',
+      action: 'DELETE',
+      description: JSON.stringify(deletedEmployee),
+    });
+
   } catch (err) {
     handleError(res, err);
   }
@@ -174,6 +203,15 @@ export const bulkDeleteEmployee = async (req, res) => {
     res.send({
       message: `Successfully deleted ${result.deletedCount} employee records`,
     });
+
+    // LOG
+    await createLog({
+      user: 'n/a',
+      section: 'Employee Profile',
+      action: 'BULK DELETE',
+      description: `Dengue Monitoring IDs: ${ids} \nNumber of IDs: ${result.deletedCount}`,
+    });
+
   } catch (err) {
     handleError(res, err);
   }
@@ -210,6 +248,7 @@ export const importEmployeesProfile = async (req, res) => {
       message: 'Employees imported successfully',
       count: employeeProfiles.length,
     });
+
   } catch (err) {
     handleError(res, err);
   }

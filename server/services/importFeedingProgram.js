@@ -5,6 +5,7 @@ import {
   validateFeeding,
   mapHeaderToSchemaKey,
 } from '../schema/feedingProgramValidation.js';
+import { createLog } from '../controller/createLogController.js';
 
 const importFeeding = async (fileBuffer) => {
   const data = await parseExcelToJson(fileBuffer, mapHeaderToSchemaKey);
@@ -35,6 +36,15 @@ const importFeeding = async (fileBuffer) => {
       value.academicYear = academicYear._id;
 
       feedingRecords.push(value);
+
+      // LOG
+    await createLog({
+      user: 'n/a',
+      section: 'Feeding Program',
+      action: 'IMPORT',
+      description: JSON.stringify(value),
+    });
+
     } catch (validationError) {
       if (validationError.details && Array.isArray(validationError.details)) {
         errors.push({

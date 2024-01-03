@@ -7,6 +7,7 @@ import { validateItem } from '../schema/medicineItemValidation.js';
 import { validateIn } from '../schema/medicineInValidation.js';
 import { validateDispense } from '../schema/medicineDispenseValidation.js';
 import { validateAdjustment } from '../schema/medicineAdjustmentValidation.js';
+import { createLog } from './createLogController.js';
 
 // ITEM
 export const postItem = async (req, res) => {
@@ -23,13 +24,23 @@ export const postItem = async (req, res) => {
     });
 
     await newData.save();
+
+    // LOG
+    await createLog({
+      user: 'n/a',
+      section: 'Medicine Inventory - Item',
+      action: 'CREATE/ POST',
+      description: JSON.stringify(newData),
+    });
+
     const createdData = await MedicineItemSchema.findById(
       newData._id
     );
 
     const response = createdData.toObject(); // convert to a plain javascript object
 
-    res.status(201).send(response);
+    res.status(201).send(response);   
+
   } catch (err) {
     handleError(res, err);
   }
@@ -65,6 +76,15 @@ export const updateItem = async (req, res) => {
     const response = newData.toObject(); // Convert to a plain JavaScript object
 
     res.send(response);
+
+    // LOG
+    await createLog({
+      user: 'n/a',
+      section: 'Medicine Inventory - Item',
+      action: 'UPDATE/ PUT',
+      description: JSON.stringify(newData),
+    });
+
   } catch (err) {
     handleError(res, err);
   }
@@ -79,6 +99,15 @@ export const deleteItem = async (req, res) => {
       return res.status(404).send('record not found');
 
     res.send(data);
+
+    // LOG
+    await createLog({
+      user: 'n/a',
+      section: 'Medicine Inventory - Item',
+      action: 'DELETE',
+      description: JSON.stringify(data),
+    });
+
   } catch (err) {
     handleError(res, err);
   }
@@ -216,6 +245,15 @@ export const postIn = async (req, res) => {
     });
 
     await newData.save();
+
+    // LOG
+    await createLog({
+      user: 'n/a',
+      section: 'Medicine Inventory - In',
+      action: 'CREATE/ POST',
+      description: JSON.stringify(newData),
+    });
+
     const createdData = await MedicineInSchema.findById(
       newData._id
     );
@@ -235,7 +273,8 @@ export const postIn = async (req, res) => {
 
     const response = createdData.toObject(); // convert to a plain javascript object
 
-    res.status(201).send(response);
+    res.status(201).send(response); 
+
   } catch (err) {
     handleError(res, err);
   }
@@ -285,6 +324,15 @@ export const updateIn = async (req, res) => {
     const response = newData.toObject(); // Convert to a plain JavaScript object
 
     res.send(response);
+
+    // LOG
+    await createLog({
+      user: 'n/a',
+      section: 'Medicine Inventory - In',
+      action: 'UPDATE/ PUT',
+      description: JSON.stringify(newData),
+    });
+
   } catch (err) {
     handleError(res, err);
   }
@@ -299,6 +347,15 @@ export const deleteIn = async (req, res) => {
       return res.status(404).send('record not found');
 
     res.send(data);
+
+    // LOG
+    await createLog({
+      user: 'n/a',
+      section: 'Medicine Inventory - In',
+      action: 'DELETE',
+      description: JSON.stringify(data),
+    });
+
   } catch (err) {
     handleError(res, err);
   }
@@ -369,6 +426,14 @@ export const postDispense = async (req, res) => {
       newQuantity = Math.abs(quantity - existingItemQuantity);
     }
     await newData.save();
+
+    // LOG
+    await createLog({
+      user: 'n/a',
+      section: 'Medicine Inventory - Dispense',
+      action: 'CREATE/ POST',
+      description: JSON.stringify(newData),
+    });
     
     const createdData = await MedicineDispenseSchema.findById(
       newData._id
@@ -457,6 +522,14 @@ export const postDispenseClinicVisit = async (req, res) => {
       newQuantity = Math.abs(quantity - existingItemQuantity);
     }
     await newData.save();
+
+    // LOG
+    await createLog({
+      user: 'n/a',
+      section: 'Medicine Inventory - Dispense',
+      action: 'CREATE/ POST',
+      description: JSON.stringify(newData),
+    });
     
     const createdData = await MedicineDispenseSchema.findById(
       newData._id
@@ -469,8 +542,8 @@ export const postDispenseClinicVisit = async (req, res) => {
     
     const response = createdData.toObject(); // convert to a plain javascript object
 
-    res.status(201).send(response);
-    
+    res.status(201).send(response);   
+
   } catch (err) {
     handleError(res, err);
   }
@@ -517,9 +590,19 @@ export const updateDispense = async (req, res) => {
     if (!newData)
       return res.status(404).send('data not found');
 
+    // LOG
+    await createLog({
+      user: 'n/a',
+      section: 'Medicine Inventory - Dispense',
+      action: 'UPDATE/ PUT',
+      description: JSON.stringify(newData),
+    });
+
     const response = newData.toObject(); // Convert to a plain JavaScript object
 
     res.send(response);
+
+  
   } catch (err) {
     handleError(res, err);
   }
@@ -534,6 +617,15 @@ export const deleteDispense = async (req, res) => {
       return res.status(404).send('record not found');
 
     res.send(data);
+
+    // LOG
+    await createLog({
+      user: 'n/a',
+      section: 'Medicine Inventory - Dispense',
+      action: 'DELETE',
+      description: JSON.stringify(data),
+    });
+
   } catch (err) {
     handleError(res, err);
   }
@@ -568,6 +660,14 @@ export const postAdjustment = async (req, res) => {
     });
 
     await newData.save();
+    // LOG
+    await createLog({
+      user: 'n/a',
+      section: 'Medicine Inventory - Adjustment',
+      action: 'CREATE/ POST',
+      description: JSON.stringify(newData),
+    });
+
     const createdData = await MedicineAdjustmentSchema.findById(
       newData._id
     );
@@ -627,6 +727,7 @@ export const postAdjustment = async (req, res) => {
     const response = createdData.toObject(); // convert to a plain javascript object
 
     res.status(201).send(response);
+
   } catch (err) {
     handleError(res, err);
   }
@@ -672,10 +773,19 @@ export const updateAdjustment = async (req, res) => {
 
     if (!newData)
       return res.status(404).send('data not found');
+    
+    // LOG
+    await createLog({
+      user: 'n/a',
+      section: 'Medicine Inventory - Adjustment',
+      action: 'UPDATE/ PUT',
+      description: JSON.stringify(newData),
+    });
 
     const response = newData.toObject(); // Convert to a plain JavaScript object
 
-    res.send(response);
+    res.send(response); 
+
   } catch (err) {
     handleError(res, err);
   }
@@ -690,6 +800,15 @@ export const deleteAdjustment = async (req, res) => {
       return res.status(404).send('record not found');
 
     res.send(data);
+
+    // LOG
+    await createLog({
+      user: 'n/a',
+      section: 'Medicine Inventory - Adjustment',
+      action: 'DELETE',
+      description: JSON.stringify(data),
+    });
+
   } catch (err) {
     handleError(res, err);
   }

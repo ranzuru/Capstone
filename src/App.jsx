@@ -25,7 +25,7 @@ import Dashboard from './components/Dashboard';
 import AcademicYear from './pages/AcademicYear';
 import Events from './pages/Events';
 import EmployeeProfile from './pages/EmployeeProfile';
-// import Logs from './pages/Logs';
+import Logs from './pages/Logs';
 import ManageUser from './pages/ManageUser';
 import MedicineItem from './pages/MedicineItem';
 import MedicineBatch from './pages/MedicineBatch';
@@ -41,12 +41,12 @@ function App() {
     <>
       <ThemeProvider theme={theme}>
         <Router>
-          <AuthProvider>
+          {/* <AuthProvider> */}
             <SchoolYearProvider>
               <Routes>
                 <Route path="/" element={<Login />} />
                 <Route path="/reset-password" element={<PasswordResetPage />} />
-                <Route element={<ProtectedRoute />}>
+                {/* <Route element={<ProtectedRoute />}> */}
                   <Route path="/app" element={<LayoutWithSidebar />}>
                     <Route path="dashboard" element={<Dashboard />} />
                     <Route path="manage-users" element={<ManageUser />} />
@@ -72,7 +72,7 @@ function App() {
                       element={<MedicineAdjustment />}
                     />
                     <Route path="events" element={<Events />} />
-                    {/* <Route path="logs" element={<Logs />} /> */}
+                    <Route path="logs" element={<Logs />} />
                     <Route
                       path="clinic-records"
                       element={<ClinicVisitPage />}
@@ -118,11 +118,11 @@ function App() {
                       element={<MedicalCheckupAnalytics />}
                     />
                   </Route>
-                </Route>
+                {/* </Route> */}
                 <Route path="*" element={<PageNotFound />} />
               </Routes>
             </SchoolYearProvider>
-          </AuthProvider>
+          {/* </AuthProvider> */}
         </Router>
       </ThemeProvider>
     </>

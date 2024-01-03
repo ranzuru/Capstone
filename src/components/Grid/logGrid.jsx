@@ -6,14 +6,10 @@ import axiosInstance from '../../config/axios-instance';
 import { DataGrid } from '@mui/x-data-grid';
 import { TextField, Paper } from '@mui/material';
 // others
-import ActionMenu from '../../custom/CustomActionMenu.jsx';
-import { statusColors } from '../../utils/statusColor.js';
-import StatusCell from '../StatusCell.jsx';
+
 import { formatYearFromDate } from '../../utils/formatDateFromYear.js';
 import CustomGridToolbar from '../CustomGridToolbar2.jsx';
-import exportDataToExcel from '../../utils/exportToExcel.js';
 
-import headerMapping from '../../constant/logHeaderMapping.js';
 import InfoDialog from '../../components/Dialog/logDialog.jsx';
 
 const Grid = () => {
@@ -38,7 +34,7 @@ const Grid = () => {
       id: record._id,
       user: record.user || 'N/A',
       name: record.name || 'N/A',
-      role: record.role || 'N/A',
+      role: Array.isArray(record.role) && record.role.length > 0 ? record.role : 'N/A',
       section: record.section || 'N/A',
       action: record.action || 'N/A',
       description: record.description || '',
@@ -48,14 +44,13 @@ const Grid = () => {
       updatedAt: record.updatedAt
         ? formatYearFromDate(record.updatedAt)
         : null,
-      status: record.status || 'N/A',
     };
   };
 
   const fetchRecord = useCallback(async () => {
     setIsLoading(true);
     try {
-      const response = await axiosInstance.get('medicineInventory/getAllBatch');
+      const response = await axiosInstance.get('logs/getAll');
       const updatedRecords = response.data.map(mapRecord);
       setRecords(updatedRecords);
     } catch (error) {
@@ -71,53 +66,40 @@ const Grid = () => {
   }, [fetchRecord]);
 
   const columns = [
-    { field: 'id', headerName: 'ID', width: 150 },
-    { field: 'user', headerName: 'User ID', width: 150 },
-    { field: 'name', headerName: 'Name', width: 200 },
-    { field: 'Role', headerName: 'Role', width: 150 },
-    { field: 'section', headerName: 'Section', width: 150 },
-    { field: 'action', headerName: 'Action', width: 100,
+    { field: 'id', headerName: 'ID', width: 200 },
+    { field: 'name', headerName: 'Name', width: 250 },
+    { field: 'role', headerName: 'Role', width: 150 },
+    { field: 'section', headerName: 'Section', width: 200 },
+    { field: 'action', headerName: 'Action', width: 150,
     renderCell: (params) => {
-      const expirationDate = params.value;
-      const currentDate = new Date();
-
-      // Calculate the difference in milliseconds between expirationDate and currentDate
-      const timeDiff = new Date(expirationDate) - currentDate;
-
-      // Calculate the difference in years
-      const yearsDiff = timeDiff / (1000 * 60 * 60 * 24 * 365);
-
-      // Set color based on expiration date
+      // Set color based on action
       let color;
-      if (timeDiff < 0) {
-        color = 'red'; // Expired
-      } else if (yearsDiff <= 1) {
-        color = 'blue'; // Less than or equal to 1 year
+      if (params.value === 'DELETE' || params.value === 'BULK DELETE' ) {
+        color = 'red';
+      } else if (params.value === 'CREATE/ POST') {
+        color = 'green';
+      } else if (params.value === 'UPDATE/ PUT') {
+        color = 'blue';
       } else {
-        color = 'green'; // More than 1 year
-      }
+        color = 'black';
+      } 
 
-      return <div style={{ color }}>{formatYearFromDate(expirationDate)}</div>;
+      return <div style={{ color }}>{params.value}</div>;
     }, },
     { field: 'createdAt', headerName: 'Created', width: 100 },
     {
-      field: 'status',
-      headerName: 'Status',
-      width: 100,
-      renderCell: (params) => (
-        <StatusCell value={params.value} colorMapping={statusColors} />
-      ),
-    },
-    {
-      field: 'action',
-      headerName: 'Action',
+      field: '',
+      headerName: '',
       width: 100,
       headerAlign: 'center',
       align: 'center',
       renderCell: (params) => (
-        <ActionMenu
-          onView={() => handleInfoDialogOpen(params.row.id)}
-        />
+        <button
+          onClick={() => handleInfoDialogOpen(params.row.id)}
+          style={{ cursor: 'pointer' }}
+        >
+          View Log
+        </button>
       ),
     },
   ];
@@ -169,24 +151,6 @@ const Grid = () => {
             return true;
         }
       });
-    });
-
-    // Define excelHeaders based on the fields in transformedRecord
-    const excelHeaders = Object.keys(records[0] || {})
-      .filter((key) => key !== 'id') // This will exclude the 'id' field
-      .map((key) => ({
-        title: headerMapping[key] || key,
-        key: key,
-      }));
-
-    exportDataToExcel(filteredData, excelHeaders, 'Logs', {
-      dateFields: [
-        'createdAt',
-        'updatedAt',
-      ], // adjust based on transformed data
-      excludeColumns: [
-        'action',
-      ], // adjust based on transformed data
     });
   };
 

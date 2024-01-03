@@ -5,6 +5,7 @@ import {
 import EmployeeProfile from '../models/EmployeeProfile.js';
 import AcademicYear from '../models/AcademicYear.js';
 import parseExcelToJson from '../utils/importDataToExcel.js';
+import { createLog } from '../controller/createLogController.js';
 
 const importEmployees = async (fileBuffer) => {
   const data = await parseExcelToJson(fileBuffer, mapHeaderToSchemaKey);
@@ -37,6 +38,15 @@ const importEmployees = async (fileBuffer) => {
       value.academicYear = academicYear._id;
 
       employeeProfiles.push(value);
+
+      // LOG
+    await createLog({
+      user: 'n/a',
+      section: 'Employee Profile',
+      action: 'IMPORT',
+      description: JSON.stringify(value),
+    });
+
     } catch (validationError) {
       if (validationError.details && Array.isArray(validationError.details)) {
         errors.push({

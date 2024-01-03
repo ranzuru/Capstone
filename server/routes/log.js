@@ -1,11 +1,9 @@
-// Updated router file
 import express from 'express';
-// import { get } from '../controller/viewLogController.js';
-// import { post } from '../controller/createLogController.js';
+import { getAll } from '../controller/viewLogController.js';
+
 
 const router = express.Router();
 
-// router.post('/post', post);
-// router.get('/get', get);
+router.get('/getAll', getAll);
 
 export default router;

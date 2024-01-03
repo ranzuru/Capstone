@@ -2,6 +2,7 @@ import User from '../models/User.js';
 import Role from '../models/Role.js';
 import bcrypt from 'bcrypt';
 import { userValidation } from '../schema/createUserValidation.js';
+import { createLog } from './createLogController.js';
 
 // Create a new user
 export const createUser = async (req, res) => {
@@ -35,11 +36,21 @@ export const createUser = async (req, res) => {
 
     // Save the new user to the database
     await newUser.save();
+
+    // LOG
+    await createLog({
+      user: 'n/a',
+      section: 'User Profile',
+      action: 'CREATE/ POST',
+      description: JSON.stringify(newUser),
+    });
+
     const populatedUser = await User.findById(newUser._id).populate('role');
     const userToReturn = populatedUser.toObject();
     delete userToReturn.password;
 
-    res.status(201).json(userToReturn);
+    res.status(201).json(userToReturn); 
+
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
@@ -74,11 +85,20 @@ export const updateUserProfile = async (req, res) => {
 
     if (!userProfile) return res.status(404).send('User profile not found.');
 
+    // LOG
+    await createLog({
+      user: 'n/a',
+      section: 'User Profile',
+      action: 'UPDATE/ PUT',
+      description: JSON.stringify(userProfile),
+    });
+
     const response = userProfile.toObject();
     delete response.password;
     response.roleName = userProfile.role.roleName;
 
-    res.send(response);
+    res.send(response); 
+
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
@@ -102,6 +122,15 @@ export const deleteUser = async (req, res) => {
       return res.status(404).json({ error: 'User not found' });
     }
     res.status(200).json({ message: 'User deleted successfully' });
+
+    // LOG
+    await createLog({
+      user: 'n/a',
+      section: 'User Profile',
+      action: 'DELETE',
+      description: JSON.stringify(user),
+    });
+
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

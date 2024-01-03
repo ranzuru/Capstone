@@ -7,7 +7,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import PropTypes from 'prop-types';
 // custom
 import CustomSnackbar from '../../custom/CustomSnackbar';
-import FormInput from '../../custom/CustomTextField';
+import FormInput from '../../custom/CustomIdTextField';
 import FormSelect from '../../custom/CustomSelect';
 
 // yup

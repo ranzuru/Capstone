@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 import setCookie from '../utils/setCookie.js';
 import { sendOTP, verifyOTP } from './otpController.js';
+import { createLog } from './createLogController.js';
 
 // Helper functions to generate tokens
 const generateAccessToken = (user) =>
@@ -30,6 +31,14 @@ export const login = async (req, res) => {
     if (!match) {
       return res.status(401).json({ message: 'Invalid email or password' });
     }
+
+    // LOG
+    await createLog({
+      user: 'n/a',
+      section: 'Login',
+      action: 'RETRIEVE/ GET',
+      description: `Email: ${email}`,
+    });
 
     // If password match, proceed to send OTP
     const otpToken = await sendOTP(user.email);
@@ -69,12 +78,22 @@ export const verifyLoginOTP = async (req, res) => {
       },
     };
 
+    // LOG
+    await createLog({
+      user: 'n/a',
+      section: 'One-Time Password (OTP)',
+      action: 'RETRIEVE/ GET',
+      description: `Email: ${user.email}`,
+    });
+
     // Generate JWT tokens
     const accessToken = generateAccessToken(user);
     const refreshToken = generateRefreshToken(user);
 
     setCookie(res, 'accessToken', accessToken, { maxAge: 15 * 60 * 1000 });
     setCookie(res, 'refreshToken', refreshToken);
+
+    
 
     res
       .status(200)
@@ -108,6 +127,15 @@ export const resendOTP = async (req, res) => {
     const otpToken = await sendOTP(user.email);
 
     res.status(200).json({ otpToken, message: 'OTP resent successfully' });
+
+    // LOG
+    await createLog({
+      user: 'n/a',
+      section: 'One-Time Password (OTP)',
+      action: 'RETRIEVE/ GET',
+      description: `Email: ${user.email}, Re-send OTP`,
+    });
+
   } catch (error) {
     res
       .status(500)
@@ -120,6 +148,7 @@ export const logout = (req, res) => {
   res.clearCookie('accessToken');
   res.clearCookie('refreshToken');
   res.status(200).json({ message: 'Logout successful' });
+  
 };
 
 // Refresh token
@@ -148,6 +177,15 @@ export const refreshAccessToken = async (req, res) => {
     setCookie(res, 'accessToken', newAccessToken, { maxAge: 15 * 60 * 1000 });
 
     res.status(200).json({ message: 'Access token refreshed successfully' });
+
+    // LOG
+    await createLog({
+      user: 'n/a',
+      section: 'System Access',
+      action: 'RETRIEVE/ GET',
+      description: `User ID: ${decoded.userId}, Access and Refresh Token`,
+    });
+
   } catch (error) {
     console.error('Error refreshing access token:', error);
     res.clearCookie('refreshToken');

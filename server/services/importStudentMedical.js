@@ -6,6 +6,7 @@ import {
   validateStudentMedical,
   mapHeaderToSchemaKey,
 } from '../schema/studentMedicalValidation.js';
+import { createLog } from '../controller/createLogController.js';
 
 const importStudentMedical = async (fileBuffer) => {
   const data = await parseExcelToJson(fileBuffer, mapHeaderToSchemaKey);
@@ -44,6 +45,15 @@ const importStudentMedical = async (fileBuffer) => {
       value.academicYear = academicYear._id;
 
       studentMedicalRecords.push(value);
+
+      // LOG
+    await createLog({
+      user: 'n/a',
+      section: 'Student Medical',
+      action: 'IMPORT',
+      description: JSON.stringify(value),
+    });
+
     } catch (validationError) {
       if (validationError.details && Array.isArray(validationError.details)) {
         errors.push({

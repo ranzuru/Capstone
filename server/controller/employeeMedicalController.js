@@ -3,6 +3,7 @@ import AcademicYear from '../models/AcademicYear.js';
 import { handleError } from '../utils/handleError.js';
 import { validateEmployeeMedical } from '../schema/employeeMedicalValidation.js';
 import importEmployeeMedical from '../services/importEmployeeMedical.js';
+import { createLog } from './createLogController.js';
 
 // Create
 export const createEmployeeMedical = async (req, res) => {
@@ -24,6 +25,15 @@ export const createEmployeeMedical = async (req, res) => {
     });
 
     await employeeMedical.save();
+
+    // LOG
+    await createLog({
+      user: 'n/a',
+      section: 'Employee Medical',
+      action: 'CREATE/ POST',
+      description: JSON.stringify(employeeMedical),
+    });
+
     const populatedEmployeeMedical = await EmployeeMedical.findById(
       employeeMedical._id
     ).populate('academicYear');
@@ -33,6 +43,8 @@ export const createEmployeeMedical = async (req, res) => {
     response.schoolYear = academicYear.schoolYear; // Add the schoolYear string
 
     res.status(201).send(response);
+
+
   } catch (err) {
     handleError(res, err);
   }
@@ -98,11 +110,20 @@ export const updateEmployeeMedical = async (req, res) => {
       { new: true }
     ).populate('academicYear');
 
+    // LOG
+    await createLog({
+      user: 'n/a',
+      section: 'Employee Medical',
+      action: 'UPDATE/ PUT',
+      description: JSON.stringify(employeeMedical),
+    });
+
     // Modify the response to include the schoolYear string instead of the ObjectId
     const response = employeeMedical.toObject(); // Convert to a plain JavaScript object
     response.schoolYear = employeeMedical.academicYear.schoolYear; // Add the schoolYear string
 
     res.send(response);
+
   } catch (err) {
     handleError(res, err);
   }
@@ -115,6 +136,15 @@ export const deleteEmployeeMedical = async (req, res) => {
       req.params.id
     );
     res.send(employeeMedical);
+
+    // LOG
+    await createLog({
+      user: 'n/a',
+      section: 'Employee Medical',
+      action: 'DELETE',
+      description: JSON.stringify(employeeMedical),
+    });
+
   } catch (err) {
     handleError(res, err);
   }
@@ -142,6 +172,15 @@ export const bulkDeleteEmployeeMedical = async (req, res) => {
     res.send({
       message: `Successfully deleted ${result.deletedCount} records`,
     });
+
+    // LOG
+    await createLog({
+      user: 'n/a',
+      section: 'Employee Medical',
+      action: 'BULK DELETE',
+      description: `Employee Medical IDs: ${ids} \nNumber of IDs: ${result.deletedCount}`,
+    });
+
   } catch (err) {
     handleError(res, err);
   }
@@ -185,6 +224,7 @@ export const importMedical = async (req, res) => {
       message: 'Employee Medical Records imported successfully',
       count: employeeMedicalRecords.length,
     });
+
   } catch (err) {
     handleError(res, err);
   }

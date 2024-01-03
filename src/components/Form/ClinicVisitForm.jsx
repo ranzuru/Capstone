@@ -153,7 +153,6 @@ const Form = (props) => {
       if ((responseClinicVisit.data && responseClinicVisit.data._id) 
       && (responseDispense.data && responseDispense.data._id)) {
           addNewRecord(responseClinicVisit.data);
-          addNewRecord(responseDispense.data);
           showSnackbar('Successfully added new record', 'success');
         handleClose();
       } else {
@@ -306,7 +305,7 @@ const Form = (props) => {
             <DialogContentText>Enter record details:</DialogContentText>
             <Grid container spacing={2}>
               <Grid item xs={12} md={4}>
-              <AutoComplete onSelect={handleSelect} type={isTypeOther ? 'Other' : (isTypeFaculty ? 'Faculty' : 'Student')} />
+              <AutoComplete onSelect={handleSelect} type={isTypeOther ? 'Other' : (isTypeFaculty ? 'Faculty' : 'Student')} isTypeOther={isTypeOther} />
               </Grid>
             </Grid>
             <Divider />

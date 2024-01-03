@@ -4,6 +4,7 @@ import { handleError } from '../utils/handleError.js';
 import { validateDengue } from '../schema/dengueMonitoringValidation.js';
 import importDengue from '../services/importDengue.js';
 import moment from 'moment';
+import { createLog } from './createLogController.js';
 
 // create
 export const createDengueMonitoring = async (req, res) => {
@@ -25,6 +26,15 @@ export const createDengueMonitoring = async (req, res) => {
     });
 
     await dengueMonitoring.save();
+
+    // LOG
+    await createLog({
+      user: 'n/a',
+      section: 'Dengue Monitoring',
+      action: 'CREATE/ POST',
+      description: JSON.stringify(dengueMonitoring),
+    });
+
     const populatedDengueMonitoring = await DengueMonitoring.findById(
       dengueMonitoring._id
     ).populate('academicYear');
@@ -34,6 +44,7 @@ export const createDengueMonitoring = async (req, res) => {
     response.schoolYear = academicYear.schoolYear; // add the schoolYear string
 
     res.status(201).send(response);
+
   } catch (err) {
     handleError(res, err);
   }
@@ -99,6 +110,14 @@ export const updateDengueMonitoring = async (req, res) => {
       { new: true }
     ).populate('academicYear');
 
+    // LOG
+    await createLog({
+      user: 'n/a',
+      section: 'Dengue Monitoring',
+      action: 'UPDATE/ PUT',
+      description: JSON.stringify(dengueMonitoring),
+    });
+
     if (!dengueMonitoring)
       return res.status(404).send('Student profile not found');
 
@@ -106,6 +125,7 @@ export const updateDengueMonitoring = async (req, res) => {
     response.schoolYear = dengueMonitoring.academicYear.schoolYear; // Add the schoolYear string
 
     res.send(response);
+
   } catch (err) {
     handleError(res, err);
   }
@@ -121,6 +141,15 @@ export const deleteDengueMonitoring = async (req, res) => {
       return res.status(404).send('Dengue monitoring not found');
 
     res.send(dengueMonitoring);
+
+    // LOG
+    await createLog({
+      user: 'n/a',
+      section: 'Dengue Monitoring',
+      action: 'DELETE',
+      description: JSON.stringify(dengueMonitoring),
+    });
+
   } catch (err) {
     handleError(res, err);
   }
@@ -148,6 +177,15 @@ export const bulkDeleteDengueMonitoring = async (req, res) => {
     res.send({
       message: `Successfully deleted ${result.deletedCount} records`,
     });
+
+    // LOG
+    await createLog({
+      user: 'n/a',
+      section: 'Dengue Monitoring',
+      action: 'BULK DELETE',
+      description: `Dengue Monitoring IDs: ${ids} \nNumber of IDs: ${result.deletedCount}`,
+    });
+
   } catch (err) {
     handleError(res, err);
   }
@@ -189,6 +227,7 @@ export const importDengueMonitoring = async (req, res) => {
       message: 'Dengue Monitoring Records imported successfully',
       count: dengueRecords.length,
     });
+
   } catch (err) {
     handleError(res, err);
   }
@@ -242,6 +281,15 @@ export const getDengueCasesForActiveYear = async (req, res) => {
       SchoolYear: currentAcademicYear.schoolYear,
       DengueCases: formattedCases,
     });
+
+    // LOG
+    await createLog({
+      user: 'n/a',
+      section: 'Dengue Monitoring',
+      action: 'EXPORT',
+      description: `School Year: ${currentAcademicYear.schoolYear} \nDengue Cases: ${formattedCases}`,
+    });
+
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

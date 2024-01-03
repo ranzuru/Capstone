@@ -4,6 +4,7 @@ import { handleError } from '../utils/handleError.js';
 import { validateStudentMedical } from '../schema/studentMedicalValidation.js';
 import importStudentMedical from '../services/importStudentMedical.js';
 import moment from 'moment';
+import { createLog } from './createLogController.js';
 
 // Create
 export const createStudentMedical = async (req, res) => {
@@ -25,6 +26,15 @@ export const createStudentMedical = async (req, res) => {
     });
 
     await studentMedical.save();
+
+    // LOG
+    await createLog({
+      user: 'n/a',
+      section: 'Student Medical',
+      action: 'CREATE/ POST',
+      description: JSON.stringify(studentMedical),
+    });
+
     const populatedStudentMedical = await StudentMedical.findById(
       studentMedical._id
     ).populate('academicYear');
@@ -34,6 +44,7 @@ export const createStudentMedical = async (req, res) => {
     response.schoolYear = academicYear.schoolYear; // Add the schoolYear string
 
     res.status(201).send(response);
+
   } catch (err) {
     handleError(res, err);
   }
@@ -99,11 +110,20 @@ export const updateStudentMedical = async (req, res) => {
       { new: true }
     ).populate('academicYear');
 
+    // LOG
+    await createLog({
+      user: 'n/a',
+      section: 'Student Medical',
+      action: 'UPDATE/ PUT',
+      description: JSON.stringify(studentMedical),
+    });
+
     // Modify the response to include the schoolYear string instead of the ObjectId
     const response = studentMedical.toObject(); // Convert to a plain JavaScript object
     response.schoolYear = studentMedical.academicYear.schoolYear; // Add the schoolYear string
 
     res.send(response);
+
   } catch (err) {
     handleError(res, err);
   }
@@ -119,6 +139,15 @@ export const deleteStudentMedical = async (req, res) => {
       return res.status(404).send('Student record not found');
 
     res.send(studentMedical);
+
+    // LOG
+    await createLog({
+      user: 'n/a',
+      section: 'Student Medical',
+      action: 'DELETE',
+      description: JSON.stringify(studentMedical),
+    });
+
   } catch (err) {
     handleError(res, err);
   }
@@ -146,6 +175,15 @@ export const bulkDeleteStudentMedical = async (req, res) => {
     res.send({
       message: `Successfully deleted ${result.deletedCount} records`,
     });
+
+    // LOG
+    await createLog({
+      user: 'n/a',
+      section: 'Student Medical',
+      action: 'BULK DELETE',
+      description: `Student Medical IDs: ${ids} \nNumber of IDs: ${result.deletedCount}`,
+    });
+
   } catch (err) {
     handleError(res, err);
   }
@@ -188,6 +226,15 @@ export const importMedical = async (req, res) => {
       message: 'Student Medical Records imported successfully',
       count: studentMedicalRecords.length,
     });
+
+    // LOG
+    await createLog({
+      user: 'n/a',
+      section: 'Student Medical',
+      action: 'IMPORT',
+      description: '',
+    });
+
   } catch (err) {
     handleError(res, err);
   }
@@ -264,6 +311,14 @@ export const getStudentMedicalById = async (req, res) => {
     res.json({
       SchoolYear: currentAcademicYear.schoolYear,
       HealthRecord: formattedRecord,
+    });
+
+    // LOG
+    await createLog({
+      user: 'n/a',
+      section: 'Student Medical',
+      action: 'EXPORT',
+      description: `School Year: ${currentAcademicYear.schoolYear} \nHealth Record: ${formattedRecord}`,
     });
   } catch (err) {
     handleError(res, err);

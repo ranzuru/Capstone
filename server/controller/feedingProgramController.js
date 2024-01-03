@@ -4,6 +4,8 @@ import { handleError } from '../utils/handleError.js';
 import { validateFeeding } from '../schema/feedingProgramValidation.js';
 import importFeeding from '../services/importFeedingProgram.js';
 import moment from 'moment';
+import { createLog } from './createLogController.js';
+
 // Create
 export const createFeeding = async (req, res) => {
   try {
@@ -24,6 +26,15 @@ export const createFeeding = async (req, res) => {
     });
 
     await feedingProgram.save();
+
+    // LOG
+    await createLog({
+      user: 'n/a',
+      section: 'Feeding Program',
+      action: 'CREATE/ POST',
+      description: JSON.stringify(feedingProgram),
+    });
+
     const populatedFeedingProgram = await FeedingProgram.findById(
       feedingProgram._id
     ).populate('academicYear');
@@ -33,6 +44,7 @@ export const createFeeding = async (req, res) => {
     response.schoolYear = academicYear.schoolYear; // Add the schoolYear string
 
     res.status(201).send(response);
+
   } catch (err) {
     handleError(res, err);
   }
@@ -111,11 +123,20 @@ export const updateFeeding = async (req, res) => {
       { new: true }
     ).populate('academicYear');
 
+    // LOG
+    await createLog({
+      user: 'n/a',
+      section: 'Feeding Program',
+      action: 'UPDATE/ PUT',
+      description: JSON.stringify(updatedFeeding),
+    });
+
     // Modify the response to include the schoolYear string instead of the ObjectId
     const response = updatedFeeding.toObject(); // Convert to a plain JavaScript object
     response.schoolYear = updatedFeeding.academicYear.schoolYear; // Add the schoolYear string
 
     res.send(response);
+
   } catch (err) {
     handleError(res, err);
   }
@@ -128,6 +149,15 @@ export const deleteFeeding = async (req, res) => {
       req.params.id
     );
     res.send(feedingProgram);
+
+    // LOG
+    await createLog({
+      user: 'n/a',
+      section: 'Feeding Program',
+      action: 'DELETE',
+      description: JSON.stringify(feedingProgram),
+    });
+
   } catch (err) {
     handleError(res, err);
   }
@@ -155,6 +185,15 @@ export const bulkDeleteFeedings = async (req, res) => {
     res.send({
       message: `Successfully deleted ${result.deletedCount} records`,
     });
+
+    // LOG
+    await createLog({
+      user: 'n/a',
+      section: 'Feeding Program',
+      action: 'BULK DELETE',
+      description: `Feeding Program IDs: ${ids} \nNumber of IDs: ${result.deletedCount}`,
+    });
+
   } catch (err) {
     handleError(res, err);
   }
@@ -196,6 +235,15 @@ export const importFeedingProgram = async (req, res) => {
       message: 'Nutritional Records imported successfully',
       count: feedingRecords.length,
     });
+
+    // LOG
+    await createLog({
+      user: 'n/a',
+      section: 'Feeding Program',
+      action: 'IMPORT',
+      description: '',
+    });
+
   } catch (err) {
     handleError(res, err);
   }
@@ -269,6 +317,15 @@ export const getActiveSBFPBeneficiaries = async (req, res) => {
       SchoolYear: currentAcademicYear.schoolYear, // Provide the school year for the frontend to use
       Beneficiaries: formattedBeneficiaries,
     });
+
+    // LOG
+    await createLog({
+      user: 'n/a',
+      section: 'Feeding Program',
+      action: 'EXPORT',
+      description: `School Year: ${currentAcademicYear.schoolYear} \nBeneficiaries: ${formattedBeneficiaries}`,
+    });
+
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

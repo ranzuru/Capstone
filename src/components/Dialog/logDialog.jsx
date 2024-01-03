@@ -4,9 +4,6 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import Typography from '@mui/material/Typography';
 import { formatYearFromDate } from '../../utils/formatDateFromYear';
-import { statusColors } from '../../utils/statusColor.js';
-
-import StatusBadge from '../../custom/CustomStatusBadge';
 
 const InfoDialog = ({ open, onClose, record }) => {
   return (
@@ -51,13 +48,6 @@ const InfoDialog = ({ open, onClose, record }) => {
                   {formatYearFromDate(record.updatedAt)}
                 </span>
               </Typography>
-              <Typography variant="subtitle1" className="font-semibold">
-                Status:{' '}
-                <StatusBadge
-                  value={record.status}
-                  colorMapping={statusColors}
-                />
-              </Typography>
             </div>
           ) : (
             <Typography className="py-4 text-center text-gray-600">
@@ -83,7 +73,6 @@ InfoDialog.propTypes = {
     description: PropTypes.string,
     createdAt: PropTypes.string,
     updatedAt: PropTypes.string,
-    status: PropTypes.string,
   }),
 };
 

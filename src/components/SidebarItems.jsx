@@ -6,7 +6,7 @@ import {
   MedicalServicesOutlined,
   EventOutlined,
   AutoGraphOutlined,
-  // ReceiptLongOutlined,
+  ReceiptLongOutlined,
   ExitToAppOutlined,
 } from '@mui/icons-material';
 import SpaOutlinedIcon from '@mui/icons-material/SpaOutlined';
@@ -98,12 +98,12 @@ export const sidebarItems = [
       { to: '/app/feeding-analytics', primary: 'Feeding Analytics' },
     ],
   },
-  // {
-  //   type: 'link',
-  //   to: '/app/logs',
-  //   primary: 'Logs',
-  //   icon: ReceiptLongOutlined,
-  // },
+  {
+    type: 'link',
+    to: '/app/logs',
+    primary: 'Logs',
+    icon: ReceiptLongOutlined,
+  },
   {
     type: 'link',
     to: '/',

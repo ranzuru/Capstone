@@ -1,6 +1,7 @@
 // eventController.js
 import Event from '../models/Event.js';
 import moment from 'moment-timezone';
+import { createLog } from './createLogController.js';
 
 export const createEvent = async (req, res) => {
   try {
@@ -8,6 +9,15 @@ export const createEvent = async (req, res) => {
     const event = new Event({ title, description, startDateTime, endDateTime });
     const savedEvent = await event.save();
     res.status(201).json(savedEvent);
+
+    // LOG
+    await createLog({
+      user: 'n/a',
+      section: 'Event',
+      action: 'CREATE/ POST',
+      description: JSON.stringify(savedEvent),
+    });
+
   } catch (error) {
     console.error('Error creating event:', error);
     res.status(500).json({ error: 'Unable to create event' });
@@ -54,6 +64,15 @@ export const updateEvent = async (req, res) => {
       return res.status(404).json({ error: 'Event not found' });
     }
     res.json(updatedEvent);
+
+    // LOG
+    await createLog({
+      user: 'n/a',
+      section: 'Event',
+      action: 'UPDATE/ PUT',
+      description: JSON.stringify(updatedEvent),
+    });
+
   } catch (error) {
     console.error('Error updating event:', error);
     res.status(500).json({ error: 'Unable to update event' });
@@ -67,6 +86,15 @@ export const deleteEvent = async (req, res) => {
       return res.status(404).json({ error: 'Event not found' });
     }
     res.json(deletedEvent);
+
+    // LOG
+    await createLog({
+      user: 'n/a',
+      section: 'Event',
+      action: 'DELETE',
+      description: JSON.stringify(deletedEvent),
+    });
+
   } catch (error) {
     console.error('Error deleting event:', error);
     res.status(500).json({ error: 'Unable to delete event' });

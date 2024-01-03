@@ -17,7 +17,7 @@ const AutoComplete = ({ onSelect, type, isTypeOther  }) => {
       setLoading(true);
       try {
         const response = await axiosInstance.get(
-          `/${type === 'Student' ? 'studentProfile' : 'facultyProfile'}/fetchProfile?search=${encodeURIComponent(searchValue)}`
+          `/${type === 'Student' ? 'studentProfile' : 'employeeProfile'}/${type === 'Student' ? 'fetchProfile' : 'fetchEmployee'}?search=${encodeURIComponent(searchValue)}`
         );
         setOptions(response.data.data);
       } catch (error) {

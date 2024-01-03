@@ -5,6 +5,7 @@ import {
   validateDengue,
   mapHeaderToSchemaKey,
 } from '../schema/dengueMonitoringValidation.js';
+import { createLog } from '../controller/createLogController.js';
 
 const importDengue = async (fileBuffer) => {
   const data = await parseExcelToJson(fileBuffer, mapHeaderToSchemaKey);
@@ -31,6 +32,15 @@ const importDengue = async (fileBuffer) => {
       value.academicYear = academicYear._id;
 
       dengueRecords.push(value);
+
+    // LOG
+    await createLog({
+      user: 'n/a',
+      section: 'Dengue Monitoring',
+      action: 'IMPORT',
+      description: JSON.stringify(value),
+    });
+
     } catch (validationError) {
       if (validationError.details && Array.isArray(validationError.details)) {
         errors.push({

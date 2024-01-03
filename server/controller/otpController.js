@@ -1,5 +1,6 @@
 import { totp, authenticator } from 'otplib';
 import User from '../models/User.js';
+import { createLog } from './createLogController.js';
 
 import jwt from 'jsonwebtoken';
 
@@ -27,6 +28,14 @@ export const sendOTP = async (userEmail) => {
 
   const token = jwt.sign({ userSecret, id: user._id }, OTP_JWT_SECRET, {
     expiresIn: '15m',
+  });
+
+  // LOG
+  await createLog({
+    user: 'n/a',
+    section: 'One-Time Password (OTP)',
+    action: 'CREATE/ POST',
+    description: `Generate OTP for User Email ${userEmail}`,
   });
 
   return token;

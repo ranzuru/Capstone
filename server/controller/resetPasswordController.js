@@ -2,6 +2,7 @@ import User from '../models/User.js';
 import jwt from 'jsonwebtoken';
 // import { sendResetPasswordEmail } from '../utils/emailService.js';
 import bcrypt from 'bcrypt';
+import { createLog } from './createLogController.js';
 
 export const sendPasswordResetEmail = async (req, res) => {
   try {
@@ -26,6 +27,15 @@ export const sendPasswordResetEmail = async (req, res) => {
     res.status(200).json({
       message: 'Password reset email sent successfully. Check your inbox.',
     });
+
+    // LOG
+    await createLog({
+      user: 'n/a',
+      section: 'User Account',
+      action: 'CREATE/ POST',
+      description: `Reset password email for ${email}`,
+    });
+
   } catch (error) {
     console.error('Password reset error:', error);
     res.status(500).json({
@@ -50,6 +60,15 @@ export const resetPassword = async (req, res) => {
     user.password = hashedPassword;
     await user.save();
     res.status(200).json({ message: 'Password has been reset successfully.' });
+
+    // LOG
+    await createLog({
+      user: 'n/a',
+      section: 'User Account',
+      action: 'CREATE/ POST',
+      description: `Password reset successful for User ${user}`,
+    });
+
   } catch (error) {
     if (error.name === 'TokenExpiredError') {
       res.status(401).json({ message: 'Password reset token has expired.' });

@@ -3,6 +3,7 @@ import AcademicYear from '../models/AcademicYear.js';
 import { handleError } from '../utils/handleError.js';
 import { validateStudentProfile } from '../schema/studentProfileValidation.js';
 import importStudents from '../services/importStudentProfile.js';
+import { createLog } from './createLogController.js';
 
 // Create
 export const createStudentProfile = async (req, res) => {
@@ -24,6 +25,15 @@ export const createStudentProfile = async (req, res) => {
     });
 
     await studentProfile.save();
+
+    // LOG
+    await createLog({
+      user: 'n/a',
+      section: 'Student Profile',
+      action: 'CREATE/ POST',
+      description: JSON.stringify(studentProfile),
+    });
+
     const populatedStudentProfile = await StudentProfile.findById(
       studentProfile._id
     ).populate('academicYear');
@@ -33,6 +43,7 @@ export const createStudentProfile = async (req, res) => {
     response.schoolYear = academicYear.schoolYear; // Add the schoolYear string
 
     res.status(201).send(response);
+    
   } catch (err) {
     handleError(res, err);
   }
@@ -133,10 +144,19 @@ export const updateStudentProfile = async (req, res) => {
     if (!studentProfile)
       return res.status(404).send('Student profile not found');
 
+    // LOG
+    await createLog({
+      user: 'n/a',
+      section: 'Student Profile',
+      action: 'UPDATE/ PUT',
+      description: JSON.stringify(studentProfile),
+    });
+
     const response = studentProfile.toObject();
     response.schoolYear = studentProfile.academicYear.schoolYear;
 
-    res.send(response);
+    res.send(response); 
+
   } catch (err) {
     handleError(res, err);
   }
@@ -152,6 +172,15 @@ export const deleteStudentProfile = async (req, res) => {
       return res.status(404).send('Student profile not found');
 
     res.send(studentProfile);
+
+    // LOG
+    await createLog({
+      user: 'n/a',
+      section: 'Student Profile',
+      action: 'DELETE',
+      description: JSON.stringify(studentProfile),
+    });
+
   } catch (err) {
     handleError(res, err);
   }
@@ -181,6 +210,15 @@ export const bulkDeleteStudentProfiles = async (req, res) => {
     res.send({
       message: `Successfully deleted ${result.deletedCount} student records`,
     });
+
+    // LOG
+    await createLog({
+      user: 'n/a',
+      section: 'Student Profile',
+      action: 'BULK DELETE',
+      description: `Student Profile IDs: ${ids} \nNumber of IDs: ${result.deletedCount}`,
+    });
+
   } catch (err) {
     handleError(res, err);
   }
@@ -218,6 +256,15 @@ export const importStudentProfiles = async (req, res) => {
       message: 'Students imported successfully',
       count: studentProfiles.length,
     });
+
+    // LOG
+    await createLog({
+      user: 'n/a',
+      section: 'Student Profile',
+      action: 'IMPORT',
+      description: `Student Profiles: ${studentProfiles} \nNumber of Records: ${studentProfiles.length}`,
+    });
+
   } catch (err) {
     handleError(res, err);
   }

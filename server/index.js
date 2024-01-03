@@ -15,7 +15,7 @@ import dengueMonitoringRoutes from './routes/dengueMonitoring.js';
 import studentMedicalRoutes from './routes/studentMedical.js';
 import medicineInventoryRoutes from './routes/medicineInventory.js';
 import clinicVisitRoutes from './routes/clinicVisit.js';
-// import logRoutes from './routes/log.js';
+import logRoutes from './routes/log.js';
 import employeeMedicalRoutes from './routes/employeeMedical.js';
 import feedingProgramRoutes from './routes/feedingProgram.js';
 import dewormingRoutes from './routes/deworming.js';
@@ -26,7 +26,7 @@ app.use(express.json({ limit: '50mb' }));
 app.use(cookieParser());
 
 const corsOptions = {
-  origin: 'http://127.0.0.1:5173',
+  origin: 'http://localhost:5173',
   credentials: true,
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   allowedHeaders: ['Content-Type', 'Authorization'],
@@ -49,7 +49,7 @@ app.use('/dengueMonitoring', dengueMonitoringRoutes);
 app.use('/studentMedical', studentMedicalRoutes);
 app.use('/medicineInventory', medicineInventoryRoutes);
 app.use('/clinicVisit', clinicVisitRoutes);
-// app.use('/log', logRoutes);
+app.use('/logs', logRoutes);
 app.use('/employeeMedical', employeeMedicalRoutes);
 app.use('/feedingProgram', feedingProgramRoutes);
 app.use('/deworming', dewormingRoutes);
