@@ -10,7 +10,7 @@ export const SchoolYearDashboard = () => {
   };
 
   return (
-    <FormControl sx={{ width: 'auto', minWidth: 120 }} size="small">
+    <FormControl>
       <InputLabel id="school-year-select-label">School Year</InputLabel>
       <Select
         labelId="school-year-select-label"
@@ -18,9 +18,14 @@ export const SchoolYearDashboard = () => {
         value={activeSchoolYear}
         label="School Year"
         onChange={handleChange}
+        sx={{ height: 50, fontSize: '1.5rem' }}
       >
         {schoolYears.map((year) => (
-          <MenuItem key={year.value} value={year.value}>
+          <MenuItem
+            key={year.value}
+            value={year.value}
+            sx={{ fontSize: '1.5rem' }}
+          >
             {year.label}
           </MenuItem>
         ))}

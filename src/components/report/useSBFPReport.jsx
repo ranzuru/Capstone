@@ -1,15 +1,21 @@
 import { useState, useEffect } from 'react';
 import axiosInstance from '../../config/axios-instance';
 import generatePDF from '../../utils/PDFMakeUtil';
+import { useSchoolYear } from '../../hooks/useSchoolYear';
 
 const useSBFPReport = () => {
   const [beneficiaries, setBeneficiaries] = useState([]);
   const [schoolYear, setSchoolYear] = useState('');
+  const { activeSchoolYear } = useSchoolYear();
 
   useEffect(() => {
     const fetchBeneficiaries = async () => {
       try {
-        const response = await axiosInstance.get('/feedingProgram/fetchPDF');
+        const response = await axiosInstance.get(
+          `/feedingProgram/fetchPDF?schoolYear=${encodeURIComponent(
+            activeSchoolYear
+          )}`
+        );
         setBeneficiaries(response.data.Beneficiaries);
         setSchoolYear(response.data.SchoolYear);
       } catch (error) {
@@ -18,7 +24,7 @@ const useSBFPReport = () => {
     };
 
     fetchBeneficiaries();
-  }, []);
+  }, [activeSchoolYear]);
 
   const generatePdfDocument = () => {
     const columns = [

@@ -1,4 +1,4 @@
-import { createContext, useState, useCallback } from 'react';
+import { createContext, useState, useCallback, useEffect } from 'react';
 import axiosInstance from '../config/axios-instance';
 import PropTypes from 'prop-types';
 
@@ -7,7 +7,33 @@ export const AuthContext = createContext(null);
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [otpDetails, setOtpDetails] = useState({ otpToken: '', userId: '' });
-  const [error, setError] = useState(null); // New state for error management
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true); // Add loading state
+
+  const checkAuth = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await axiosInstance.get('/auth/authenticate');
+      if (response.status === 204) {
+        setUser(null);
+      } else {
+        setUser(response.data.user);
+      }
+    } catch (error) {
+      if (error.response?.status === 401) {
+        setError('Session expired, please log in again.');
+      } else {
+        setError(error.response?.data?.message || 'An unknown error occurred');
+      }
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    checkAuth();
+  }, [checkAuth]);
 
   const login = useCallback(async (email, password) => {
     setError(null); // Reset errors on new login attempt
@@ -88,8 +114,10 @@ export const AuthProvider = ({ children }) => {
         verifyOTP,
         resendOTP,
         logout,
+        checkAuth,
         error,
         otpDetails,
+        loading,
       }}
     >
       {children}

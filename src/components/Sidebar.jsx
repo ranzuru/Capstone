@@ -4,6 +4,7 @@ import { sidebarItems } from '../components/SidebarItems';
 import SidebarLink from '../components/SidebarLink';
 import SidebarSubmenu from '../components/SidebarSubmenu';
 import MenuOutlinedIcon from '@mui/icons-material/MenuOutlined';
+import schoolLogo from '/assets/DonjuanTransparent.webp';
 import { useAuth } from '../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 
@@ -69,7 +70,7 @@ function Sidebar() {
         isSidebarCollapsed ? 'collapsed overflow-x-hidden' : ''
       }`}
       style={{
-        width: isSidebarCollapsed ? 'w-18' : 'w-66',
+        width: isSidebarCollapsed ? 'w-18' : 'w-64',
       }}
     >
       <div
@@ -83,8 +84,17 @@ function Sidebar() {
       </div>
       {!isSidebarCollapsed && (
         <>
-          <div className="text-center mb-6 text-white">
-            <h1 className="text-lg font-semibold">Hello</h1>
+          <div className="flex flex-col items-center mb-2">
+            <img
+              src={schoolLogo}
+              alt="School Logo"
+              style={{ width: '100px', height: '100px' }}
+            />
+            <div className="text-center text-white mt-2">
+              <h5 className="text-sm font-semibold">
+                DON JUAN DELA CRUZ CENTRAL ELEMENTARY SCHOOL
+              </h5>
+            </div>
           </div>
         </>
       )}

@@ -39,7 +39,7 @@ import { calculateAge } from '../../utils/calculateAge.js';
 import AutoComplete from '../StudFacAutoComplete.jsx';
 
 const Form = (props) => {
-  const { open, onClose, initialData, addNewRecord, selectedRecord, onUpdate, } =
+  const { open, onClose, initialData, addNewRecord, selectedRecord, onUpdate } =
     props;
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarData, setSnackbarData] = useState({
@@ -72,7 +72,7 @@ const Form = (props) => {
     address: '',
     issueDate: new Date(),
     medicine: '',
-    quantity: 1,
+    quantity: 0,
     malady: '',
     reason: '',
     remarks: '',
@@ -94,20 +94,27 @@ const Form = (props) => {
   // Fetch medicine options
   const fetchMedicineOptions = async () => {
     try {
-      const response = await axiosInstance.get('/medicineInventory/getAllBatchNotExpired');
+      const response = await axiosInstance.get(
+        '/medicineInventory/getAllBatchNotExpired'
+      );
       const options = response.data.map((data) => {
+        // Format the expiration date to show only the year, month, and day
+        const formattedExpirationDate = new Date(
+          data.expirationDate
+        ).toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+        });
 
-         // Format the expiration date to show only the year, month, and day
-      const formattedExpirationDate = new Date(data.expirationDate).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-      });
-        
-        return{
+        return {
           value: data._id,
-          label: `${data.itemData[0].product || 'Unknown Product'} | Exp: ${formattedExpirationDate} | Qty: (${data.totalBatchQuantity})`,
-        }
+          label: `${
+            data.itemData[0].product || 'Unknown Product'
+          } | Exp: ${formattedExpirationDate} | Qty: (${
+            data.totalBatchQuantity
+          })`,
+        };
       });
       setMedicineOptions(options);
     } catch (error) {
@@ -137,7 +144,6 @@ const Form = (props) => {
     }
   };
 
-  console.log(errors)
   const handleCreateRecord = async (data) => {
     try {
       const responseClinicVisit = await axiosInstance.post(
@@ -203,9 +209,13 @@ const Form = (props) => {
       reset(); // This assumes you've defined the default values at useForm hook initialization
       return;
     }
-    console.log('Selected Data:', data);
-    setValue('name', ` ${data.lastName}, ${data.firstName} ${data.middleName} ${data.nameExtension || ''}`);
-    setValue('patientId', data.employeeId || data.lrn || '' );
+    setValue(
+      'name',
+      ` ${data.lastName}, ${data.firstName} ${data.middleName} ${
+        data.nameExtension || ''
+      }`
+    );
+    setValue('patientId', data.employeeId || data.lrn || '');
     setValue('gender', data.gender);
 
     // Check if dateOfBirth is a valid string and then parse and format
@@ -215,7 +225,7 @@ const Form = (props) => {
     }
 
     setValue('age', data.age);
-    setValue('mobileNumber', data.mobileNumber || data.parentContact1 || '' );
+    setValue('mobileNumber', data.mobileNumber || data.parentContact1 || '');
     setValue('grade', data.grade);
     setValue('section', data.section);
     setValue('address', data.address);
@@ -247,7 +257,6 @@ const Form = (props) => {
         'quantity',
         'malady',
         'reason',
-        'status',
         'remarks',
       ];
 
@@ -256,10 +265,7 @@ const Form = (props) => {
       });
 
       // Date fields
-      const dateFields = [
-        'dateOfBirth',
-        'issueDate',
-      ];
+      const dateFields = ['dateOfBirth', 'issueDate'];
 
       dateFields.forEach((field) => {
         const dateValue = selectedRecord[field]
@@ -305,7 +311,9 @@ const Form = (props) => {
             <DialogContentText>Enter record details:</DialogContentText>
             <Grid container spacing={2}>
               <Grid item xs={12} md={4}>
-              <AutoComplete onSelect={handleSelect} type={isTypeOther ? 'Other' : (isTypeFaculty ? 'Faculty' : 'Student')} isTypeOther={isTypeOther} />
+              <AutoComplete onSelect={handleSelect} 
+              type={isTypeOther ? 'Other' : (isTypeFaculty ? 'Faculty' : 'Student')} 
+              isTypeOther={isTypeOther} />
               </Grid>
             </Grid>
             <Divider />
@@ -333,8 +341,8 @@ const Form = (props) => {
                   control={control}
                   name="patientId"
                   label="ID (LRN/ Employee ID)"
-                  textType="text"
-                  error={errors.name}
+                  textType="combine"
+                  error={errors.patientId}
                 />
               </Grid>
             </Grid>
@@ -401,6 +409,7 @@ const Form = (props) => {
                   control={control}
                   name="mobileNumber"
                   label="Contact Number"
+                  error={errors.mobileNumber}
                   textType="combine"
                 />
               </Grid>
@@ -410,12 +419,13 @@ const Form = (props) => {
                   name="address"
                   label="Address"
                   textType="combine"
+                  error={errors.address}
                   multiline
                 />
               </Grid>
             </Grid>
             <Grid container spacing={2}>
-            <Grid item xs={12} md={2}>
+              <Grid item xs={12} md={2}>
                 <CustomDatePicker
                   control={control}
                   name="issueDate"
@@ -428,6 +438,7 @@ const Form = (props) => {
                   control={control}
                   name="malady"
                   label="Malady"
+                  error={errors.malady}
                   textType="combine"
                   multiline
                 />
@@ -437,6 +448,7 @@ const Form = (props) => {
                   control={control}
                   name="reason"
                   label="Reason/s"
+                  error={errors.reason}
                   textType="text"
                   multiline
                 />
@@ -452,17 +464,18 @@ const Form = (props) => {
                   errors={errors}
                   disabled={selectedRecord !== null}
                 />
-              </Grid> 
+              </Grid>
               <Grid item xs={12} md={1.5}>
                 <FormInput
                   control={control}
                   name="quantity"
                   label="Quantity"
                   textType="number"
-                  error={errors.age}
+                  type="number"
+                  error={errors.quantity}
                   disabled={selectedRecord !== null}
                 />
-              </Grid> 
+              </Grid>
               <Grid item xs={12} md={4}>
                 <FormInput
                   control={control}

@@ -14,9 +14,12 @@ import {
   getCasesPerGrade,
   calculateComparisonStatistics,
 } from '../controller/analytics/dengueCharts.js';
+import { authenticateUser } from '../middleware/authenticateMiddleware.js';
 
 import multer from 'multer';
 const router = express.Router();
+
+router.use(authenticateUser);
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });

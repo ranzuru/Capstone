@@ -386,16 +386,17 @@ const FeedingProgramGrid = () => {
             <Button
               variant="contained"
               color="primary"
-              onClick={handleModalOpen}
+              onClick={handleGenerateReport}
+              style={{ marginRight: '16px' }}
             >
-              New Record
+              GENERATE REPORT
             </Button>
             <Button
               variant="contained"
               color="primary"
-              onClick={handleGenerateReport}
+              onClick={handleModalOpen}
             >
-              GENERATE REPORT
+              New Record
             </Button>
             <div className="ml-2">
               <TextField

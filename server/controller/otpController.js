@@ -1,7 +1,7 @@
 import { totp, authenticator } from 'otplib';
 import User from '../models/User.js';
 import { createLog } from './createLogController.js';
-
+import { sendOtpEmail } from '../utils/emailService.js';
 import jwt from 'jsonwebtoken';
 
 const generateOTP = (userSecret) => {
@@ -9,25 +9,13 @@ const generateOTP = (userSecret) => {
 };
 
 export const sendOTP = async (userEmail) => {
-  console.log(`sendOTP called for email: ${userEmail}`);
-  const user = await User.findOne({ email: userEmail });
-  if (!user) {
-    console.error(`User not found for email: ${userEmail}`);
-    throw new Error('User not found');
-  }
-
   const OTP_JWT_SECRET = process.env.OTP_SECRET;
   const userSecret = authenticator.generateSecret();
-  console.log(`Generated user secret for ${userEmail}: ${userSecret}`);
-
   totp.options = { step: 60, window: 1, digits: 6 };
-  console.log(`TOTP options at generation: ${JSON.stringify(totp.options)}`);
 
   const otp = generateOTP(userSecret);
-  console.log(`Generated OTP for ${userEmail}: ${otp}`);
-
-  const token = jwt.sign({ userSecret, id: user._id }, OTP_JWT_SECRET, {
-    expiresIn: '15m',
+  const token = jwt.sign({ userSecret }, OTP_JWT_SECRET, {
+    expiresIn: '5m',
   });
 
   // LOG
@@ -38,6 +26,7 @@ export const sendOTP = async (userEmail) => {
     description: `Generate OTP for User Email ${userEmail}`,
   });
 
+  await sendOtpEmail(userEmail, otp);
   return token;
 };
 

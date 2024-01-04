@@ -7,8 +7,11 @@ import {
   updateEvent,
   deleteEvent,
 } from '../controller/eventController.js';
+import { authenticateUser } from '../middleware/authenticateMiddleware.js';
 
 const router = express.Router();
+
+router.use(authenticateUser);
 
 router.post('/createEvent', createEvent);
 router.get('/fetchEvent', fetchEvents);

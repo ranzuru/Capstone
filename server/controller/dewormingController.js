@@ -121,19 +121,17 @@ const countDewormedStudents = async (grade, schoolYear) => {
 
 export const getDewormReport = async (req, res) => {
   try {
-    const currentAcademicYear = await AcademicYear.findOne({
-      status: 'Active',
-    });
-    if (!currentAcademicYear) {
-      return res
-        .status(404)
-        .json({ message: 'Active academic year not found.' });
+    const { schoolYear } = req.query;
+
+    const academicYearDoc = await AcademicYear.findOne({ schoolYear });
+    if (!academicYearDoc) {
+      return res.status(404).json({ message: 'Academic year not found.' });
     }
 
     const dewormReport = await StudentMedical.aggregate([
       {
         $match: {
-          academicYear: currentAcademicYear._id,
+          academicYear: academicYearDoc._id,
         },
       },
       {
@@ -218,7 +216,7 @@ export const getDewormReport = async (req, res) => {
     ]);
 
     res.json({
-      SchoolYear: currentAcademicYear.schoolYear,
+      SchoolYear: academicYearDoc.schoolYear,
       DewormReport: dewormReport,
     });
   } catch (error) {

@@ -135,3 +135,88 @@ export const deleteUser = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+// Profile settings
+
+export const getUserProfile = async (req, res) => {
+  try {
+    const userId = req.params.userId;
+
+    // Replace 'role' with the actual reference field name in your User model
+    const user = await User.findOne({ userId })
+      .select('-password') // Exclude the password
+      .populate({
+        path: 'role', // Populate the role field
+        select: 'roleName', // Select only the roleName from the Role model
+      });
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.json({
+      ...user.toObject(), // Convert Mongoose document to a plain JavaScript object
+      roleName: user.role ? user.role.roleName : 'No role assigned', // Extract roleName
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Function to handle updating the user data
+export const updateUserProfileSettings = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { firstName, lastName, currentPassword, newPassword } = req.body;
+    const updates = {};
+    const saltRounds = 10;
+
+    // Fetch the user by their userId (nanoid) including the password hash
+    const user = await User.findOne({ userId }).select('+password');
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Update only the provided non-sensitive fields
+    if (firstName) updates.firstName = firstName;
+    if (lastName) updates.lastName = lastName;
+
+    // If a new password is provided, verify the current password
+    if (newPassword) {
+      const isMatch = await bcrypt.compare(currentPassword, user.password);
+      if (!isMatch) {
+        return res
+          .status(400)
+          .json({ message: 'Current password is incorrect' });
+      }
+      // Hash the new password and prepare for update
+      updates.password = await bcrypt.hash(newPassword, saltRounds);
+    }
+
+    // Execute the update operation
+    const updatedUser = await User.findOneAndUpdate(
+      { userId }, // Filter by nanoid
+      updates, // Apply updates
+      { new: true, runValidators: true }
+    ).select('-password'); // Exclude the password from the response
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Prepare and return the updated user data excluding sensitive fields
+    const userResponse = {
+      userId: updatedUser.userId,
+      firstName: updatedUser.firstName,
+      lastName: updatedUser.lastName,
+      email: updatedUser.email,
+      // Other fields as needed but not the password
+    };
+
+    res.json({ message: 'Profile updated successfully', user: userResponse });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: 'Internal server error', error: error.message });
+  }
+};

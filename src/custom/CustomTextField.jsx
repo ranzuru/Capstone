@@ -8,6 +8,7 @@ const FormInput = ({
   label,
   error,
   textType = 'default',
+  isDisabled,
   ...rest
 }) => {
   return (
@@ -23,6 +24,7 @@ const FormInput = ({
           variant="outlined"
           error={!!error}
           helperText={error?.message}
+          disabled={isDisabled}
           onChange={(e) => {
             let value = e.target.value;
 
@@ -76,6 +78,7 @@ FormInput.propTypes = {
     'float',
     'bloodPressure',
   ]),
+  isDisabled: PropTypes.bool,
 };
 
 export default FormInput;

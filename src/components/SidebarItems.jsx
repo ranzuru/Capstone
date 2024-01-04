@@ -7,6 +7,7 @@ import {
   EventOutlined,
   AutoGraphOutlined,
   ReceiptLongOutlined,
+  SettingsOutlined,
   ExitToAppOutlined,
 } from '@mui/icons-material';
 import SpaOutlinedIcon from '@mui/icons-material/SpaOutlined';
@@ -103,6 +104,11 @@ export const sidebarItems = [
     to: '/app/logs',
     primary: 'Logs',
     icon: ReceiptLongOutlined,
+  },
+  {
+    to: '/app/settings',
+    primary: 'Settings',
+    icon: SettingsOutlined,
   },
   {
     type: 'link',

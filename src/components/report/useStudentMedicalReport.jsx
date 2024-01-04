@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import axiosInstance from '../../config/axios-instance';
 import generatePDF from '../../utils/PDFMakeUtil';
+import { useSchoolYear } from '../../hooks/useSchoolYear';
 
 const useStudentMedicalReport = () => {
   const [schoolYear, setSchoolYear] = useState('');
+  const { activeSchoolYear } = useSchoolYear();
 
   const fetchMedicalRecord = async (recordId) => {
     if (!recordId) {
@@ -12,7 +14,9 @@ const useStudentMedicalReport = () => {
 
     try {
       const response = await axiosInstance.get(
-        `/studentMedical/fetchPDFReport/${recordId}`
+        `/studentMedical/fetchPDFReport/${recordId}?schoolYear=${encodeURIComponent(
+          activeSchoolYear
+        )}`
       );
       setSchoolYear(response.data.SchoolYear);
       return response.data;
@@ -34,6 +38,7 @@ const useStudentMedicalReport = () => {
     }
 
     const medicalRecord = fetchedData.HealthRecord;
+    const schoolYear = fetchedData.SchoolYear;
 
     const headerDetails = [
       `Name: ${medicalRecord.Name}`,

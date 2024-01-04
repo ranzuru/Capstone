@@ -9,6 +9,8 @@ const ActionMenu = ({
   onView,
   onArchive,
   onMedicalReport,
+  onActive,
+  OnComplete,
 }) => {
   const [anchorEl, setAnchorEl] = useState(null);
 
@@ -89,6 +91,26 @@ const ActionMenu = ({
             Report
           </MenuItem>
         )}
+        {onActive && (
+          <MenuItem
+            onClick={() => {
+              onActive();
+              handleClose();
+            }}
+          >
+            Activate
+          </MenuItem>
+        )}
+        {OnComplete && (
+          <MenuItem
+            onClick={() => {
+              OnComplete();
+              handleClose();
+            }}
+          >
+            Complete
+          </MenuItem>
+        )}
       </Menu>
     </div>
   );
@@ -100,6 +122,8 @@ ActionMenu.propTypes = {
   onView: PropTypes.func,
   onArchive: PropTypes.func,
   onMedicalReport: PropTypes.func,
+  onActive: PropTypes.func,
+  OnComplete: PropTypes.func,
 };
 
 export default ActionMenu;

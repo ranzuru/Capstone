@@ -35,6 +35,7 @@ import MedicineAdjustment from './pages/MedicineAdjustment';
 import StudentProfile from './pages/StudentProfile';
 import Role from './pages/Role';
 import PasswordResetPage from './pages/PasswordReset';
+import Settings from './pages/Settings';
 
 function App() {
   return (
@@ -117,6 +118,7 @@ function App() {
                       path="medical-analytics"
                       element={<MedicalCheckupAnalytics />}
                     />
+                    <Route path="settings" element={<Settings />} />
                   </Route>
                 {/* </Route> */}
                 <Route path="*" element={<PageNotFound />} />

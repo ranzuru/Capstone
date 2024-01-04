@@ -20,6 +20,7 @@ import employeeMedicalRoutes from './routes/employeeMedical.js';
 import feedingProgramRoutes from './routes/feedingProgram.js';
 import dewormingRoutes from './routes/deworming.js';
 import resetPasswordRoutes from './routes/resetPassword.js';
+import dashboardRoutes from './routes/dashboard.js';
 
 const app = express();
 app.use(express.json({ limit: '50mb' }));
@@ -27,6 +28,7 @@ app.use(cookieParser());
 
 const corsOptions = {
   origin: 'http://localhost:5173',
+  // origin: process.env.CORS_ORIGIN,
   credentials: true,
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   allowedHeaders: ['Content-Type', 'Authorization'],
@@ -53,6 +55,7 @@ app.use('/logs', logRoutes);
 app.use('/employeeMedical', employeeMedicalRoutes);
 app.use('/feedingProgram', feedingProgramRoutes);
 app.use('/deworming', dewormingRoutes);
+app.use('/dashboard', dashboardRoutes);
 app.use('/passwordReset', resetPasswordRoutes);
 
 const startServer = async () => {

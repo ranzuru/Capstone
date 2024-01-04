@@ -9,7 +9,10 @@ import {
   bulkDeleteEmployee,
 } from '../controller/employeeProfileController.js';
 import multer from 'multer';
+import { authenticateUser } from '../middleware/authenticateMiddleware.js';
 const router = express.Router();
+
+router.use(authenticateUser);
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });

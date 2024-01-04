@@ -437,9 +437,11 @@ const generateComparisonSummary = (data) => {
     summary += `This suggests that ${
       yearData.hospitalizationRate > 10 ? 'a significant' : 'a small'
     } number of dengue cases were severe enough to require hospital care. `;
-    summary += `The average age of affected individuals was ${yearData.ageStats.mean.toFixed(
-      2
-    )} years. `;
+    summary += `The average age of affected individuals was ${
+      yearData.ageStats.mean !== null
+        ? yearData.ageStats.mean.toFixed(2)
+        : 'N/A'
+    } years. `;
     summary += `Gender-wise, there were ${
       yearData.genderBreakdown.Male
     } male and ${yearData.genderBreakdown.Female} female cases, indicating ${
@@ -482,9 +484,15 @@ const generateComparisonSummary = (data) => {
       firstData.ageStats.mean > secondData.ageStats.mean
         ? 'decreased'
         : 'increased'
-    } from ${firstData.ageStats.mean.toFixed(
-      2
-    )} to ${secondData.ageStats.mean.toFixed(2)} years. `;
+    } from ${
+      firstData.ageStats.mean !== null
+        ? firstData.ageStats.mean.toFixed(2)
+        : 'N/A'
+    } to ${
+      secondData.ageStats.mean !== null
+        ? secondData.ageStats.mean.toFixed(2)
+        : 'N/A'
+    } years. `;
     summary += `Regarding gender distribution, the number of male cases was ${
       firstData.genderBreakdown.Male > secondData.genderBreakdown.Male
         ? 'higher'

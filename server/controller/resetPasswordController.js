@@ -1,6 +1,6 @@
 import User from '../models/User.js';
 import jwt from 'jsonwebtoken';
-// import { sendResetPasswordEmail } from '../utils/emailService.js';
+import { sendResetPasswordEmail } from '../utils/emailService.js';
 import bcrypt from 'bcrypt';
 import { createLog } from './createLogController.js';
 
@@ -16,13 +16,12 @@ export const sendPasswordResetEmail = async (req, res) => {
     }
 
     const resetToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: '1h',
+      expiresIn: '10m',
     });
 
-    const resetLink = `http://127.0.0.1:5173/reset-password?token=${resetToken}`;
+    const resetLink = `${process.env.CORS_ORIGIN}/reset-password?token=${resetToken}`;
 
-    // await sendResetPasswordEmail(email, resetLink);
-    console.log(`Reset link (console logged): ${resetLink}`);
+    await sendResetPasswordEmail(email, resetLink);
 
     res.status(200).json({
       message: 'Password reset email sent successfully. Check your inbox.',

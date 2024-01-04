@@ -8,13 +8,21 @@ import {
   FormHelperText,
 } from '@mui/material';
 
-const FormSelect = ({ control, name, label, options, errors, ...rest }) => {
+const FormSelect = ({
+  control,
+  name,
+  label,
+  options,
+  errors,
+  isDisabled,
+  ...rest
+}) => {
   return (
     <Controller
       name={name}
       control={control}
       render={({ field }) => (
-        <FormControl fullWidth margin="normal">
+        <FormControl fullWidth margin="normal" disabled={isDisabled}>
           <InputLabel id={`${name}-label`}>{label}</InputLabel>
           <Select labelId={`${name}-label`} label={label} {...field} {...rest}>
             {options.map((option) => (
@@ -43,6 +51,7 @@ FormSelect.propTypes = {
     })
   ).isRequired,
   errors: PropTypes.object,
+  isDisabled: PropTypes.bool,
 };
 
 export default FormSelect;

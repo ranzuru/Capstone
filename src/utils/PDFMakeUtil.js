@@ -1,8 +1,8 @@
-import PropTypes from 'prop-types';
+import vfsFonts from './vfs_fonts.js';
 import pdfMake from 'pdfmake/build/pdfmake';
-import pdfFonts from 'pdfmake/build/vfs_fonts';
-pdfMake.vfs = pdfFonts.pdfMake.vfs;
+pdfMake.vfs = vfsFonts;
 
+import PropTypes from 'prop-types';
 const buildTableBody = (data, columns) => {
   const body = [];
 

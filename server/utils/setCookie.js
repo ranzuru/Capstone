@@ -1,10 +1,12 @@
 // utils/setCookie.js
 const setCookie = (res, name, value, options = {}) => {
+  const isProduction = process.env.NODE_ENV === 'production';
   const defaultOptions = {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'Lax',
-    maxAge: 24 * 60 * 60 * 1000, // Default to 1 day
+    secure: isProduction,
+    sameSite: isProduction ? 'None' : 'Lax',
+    maxAge: 24 * 60 * 60 * 1000, // 1 day in milliseconds
+    path: '/',
   };
 
   res.cookie(name, value, { ...defaultOptions, ...options });

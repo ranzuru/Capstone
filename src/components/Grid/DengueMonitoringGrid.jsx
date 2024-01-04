@@ -402,6 +402,7 @@ const DengueMonitoringGrid = () => {
               variant="contained"
               color="primary"
               onClick={handleGenerateReport}
+              style={{ marginRight: '16px' }}
             >
               GENERATE REPORT
             </Button>
