@@ -1,5 +1,4 @@
 import { totp, authenticator } from 'otplib';
-import User from '../models/User.js';
 import { createLog } from './createLogController.js';
 import { sendOtpEmail } from '../utils/emailService.js';
 import jwt from 'jsonwebtoken';
@@ -20,7 +19,7 @@ export const sendOTP = async (userEmail) => {
 
   // LOG
   await createLog({
-    user: 'n/a',
+    user: 'N/A',
     section: 'One-Time Password (OTP)',
     action: 'CREATE/ POST',
     description: `Generate OTP for User Email ${userEmail}`,

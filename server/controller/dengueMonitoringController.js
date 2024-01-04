@@ -5,6 +5,7 @@ import { validateDengue } from '../schema/dengueMonitoringValidation.js';
 import importDengue from '../services/importDengue.js';
 import moment from 'moment';
 import { createLog } from './createLogController.js';
+import { currentUserId } from '../auth/authenticateMiddleware.js';
 
 // create
 export const createDengueMonitoring = async (req, res) => {
@@ -29,7 +30,7 @@ export const createDengueMonitoring = async (req, res) => {
 
     // LOG
     await createLog({
-      user: 'n/a',
+      user: `${currentUserId}`,
       section: 'Dengue Monitoring',
       action: 'CREATE/ POST',
       description: JSON.stringify(dengueMonitoring),
@@ -112,7 +113,7 @@ export const updateDengueMonitoring = async (req, res) => {
 
     // LOG
     await createLog({
-      user: 'n/a',
+      user: `${currentUserId}`,
       section: 'Dengue Monitoring',
       action: 'UPDATE/ PUT',
       description: JSON.stringify(dengueMonitoring),
@@ -144,7 +145,7 @@ export const deleteDengueMonitoring = async (req, res) => {
 
     // LOG
     await createLog({
-      user: 'n/a',
+      user: `${currentUserId}`,
       section: 'Dengue Monitoring',
       action: 'DELETE',
       description: JSON.stringify(dengueMonitoring),
@@ -180,7 +181,7 @@ export const bulkDeleteDengueMonitoring = async (req, res) => {
 
     // LOG
     await createLog({
-      user: 'n/a',
+      user: `${currentUserId}`,
       section: 'Dengue Monitoring',
       action: 'BULK DELETE',
       description: `Dengue Monitoring IDs: ${ids} \nNumber of IDs: ${result.deletedCount}`,
@@ -289,10 +290,10 @@ export const getDengueCasesForActiveYear = async (req, res) => {
 
     // LOG
     await createLog({
-      user: 'n/a',
+      user: `${currentUserId}`,
       section: 'Dengue Monitoring',
       action: 'EXPORT',
-      description: `School Year: ${currentAcademicYear.schoolYear} \nDengue Cases: ${formattedCases}`,
+      description: `School Year: ${academicYear.schoolYear} \nDengue Cases: ${formattedCases}`,
     });
 
   } catch (error) {

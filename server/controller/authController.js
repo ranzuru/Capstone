@@ -34,7 +34,7 @@ export const login = async (req, res) => {
 
     // LOG
     await createLog({
-      user: 'n/a',
+      user: 'N/A',
       section: 'Login',
       action: 'RETRIEVE/ GET',
       description: `Email: ${email}`,
@@ -82,7 +82,7 @@ export const verifyLoginOTP = async (req, res) => {
 
     // LOG
     await createLog({
-      user: 'n/a',
+      user: 'N/A',
       section: 'One-Time Password (OTP)',
       action: 'RETRIEVE/ GET',
       description: `Email: ${user.email}`,
@@ -132,7 +132,7 @@ export const resendOTP = async (req, res) => {
 
     // LOG
     await createLog({
-      user: 'n/a',
+      user: 'N/A',
       section: 'One-Time Password (OTP)',
       action: 'RETRIEVE/ GET',
       description: `Email: ${user.email}, Re-send OTP`,
@@ -182,7 +182,7 @@ export const refreshAccessToken = async (req, res) => {
 
     // LOG
     await createLog({
-      user: 'n/a',
+      user: 'N/A',
       section: 'System Access',
       action: 'RETRIEVE/ GET',
       description: `User ID: ${decoded.userId}, Access and Refresh Token`,
@@ -229,6 +229,14 @@ export const authenticate = async (req, res) => {
         navigationScopes: user.role.navigationScopes,
       },
     };
+
+    // LOG
+    await createLog({
+      user: 'N/A',
+      section: 'System Access',
+      action: 'RETRIEVE/ GET',
+      description: `User ID: ${user.userId}, Access and Refresh Token`,
+    });
 
     return res
       .status(200)

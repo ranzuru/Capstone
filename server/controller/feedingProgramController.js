@@ -5,6 +5,7 @@ import { validateFeeding } from '../schema/feedingProgramValidation.js';
 import importFeeding from '../services/importFeedingProgram.js';
 import moment from 'moment';
 import { createLog } from './createLogController.js';
+import { currentUserId } from '../auth/authenticateMiddleware.js';
 
 // Create
 export const createFeeding = async (req, res) => {
@@ -29,7 +30,7 @@ export const createFeeding = async (req, res) => {
 
     // LOG
     await createLog({
-      user: 'n/a',
+      user: `${currentUserId}`,
       section: 'Feeding Program',
       action: 'CREATE/ POST',
       description: JSON.stringify(feedingProgram),
@@ -125,7 +126,7 @@ export const updateFeeding = async (req, res) => {
 
     // LOG
     await createLog({
-      user: 'n/a',
+      user: `${currentUserId}`,
       section: 'Feeding Program',
       action: 'UPDATE/ PUT',
       description: JSON.stringify(updatedFeeding),
@@ -152,7 +153,7 @@ export const deleteFeeding = async (req, res) => {
 
     // LOG
     await createLog({
-      user: 'n/a',
+      user: `${currentUserId}`,
       section: 'Feeding Program',
       action: 'DELETE',
       description: JSON.stringify(feedingProgram),
@@ -188,7 +189,7 @@ export const bulkDeleteFeedings = async (req, res) => {
 
     // LOG
     await createLog({
-      user: 'n/a',
+      user: `${currentUserId}`,
       section: 'Feeding Program',
       action: 'BULK DELETE',
       description: `Feeding Program IDs: ${ids} \nNumber of IDs: ${result.deletedCount}`,
@@ -238,7 +239,7 @@ export const importFeedingProgram = async (req, res) => {
 
     // LOG
     await createLog({
-      user: 'n/a',
+      user: `${currentUserId}`,
       section: 'Feeding Program',
       action: 'IMPORT',
       description: '',
@@ -323,10 +324,10 @@ export const getActiveSBFPBeneficiaries = async (req, res) => {
 
     // LOG
     await createLog({
-      user: 'n/a',
+      user: `${currentUserId}`,
       section: 'Feeding Program',
       action: 'EXPORT',
-      description: `School Year: ${currentAcademicYear.schoolYear} \nBeneficiaries: ${formattedBeneficiaries}`,
+      description: `School Year: ${academicYear.schoolYear} \nBeneficiaries: ${formattedBeneficiaries}`,
     });
 
   } catch (error) {

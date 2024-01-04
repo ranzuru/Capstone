@@ -4,6 +4,7 @@ import AcademicYear from '../models/AcademicYear.js';
 import { handleError } from '../utils/handleError.js';
 import { validate } from '../schema/clinicVisitValidation.js';
 import { createLog } from './createLogController.js';
+import { currentUserId } from '../auth/authenticateMiddleware.js';
 
 // create
 export const post = async (req, res) => {
@@ -28,7 +29,7 @@ export const post = async (req, res) => {
 
     // LOG
     await createLog({
-      user: 'n/a',
+      user: `${currentUserId}`,
       section: 'Clinic Visit',
       action: 'CREATE/ POST',
       description: JSON.stringify(newData),
@@ -101,7 +102,7 @@ export const update = async (req, res) => {
 
     // LOG
     await createLog({
-      user: 'n/a',
+      user: `${currentUserId}`,
       section: 'Clinic Visit',
       action: 'UPDATE/ PUT',
       description: JSON.stringify(newData),
@@ -129,7 +130,7 @@ export const deleteData = async (req, res) => {
 
     // LOG
     await createLog({
-      user: 'n/a',
+      user: `${currentUserId}`,
       section: 'Clinic Visit',
       action: 'DELETE',
       description: JSON.stringify(data),

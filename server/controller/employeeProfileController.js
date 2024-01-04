@@ -4,6 +4,7 @@ import { handleError } from '../utils/handleError.js';
 import { validateEmployeeProfile } from '../schema/employeeProfileValidation.js';
 import importEmployees from '../services/importEmployeeProfile.js';
 import { createLog } from './createLogController.js';
+import { currentUserId } from '../auth/authenticateMiddleware.js';
 
 export const createEmployee = async (req, res) => {
   try {
@@ -24,7 +25,7 @@ export const createEmployee = async (req, res) => {
 
     // LOG
     await createLog({
-      user: 'n/a',
+      user: `${currentUserId}`,
       section: 'Employee Profile',
       action: 'CREATE/ POST',
       description: JSON.stringify(employeeProfile),
@@ -141,7 +142,7 @@ export const updateEmployee = async (req, res) => {
 
     // LOG
     await createLog({
-      user: 'n/a',
+      user: `${currentUserId}`,
       section: 'Employee Profile',
       action: 'UPDATE/ PUT',
       description: JSON.stringify(updatedEmployee),
@@ -169,7 +170,7 @@ export const deleteEmployee = async (req, res) => {
 
     // LOG
     await createLog({
-      user: 'n/a',
+      user: `${currentUserId}`,
       section: 'Employee Profile',
       action: 'DELETE',
       description: JSON.stringify(deletedEmployee),
@@ -206,7 +207,7 @@ export const bulkDeleteEmployee = async (req, res) => {
 
     // LOG
     await createLog({
-      user: 'n/a',
+      user: `${currentUserId}`,
       section: 'Employee Profile',
       action: 'BULK DELETE',
       description: `Dengue Monitoring IDs: ${ids} \nNumber of IDs: ${result.deletedCount}`,

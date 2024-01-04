@@ -6,6 +6,7 @@ import {
   mapHeaderToSchemaKey,
 } from '../schema/feedingProgramValidation.js';
 import { createLog } from '../controller/createLogController.js';
+import { currentUserId } from '../auth/authenticateMiddleware.js';
 
 const importFeeding = async (fileBuffer) => {
   const data = await parseExcelToJson(fileBuffer, mapHeaderToSchemaKey);
@@ -39,7 +40,7 @@ const importFeeding = async (fileBuffer) => {
 
       // LOG
     await createLog({
-      user: 'n/a',
+      user: `${currentUserId}`,
       section: 'Feeding Program',
       action: 'IMPORT',
       description: JSON.stringify(value),

@@ -2,6 +2,7 @@
 import Event from '../models/Event.js';
 import moment from 'moment-timezone';
 import { createLog } from './createLogController.js';
+import { currentUserId } from '../auth/authenticateMiddleware.js';
 
 export const createEvent = async (req, res) => {
   try {
@@ -12,7 +13,7 @@ export const createEvent = async (req, res) => {
 
     // LOG
     await createLog({
-      user: 'n/a',
+      user: `${currentUserId}`,
       section: 'Event',
       action: 'CREATE/ POST',
       description: JSON.stringify(savedEvent),
@@ -67,7 +68,7 @@ export const updateEvent = async (req, res) => {
 
     // LOG
     await createLog({
-      user: 'n/a',
+      user: `${currentUserId}`,
       section: 'Event',
       action: 'UPDATE/ PUT',
       description: JSON.stringify(updatedEvent),
@@ -89,7 +90,7 @@ export const deleteEvent = async (req, res) => {
 
     // LOG
     await createLog({
-      user: 'n/a',
+      user: `${currentUserId}`,
       section: 'Event',
       action: 'DELETE',
       description: JSON.stringify(deletedEvent),

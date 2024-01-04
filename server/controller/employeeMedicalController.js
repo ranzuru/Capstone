@@ -4,6 +4,7 @@ import { handleError } from '../utils/handleError.js';
 import { validateEmployeeMedical } from '../schema/employeeMedicalValidation.js';
 import importEmployeeMedical from '../services/importEmployeeMedical.js';
 import { createLog } from './createLogController.js';
+import { currentUserId } from '../auth/authenticateMiddleware.js';
 
 // Create
 export const createEmployeeMedical = async (req, res) => {
@@ -28,7 +29,7 @@ export const createEmployeeMedical = async (req, res) => {
 
     // LOG
     await createLog({
-      user: 'n/a',
+      user: `${currentUserId}`,
       section: 'Employee Medical',
       action: 'CREATE/ POST',
       description: JSON.stringify(employeeMedical),
@@ -112,7 +113,7 @@ export const updateEmployeeMedical = async (req, res) => {
 
     // LOG
     await createLog({
-      user: 'n/a',
+      user: `${currentUserId}`,
       section: 'Employee Medical',
       action: 'UPDATE/ PUT',
       description: JSON.stringify(employeeMedical),
@@ -139,7 +140,7 @@ export const deleteEmployeeMedical = async (req, res) => {
 
     // LOG
     await createLog({
-      user: 'n/a',
+      user: `${currentUserId}`,
       section: 'Employee Medical',
       action: 'DELETE',
       description: JSON.stringify(employeeMedical),
@@ -175,7 +176,7 @@ export const bulkDeleteEmployeeMedical = async (req, res) => {
 
     // LOG
     await createLog({
-      user: 'n/a',
+      user: `${currentUserId}`,
       section: 'Employee Medical',
       action: 'BULK DELETE',
       description: `Employee Medical IDs: ${ids} \nNumber of IDs: ${result.deletedCount}`,

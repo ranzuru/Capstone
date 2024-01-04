@@ -1,6 +1,8 @@
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 
+export let currentUserId;
+
 const generateNewAccessToken = (userId) => {
   return jwt.sign({ userId }, process.env.JWT_SECRET, { expiresIn: '15m' });
 };
@@ -23,6 +25,10 @@ const authenticateMiddleware = async (req, res, next) => {
   try {
     const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
     req.user = (await User.findById(decodedToken.userId)).toObject();
+
+    // store current user ID (for logging)
+    currentUserId = decodedToken.userId;
+
     next();
   } catch (error) {
     if (error.name === 'TokenExpiredError') {
@@ -46,6 +52,9 @@ const authenticateMiddleware = async (req, res, next) => {
         res.setHeader('x-new-access-token', newAccessToken);
         res.setHeader('x-new-refresh-token', newRefreshToken);
         req.user = (await User.findById(decodedRefreshToken.userId)).toObject();
+
+        // store current user ID (for logging)
+        currentUserId = decodedRefreshToken.userId;
 
         next();
       } catch (refreshTokenError) {

@@ -42,12 +42,12 @@ function App() {
     <>
       <ThemeProvider theme={theme}>
         <Router>
-          {/* <AuthProvider> */}
+          <AuthProvider>
             <SchoolYearProvider>
               <Routes>
                 <Route path="/" element={<Login />} />
                 <Route path="/reset-password" element={<PasswordResetPage />} />
-                {/* <Route element={<ProtectedRoute />}> */}
+                <Route element={<ProtectedRoute />}>
                   <Route path="/app" element={<LayoutWithSidebar />}>
                     <Route path="dashboard" element={<Dashboard />} />
                     <Route path="manage-users" element={<ManageUser />} />
@@ -120,11 +120,11 @@ function App() {
                     />
                     <Route path="settings" element={<Settings />} />
                   </Route>
-                {/* </Route> */}
+                </Route>
                 <Route path="*" element={<PageNotFound />} />
               </Routes>
             </SchoolYearProvider>
-          {/* </AuthProvider> */}
+          </AuthProvider>
         </Router>
       </ThemeProvider>
     </>

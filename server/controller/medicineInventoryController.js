@@ -8,6 +8,7 @@ import { validateIn } from '../schema/medicineInValidation.js';
 import { validateDispense } from '../schema/medicineDispenseValidation.js';
 import { validateAdjustment } from '../schema/medicineAdjustmentValidation.js';
 import { createLog } from './createLogController.js';
+import { currentUserId } from '../auth/authenticateMiddleware.js';
 
 // ITEM
 export const postItem = async (req, res) => {
@@ -27,7 +28,7 @@ export const postItem = async (req, res) => {
 
     // LOG
     await createLog({
-      user: 'n/a',
+      user: `${currentUserId}`,
       section: 'Medicine Inventory - Item',
       action: 'CREATE/ POST',
       description: JSON.stringify(newData),
@@ -79,7 +80,7 @@ export const updateItem = async (req, res) => {
 
     // LOG
     await createLog({
-      user: 'n/a',
+      user: `${currentUserId}`,
       section: 'Medicine Inventory - Item',
       action: 'UPDATE/ PUT',
       description: JSON.stringify(newData),
@@ -102,7 +103,7 @@ export const deleteItem = async (req, res) => {
 
     // LOG
     await createLog({
-      user: 'n/a',
+      user: `${currentUserId}`,
       section: 'Medicine Inventory - Item',
       action: 'DELETE',
       description: JSON.stringify(data),
@@ -248,7 +249,7 @@ export const postIn = async (req, res) => {
 
     // LOG
     await createLog({
-      user: 'n/a',
+      user: `${currentUserId}`,
       section: 'Medicine Inventory - In',
       action: 'CREATE/ POST',
       description: JSON.stringify(newData),
@@ -327,7 +328,7 @@ export const updateIn = async (req, res) => {
 
     // LOG
     await createLog({
-      user: 'n/a',
+      user: `${currentUserId}`,
       section: 'Medicine Inventory - In',
       action: 'UPDATE/ PUT',
       description: JSON.stringify(newData),
@@ -350,7 +351,7 @@ export const deleteIn = async (req, res) => {
 
     // LOG
     await createLog({
-      user: 'n/a',
+      user: `${currentUserId}`,
       section: 'Medicine Inventory - In',
       action: 'DELETE',
       description: JSON.stringify(data),
@@ -429,7 +430,7 @@ export const postDispense = async (req, res) => {
 
     // LOG
     await createLog({
-      user: 'n/a',
+      user: `${currentUserId}`,
       section: 'Medicine Inventory - Dispense',
       action: 'CREATE/ POST',
       description: JSON.stringify(newData),
@@ -525,7 +526,7 @@ export const postDispenseClinicVisit = async (req, res) => {
 
     // LOG
     await createLog({
-      user: 'n/a',
+      user: `${currentUserId}`,
       section: 'Medicine Inventory - Dispense',
       action: 'CREATE/ POST',
       description: JSON.stringify(newData),
@@ -592,7 +593,7 @@ export const updateDispense = async (req, res) => {
 
     // LOG
     await createLog({
-      user: 'n/a',
+      user: `${currentUserId}`,
       section: 'Medicine Inventory - Dispense',
       action: 'UPDATE/ PUT',
       description: JSON.stringify(newData),
@@ -620,7 +621,7 @@ export const deleteDispense = async (req, res) => {
 
     // LOG
     await createLog({
-      user: 'n/a',
+      user: `${currentUserId}`,
       section: 'Medicine Inventory - Dispense',
       action: 'DELETE',
       description: JSON.stringify(data),
@@ -662,7 +663,7 @@ export const postAdjustment = async (req, res) => {
     await newData.save();
     // LOG
     await createLog({
-      user: 'n/a',
+      user: `${currentUserId}`,
       section: 'Medicine Inventory - Adjustment',
       action: 'CREATE/ POST',
       description: JSON.stringify(newData),
@@ -776,7 +777,7 @@ export const updateAdjustment = async (req, res) => {
     
     // LOG
     await createLog({
-      user: 'n/a',
+      user: `${currentUserId}`,
       section: 'Medicine Inventory - Adjustment',
       action: 'UPDATE/ PUT',
       description: JSON.stringify(newData),
@@ -803,7 +804,7 @@ export const deleteAdjustment = async (req, res) => {
 
     // LOG
     await createLog({
-      user: 'n/a',
+      user: `${currentUserId}`,
       section: 'Medicine Inventory - Adjustment',
       action: 'DELETE',
       description: JSON.stringify(data),

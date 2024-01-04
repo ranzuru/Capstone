@@ -29,7 +29,7 @@ export const sendPasswordResetEmail = async (req, res) => {
 
     // LOG
     await createLog({
-      user: 'n/a',
+      user: 'N/A',
       section: 'User Account',
       action: 'CREATE/ POST',
       description: `Reset password email for ${email}`,
@@ -62,7 +62,7 @@ export const resetPassword = async (req, res) => {
 
     // LOG
     await createLog({
-      user: 'n/a',
+      user: 'N/A',
       section: 'User Account',
       action: 'CREATE/ POST',
       description: `Password reset successful for User ${user}`,

@@ -4,6 +4,7 @@ import { handleError } from '../utils/handleError.js';
 import { validateStudentProfile } from '../schema/studentProfileValidation.js';
 import importStudents from '../services/importStudentProfile.js';
 import { createLog } from './createLogController.js';
+import { currentUserId } from '../auth/authenticateMiddleware.js';
 
 // Create
 export const createStudentProfile = async (req, res) => {
@@ -28,7 +29,7 @@ export const createStudentProfile = async (req, res) => {
 
     // LOG
     await createLog({
-      user: 'n/a',
+      user: `${currentUserId}`,
       section: 'Student Profile',
       action: 'CREATE/ POST',
       description: JSON.stringify(studentProfile),
@@ -146,7 +147,7 @@ export const updateStudentProfile = async (req, res) => {
 
     // LOG
     await createLog({
-      user: 'n/a',
+      user: `${currentUserId}`,
       section: 'Student Profile',
       action: 'UPDATE/ PUT',
       description: JSON.stringify(studentProfile),
@@ -175,7 +176,7 @@ export const deleteStudentProfile = async (req, res) => {
 
     // LOG
     await createLog({
-      user: 'n/a',
+      user: `${currentUserId}`,
       section: 'Student Profile',
       action: 'DELETE',
       description: JSON.stringify(studentProfile),
@@ -213,7 +214,7 @@ export const bulkDeleteStudentProfiles = async (req, res) => {
 
     // LOG
     await createLog({
-      user: 'n/a',
+      user: `${currentUserId}`,
       section: 'Student Profile',
       action: 'BULK DELETE',
       description: `Student Profile IDs: ${ids} \nNumber of IDs: ${result.deletedCount}`,
@@ -259,7 +260,7 @@ export const importStudentProfiles = async (req, res) => {
 
     // LOG
     await createLog({
-      user: 'n/a',
+      user: `${currentUserId}`,
       section: 'Student Profile',
       action: 'IMPORT',
       description: `Student Profiles: ${studentProfiles} \nNumber of Records: ${studentProfiles.length}`,

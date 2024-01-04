@@ -6,6 +6,7 @@ import StudentProfile from '../models/StudentProfile.js';
 import AcademicYear from '../models/AcademicYear.js';
 import parseExcelToJson from '../utils/importDataToExcel.js';
 import { createLog } from '../controller/createLogController.js';
+import { currentUserId } from '../auth/authenticateMiddleware.js';
 
 const importStudents = async (fileBuffer) => {
   const data = await parseExcelToJson(fileBuffer, mapHeaderToSchemaKey);
@@ -39,7 +40,7 @@ const importStudents = async (fileBuffer) => {
 
       // LOG
     await createLog({
-      user: 'n/a',
+      user: `${currentUserId}`,
       section: 'Student Profile',
       action: 'IMPORT',
       description: JSON.stringify(value),

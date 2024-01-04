@@ -7,6 +7,7 @@ import {
   mapHeaderToSchemaKey,
 } from '../schema/employeeMedicalValidation.js';
 import { createLog } from '../controller/createLogController.js';
+import { currentUserId } from '../auth/authenticateMiddleware.js';
 
 const importEmployeeMedical = async (fileBuffer) => {
   const data = await parseExcelToJson(fileBuffer, mapHeaderToSchemaKey);
@@ -46,7 +47,7 @@ const importEmployeeMedical = async (fileBuffer) => {
 
       // LOG
     await createLog({
-      user: 'n/a',
+      user: `${currentUserId}`,
       section: 'Employee Medical',
       action: 'IMPORT',
       description: JSON.stringify(value),

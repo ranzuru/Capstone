@@ -1,5 +1,6 @@
 import Role from '../models/Role.js'; // Assuming RoleModel is in the same directory
 import { createLog } from './createLogController.js';
+import { currentUserId } from '../auth/authenticateMiddleware.js';
 
 export const createRole = async (req, res) => {
   try {
@@ -16,7 +17,7 @@ export const createRole = async (req, res) => {
 
     // LOG
     await createLog({
-      user: 'n/a',
+      user: `${currentUserId}`,
       section: 'User Role',
       action: 'CREATE/ POST',
       description: JSON.stringify(newRole),
@@ -62,7 +63,7 @@ export const updateRole = async (req, res) => {
 
     // LOG
     await createLog({
-      user: 'n/a',
+      user: `${currentUserId}`,
       section: 'User Role',
       action: 'UPDATE',
       description: JSON.stringify(updatedRole),
@@ -83,7 +84,7 @@ export const deleteRole = async (req, res) => {
 
     // LOG
     await createLog({
-      user: 'n/a',
+      user: `${currentUserId}`,
       section: 'User Role',
       action: 'DELETE',
       description: JSON.stringify(role),
@@ -116,7 +117,7 @@ export const deleteBulkRoles = async (req, res) => {
 
     // LOG
     await createLog({
-      user: 'n/a',
+      user: `${currentUserId}`,
       section: 'User Role',
       action: 'BULK DELETE',
       description: `User Roles IDs: ${roleIds} \nNumber of IDs: ${result.deletedCount}`,

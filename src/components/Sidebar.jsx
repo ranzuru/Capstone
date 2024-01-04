@@ -14,28 +14,31 @@ function Sidebar() {
   const navigate = useNavigate();
 
   // bypass login - start
-  // const { user, logout } = useAuth();
+  const { user, logout } = useAuth();
 
-  // const navigationScopes = user?.role?.navigationScopes || [];
-  // const logoutItem = sidebarItems.find((item) => item.primary === 'Logout');
+  const navigationScopes = user?.role?.navigationScopes || [];
 
-  // const itemsToDisplay = sidebarItems
-  //   .filter((item) => {
-  //     if (item.type === 'link' && item.primary !== 'Logout') {
-  //       return navigationScopes.includes(item.primary);
-  //     } else if (item.type === 'submenu') {
-  //       item.submenuLinks = item.submenuLinks.filter((subItem) =>
-  //         navigationScopes.includes(subItem.primary)
-  //       );
-  //       return item.submenuLinks.length > 0;
-  //     }
-  //     return false;
-  //   })
-  //   .concat(logoutItem ? [logoutItem] : []); // Ensure logout is always included
-  
-  // bypass login - end
-  // remove comment tag below
-  const itemsToDisplay = sidebarItems;
+  const settingsItem = sidebarItems.find((item) => item.primary === 'Settings');
+  const logoutItem = sidebarItems.find((item) => item.primary === 'Logout');
+
+  const itemsToDisplay = sidebarItems
+    .filter((item) => {
+      if (
+        item.type === 'link' &&
+        item.primary !== 'Logout' &&
+        item.primary !== 'Settings'
+      ) {
+        return navigationScopes.includes(item.primary);
+      } else if (item.type === 'submenu') {
+        item.submenuLinks = item.submenuLinks.filter((subItem) =>
+          navigationScopes.includes(subItem.primary)
+        );
+        return item.submenuLinks.length > 0;
+      }
+      return false;
+    })
+    .concat(settingsItem ? [settingsItem] : [])
+    .concat(logoutItem ? [logoutItem] : []);
 
   const toggleSidebar = () => {
     setSidebarCollapsed(!isSidebarCollapsed);
@@ -43,7 +46,7 @@ function Sidebar() {
 
   const handleLogout = async () => {
     try {
-      // await logout();
+      await logout();
       navigate('/');
     } catch (error) {
       console.error('Logout error:', error);

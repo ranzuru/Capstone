@@ -6,6 +6,7 @@ import {
   mapHeaderToSchemaKey,
 } from '../schema/dengueMonitoringValidation.js';
 import { createLog } from '../controller/createLogController.js';
+import { currentUserId } from '../auth/authenticateMiddleware.js';
 
 const importDengue = async (fileBuffer) => {
   const data = await parseExcelToJson(fileBuffer, mapHeaderToSchemaKey);
@@ -35,7 +36,7 @@ const importDengue = async (fileBuffer) => {
 
     // LOG
     await createLog({
-      user: 'n/a',
+      user: `${currentUserId}`,
       section: 'Dengue Monitoring',
       action: 'IMPORT',
       description: JSON.stringify(value),

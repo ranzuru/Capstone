@@ -3,6 +3,7 @@ import Role from '../models/Role.js';
 import bcrypt from 'bcrypt';
 import { userValidation } from '../schema/createUserValidation.js';
 import { createLog } from './createLogController.js';
+import { currentUserId } from '../auth/authenticateMiddleware.js';
 
 // Create a new user
 export const createUser = async (req, res) => {

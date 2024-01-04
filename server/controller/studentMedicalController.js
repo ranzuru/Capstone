@@ -5,6 +5,7 @@ import { validateStudentMedical } from '../schema/studentMedicalValidation.js';
 import importStudentMedical from '../services/importStudentMedical.js';
 import moment from 'moment';
 import { createLog } from './createLogController.js';
+import { currentUserId } from '../auth/authenticateMiddleware.js';
 
 // Create
 export const createStudentMedical = async (req, res) => {
@@ -29,7 +30,7 @@ export const createStudentMedical = async (req, res) => {
 
     // LOG
     await createLog({
-      user: 'n/a',
+      user: `${currentUserId}`,
       section: 'Student Medical',
       action: 'CREATE/ POST',
       description: JSON.stringify(studentMedical),
@@ -112,7 +113,7 @@ export const updateStudentMedical = async (req, res) => {
 
     // LOG
     await createLog({
-      user: 'n/a',
+      user: `${currentUserId}`,
       section: 'Student Medical',
       action: 'UPDATE/ PUT',
       description: JSON.stringify(studentMedical),
@@ -142,7 +143,7 @@ export const deleteStudentMedical = async (req, res) => {
 
     // LOG
     await createLog({
-      user: 'n/a',
+      user: `${currentUserId}`,
       section: 'Student Medical',
       action: 'DELETE',
       description: JSON.stringify(studentMedical),
@@ -178,7 +179,7 @@ export const bulkDeleteStudentMedical = async (req, res) => {
 
     // LOG
     await createLog({
-      user: 'n/a',
+      user: `${currentUserId}`,
       section: 'Student Medical',
       action: 'BULK DELETE',
       description: `Student Medical IDs: ${ids} \nNumber of IDs: ${result.deletedCount}`,
@@ -229,7 +230,7 @@ export const importMedical = async (req, res) => {
 
     // LOG
     await createLog({
-      user: 'n/a',
+      user: `${currentUserId}`,
       section: 'Student Medical',
       action: 'IMPORT',
       description: '',
@@ -329,10 +330,10 @@ export const getStudentMedicalById = async (req, res) => {
 
     // LOG
     await createLog({
-      user: 'n/a',
+      user: `${currentUserId}`,
       section: 'Student Medical',
       action: 'EXPORT',
-      description: `School Year: ${currentAcademicYear.schoolYear} \nHealth Record: ${formattedRecord}`,
+      description: `School Year: ${academicYear.schoolYear} \nHealth Record: ${formattedRecord}`,
     });
   } catch (err) {
     handleError(res, err);
