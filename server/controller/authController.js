@@ -6,7 +6,7 @@ import { sendOTP, verifyOTP } from './otpController.js';
 
 // Helper functions to generate tokens
 const generateAccessToken = (user) =>
-  jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '15m' });
+  jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
 const generateRefreshToken = (user) =>
   jwt.sign({ userId: user._id }, process.env.REFRESH_TOKEN_SECRET, {
     expiresIn: '1d',
@@ -75,7 +75,7 @@ export const verifyLoginOTP = async (req, res) => {
     const accessToken = generateAccessToken(user);
     const refreshToken = generateRefreshToken(user);
 
-    setCookie(res, 'accessToken', accessToken, { maxAge: 15 * 60 * 1000 });
+    setCookie(res, 'accessToken', accessToken, { maxAge: 60 * 60 * 1000 });
     setCookie(res, 'refreshToken', refreshToken);
 
     res
@@ -147,7 +147,7 @@ export const refreshAccessToken = async (req, res) => {
 
     setCookie(res, 'refreshToken', newRefreshToken);
 
-    setCookie(res, 'accessToken', newAccessToken, { maxAge: 15 * 60 * 1000 });
+    setCookie(res, 'accessToken', newAccessToken, { maxAge: 60 * 1000 });
 
     res.status(200).json({ message: 'Access token refreshed successfully' });
   } catch (error) {
@@ -157,6 +157,53 @@ export const refreshAccessToken = async (req, res) => {
       res.status(401).json({ message: 'Invalid refresh token' });
     } else {
       res.status(500).json({ message: 'Internal Server Error' });
+    }
+  }
+};
+
+export const authenticate = async (req, res) => {
+  const accessToken = req.cookies.accessToken;
+
+  if (!accessToken) {
+    return res.status(401).json({ message: 'No token provided' });
+  }
+
+  try {
+    const decoded = jwt.verify(accessToken, process.env.JWT_SECRET);
+
+    // If token is valid, find the user by ID
+    const user = await User.findById(decoded.userId).populate(
+      'role',
+      'roleName navigationScopes'
+    );
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const userResponse = {
+      userId: user.userId,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      role: {
+        roleName: user.role.roleName,
+        navigationScopes: user.role.navigationScopes,
+      },
+    };
+
+    return res
+      .status(200)
+      .json({ user: userResponse, message: 'Authenticated successfully' });
+  } catch (error) {
+    if (error.name === 'TokenExpiredError') {
+      return res.status(401).json({ message: 'Token expired' });
+    } else if (error.name === 'JsonWebTokenError') {
+      return res.status(401).json({ message: 'Invalid token' });
+    } else {
+      return res
+        .status(500)
+        .json({ message: 'Internal server error', error: error.message });
     }
   }
 };

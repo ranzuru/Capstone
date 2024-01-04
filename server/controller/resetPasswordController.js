@@ -18,7 +18,7 @@ export const sendPasswordResetEmail = async (req, res) => {
       expiresIn: '1h',
     });
 
-    const resetLink = `http://127.0.0.1:5173/reset-password?token=${resetToken}`;
+    const resetLink = `${process.env.CORS_ORIGIN}/reset-password?token=${resetToken}`;
 
     // await sendResetPasswordEmail(email, resetLink);
     console.log(`Reset link (console logged): ${resetLink}`);

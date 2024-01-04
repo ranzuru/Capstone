@@ -1,31 +1,30 @@
 import express from 'express';
 import {
-    postItem,
-    getAllItem,
-    updateItem,
-    deleteItem,
-
-    getAllBatch,
-    getAllBatchNotExpired,
-
-    postIn,
-    getAllIn,
-    updateIn,
-    deleteIn,
-
-    postDispense,
-    postDispenseClinicVisit,
-    getAllDispense,
-    updateDispense,
-    deleteDispense,
-
-    postAdjustment,
-    getAllAdjustment,
-    updateAdjustment,
-    deleteAdjustment
+  postItem,
+  getAllItem,
+  updateItem,
+  deleteItem,
+  getAllBatch,
+  getAllBatchNotExpired,
+  postIn,
+  getAllIn,
+  updateIn,
+  deleteIn,
+  postDispense,
+  postDispenseClinicVisit,
+  getAllDispense,
+  updateDispense,
+  deleteDispense,
+  postAdjustment,
+  getAllAdjustment,
+  updateAdjustment,
+  deleteAdjustment,
 } from '../controller/medicineInventoryController.js';
+import { authenticateUser } from '../middleware/authenticateMiddleware.js';
 
 const router = express.Router();
+
+router.use(authenticateUser);
 
 // ITEM
 router.post('/postItem', postItem);

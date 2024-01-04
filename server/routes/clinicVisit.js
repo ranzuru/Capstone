@@ -11,7 +11,10 @@ import {
   getMaladyDistribution,
   calculateComparisonStatistics,
 } from '../controller/analytics/clinicVisitCharts.js';
+import { authenticateUser } from '../middleware/authenticateMiddleware.js';
 const router = express.Router();
+
+router.use(authenticateUser);
 
 router.post('/post', post);
 router.get('/getAll', getAll);

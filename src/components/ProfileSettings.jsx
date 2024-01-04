@@ -173,9 +173,8 @@ const ProfileSettings = () => {
       setOpenPasswordDialog(false);
       openSnackbar('success', response.data.message);
     } catch (error) {
-      if (error.response && error.response.status === 401) {
+      if (error.response && error.response.status === 400) {
         setPasswordError('Current password is incorrect');
-
         return; // Add this line to prevent closing the dialog
       } else {
         openSnackbar(

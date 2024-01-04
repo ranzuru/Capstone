@@ -157,7 +157,7 @@ export const updateUserProfileSettings = async (req, res) => {
       const isMatch = await bcrypt.compare(currentPassword, user.password);
       if (!isMatch) {
         return res
-          .status(401)
+          .status(400)
           .json({ message: 'Current password is incorrect' });
       }
       // Hash the new password and prepare for update

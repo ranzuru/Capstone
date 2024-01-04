@@ -8,8 +8,11 @@ import {
   getPieChartData,
   calculateComparisonStatistics,
 } from '../controller/analytics/dewormingCharts.js';
+import { authenticateUser } from '../middleware/authenticateMiddleware.js';
 
 const router = express.Router();
+
+router.use(authenticateUser);
 
 router.get('/fetch', fetchDataForDataGrid);
 router.get('/fetchBar/:schoolYear', getDewormingStats);

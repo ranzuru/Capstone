@@ -9,11 +9,13 @@ import {
   bulkDeleteStudentProfiles,
 } from '../controller/studentProfileController.js';
 import multer from 'multer';
+import { authenticateUser } from '../middleware/authenticateMiddleware.js';
 const router = express.Router();
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
+router.use(authenticateUser);
 router.post('/create', createStudentProfile);
 router.get('/fetch', getAllStudentProfiles);
 router.get('/fetchProfile', getStudentProfiles);
