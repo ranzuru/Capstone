@@ -3,7 +3,6 @@ import LogSchema from '../models/log.js';
 export const createLog = async ({ user, section, action, description,}) => {
   try {
 
-    console.log(description);
     const newLog = new LogSchema({
       user,
       section,
