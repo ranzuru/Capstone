@@ -11,15 +11,23 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true); // Add loading state
 
   const checkAuth = useCallback(async () => {
-    setLoading(true); // Start loading
+    setLoading(true);
     setError(null);
     try {
       const response = await axiosInstance.get('/auth/authenticate');
-      setUser(response.data.user);
-      setLoading(false); // Stop loading after successful check
+      if (response.status === 204) {
+        setUser(null);
+      } else {
+        setUser(response.data.user);
+      }
     } catch (error) {
-      setUser(null);
-      setLoading(false); // Stop loading also in case of an error
+      if (error.response?.status === 401) {
+        setError('Session expired, please log in again.');
+      } else {
+        setError(error.response?.data?.message || 'An unknown error occurred');
+      }
+    } finally {
+      setLoading(false);
     }
   }, []);
 

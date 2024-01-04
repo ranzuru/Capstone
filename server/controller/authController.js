@@ -165,7 +165,7 @@ export const authenticate = async (req, res) => {
   const accessToken = req.cookies.accessToken;
 
   if (!accessToken) {
-    return res.status(401).json({ message: 'No token provided' });
+    return res.status(204).end();
   }
 
   try {
