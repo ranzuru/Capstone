@@ -25,7 +25,6 @@ import Dashboard from './components/Dashboard';
 import AcademicYear from './pages/AcademicYear';
 import Events from './pages/Events';
 import EmployeeProfile from './pages/EmployeeProfile';
-// import Logs from './pages/Logs';
 import ManageUser from './pages/ManageUser';
 import MedicineItem from './pages/MedicineItem';
 import MedicineBatch from './pages/MedicineBatch';
@@ -36,6 +35,7 @@ import StudentProfile from './pages/StudentProfile';
 import Role from './pages/Role';
 import PasswordResetPage from './pages/PasswordReset';
 import Settings from './pages/Settings';
+import Logs from './pages/Logs';
 
 function App() {
   return (
@@ -73,7 +73,6 @@ function App() {
                       element={<MedicineAdjustment />}
                     />
                     <Route path="events" element={<Events />} />
-                    {/* <Route path="logs" element={<Logs />} /> */}
                     <Route
                       path="clinic-records"
                       element={<ClinicVisitPage />}
@@ -119,6 +118,7 @@ function App() {
                       element={<MedicalCheckupAnalytics />}
                     />
                     <Route path="settings" element={<Settings />} />
+                    <Route path="logs" element={<Logs />} />
                   </Route>
                 </Route>
                 <Route path="*" element={<PageNotFound />} />

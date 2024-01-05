@@ -16,18 +16,18 @@ import {
 } from '../controller/analytics/feedingChart.js';
 import multer from 'multer';
 import { authenticateUser } from '../middleware/authenticateMiddleware.js';
+import { logActionsMiddleware } from '../middleware/logActionMiddleware.js';
 const router = express.Router();
-
-router.use(authenticateUser);
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
-router.post('/create', createFeeding);
+router.use(authenticateUser);
+router.post('/create', logActionsMiddleware, createFeeding);
 router.get('/fetch/:type', getAllFeedings);
-router.put('/update/:id', updateFeeding);
-router.delete('/delete/:id', deleteFeeding);
-router.delete('/bulkDelete', bulkDeleteFeedings);
+router.put('/update/:id', logActionsMiddleware, updateFeeding);
+router.delete('/delete/:id', logActionsMiddleware, deleteFeeding);
+router.delete('/bulkDelete', logActionsMiddleware, bulkDeleteFeedings);
 router.post('/import', upload.single('file'), importFeedingProgram);
 
 router.get('/fetchComparisonPREAndPOST/:schoolYear', getPrePostComparison);

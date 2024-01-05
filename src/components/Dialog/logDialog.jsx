@@ -3,10 +3,6 @@ import Dialog from '@mui/material/Dialog';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import Typography from '@mui/material/Typography';
-import { formatYearFromDate } from '../../utils/formatDateFromYear';
-import { statusColors } from '../../utils/statusColor.js';
-
-import StatusBadge from '../../custom/CustomStatusBadge';
 
 const InfoDialog = ({ open, onClose, record }) => {
   return (
@@ -19,44 +15,26 @@ const InfoDialog = ({ open, onClose, record }) => {
           {record ? (
             <div className="space-y-4 p-4">
               <Typography variant="subtitle1" className="font-semibold">
-                Log ID: <span className="text-gray-600">{record.id}</span>
+                Log ID: <span className="text-gray-600">{record.ID}</span>
               </Typography>
               <Typography variant="subtitle1" className="font-semibold">
-                User ID: <span className="text-gray-600">{record.user}</span>
+                User ID: <span className="text-gray-600">{record.UserId}</span>
               </Typography>
               <Typography variant="subtitle1" className="font-semibold">
-                Name: <span className="text-gray-600">{record.name}</span>
+                Name: <span className="text-gray-600">{record.Name}</span>
               </Typography>
               <Typography variant="subtitle1" className="font-semibold">
-                Role: <span className="text-gray-600">{record.role}</span>
+                Role: <span className="text-gray-600">{record.Role}</span>
               </Typography>
               <Typography variant="subtitle1" className="font-semibold">
-                Section: <span className="text-gray-600">{record.section}</span>
+                Section: <span className="text-gray-600">{record.Section}</span>
               </Typography>
               <Typography variant="subtitle1" className="font-semibold">
-                Action: <span className="text-gray-600">{record.action}</span>
+                Action: <span className="text-gray-600">{record.Action}</span>
               </Typography>
               <Typography variant="subtitle1" className="font-semibold">
-                Description: <span className="text-gray-600">{record.description}</span>
-              </Typography>
-              <Typography variant="subtitle1" className="font-semibold">
-                Created :{' '}
-                <span className="text-gray-600">
-                  {formatYearFromDate(record.createdAt)}
-                </span>
-              </Typography>
-              <Typography variant="subtitle1" className="font-semibold">
-                Updated :{' '}
-                <span className="text-gray-600">
-                  {formatYearFromDate(record.updatedAt)}
-                </span>
-              </Typography>
-              <Typography variant="subtitle1" className="font-semibold">
-                Status:{' '}
-                <StatusBadge
-                  value={record.status}
-                  colorMapping={statusColors}
-                />
+                TimeStamp:{' '}
+                <span className="text-gray-600">{record.Timestamp}</span>
               </Typography>
             </div>
           ) : (
@@ -74,16 +52,13 @@ InfoDialog.propTypes = {
   open: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
   record: PropTypes.shape({
-    id: PropTypes.string,
-    user: PropTypes.string,
-    name: PropTypes.string,
-    role: PropTypes.string,
-    section: PropTypes.string,
-    action: PropTypes.string,
-    description: PropTypes.string,
-    createdAt: PropTypes.string,
-    updatedAt: PropTypes.string,
-    status: PropTypes.string,
+    ID: PropTypes.string,
+    UserId: PropTypes.string,
+    Name: PropTypes.string,
+    Role: PropTypes.string,
+    Section: PropTypes.string,
+    Action: PropTypes.string,
+    Timestamp: PropTypes.string,
   }),
 };
 

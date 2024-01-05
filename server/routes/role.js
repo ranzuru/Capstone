@@ -8,15 +8,16 @@ import {
   deleteBulkRoles,
 } from '../controller/roleController.js';
 import { authenticateUser } from '../middleware/authenticateMiddleware.js';
+import { logActionsMiddleware } from '../middleware/logActionMiddleware.js';
 const router = express.Router();
 
 router.use(authenticateUser);
 
-router.post('/create', createRole);
+router.post('/create', logActionsMiddleware, createRole);
 router.get('/fetch', getRole);
 router.get('/fetchRoleNames', getAllRoleNames);
-router.put('/update/:id', updateRole);
-router.delete('/delete/:id', deleteRole);
-router.delete('/bulkDelete', deleteBulkRoles);
+router.put('/update/:id', logActionsMiddleware, updateRole);
+router.delete('/delete/:id', logActionsMiddleware, deleteRole);
+router.delete('/bulkDelete', logActionsMiddleware, deleteBulkRoles);
 
 export default router;

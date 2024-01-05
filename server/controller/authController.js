@@ -2,6 +2,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 import setCookie from '../utils/setCookie.js';
+import logger from '../mongodb/Logger.js';
 import { sendOTP, verifyOTP } from './otpController.js';
 
 // Helper functions to generate tokens
@@ -60,7 +61,6 @@ export const verifyLoginOTP = async (req, res) => {
     }
 
     const userResponse = {
-      // _id: user._id,
       userId: user.userId,
       email: user.email,
       firstName: user.firstName,
@@ -70,6 +70,19 @@ export const verifyLoginOTP = async (req, res) => {
         navigationScopes: user.role.navigationScopes,
       },
     };
+
+    // Log the successful login
+    logger.info({
+      section: 'Authentication',
+      action: 'SIGNED IN',
+      method: 'POST',
+      path: '/verify-otp',
+      user: {
+        id: userResponse.userId,
+        name: `${userResponse.firstName} ${userResponse.lastName}`,
+        role: userResponse.role.roleName,
+      },
+    });
 
     // Generate JWT tokens
     const accessToken = generateAccessToken(user);
@@ -147,7 +160,7 @@ export const refreshAccessToken = async (req, res) => {
 
     setCookie(res, 'refreshToken', newRefreshToken);
 
-    setCookie(res, 'accessToken', newAccessToken, { maxAge: 60 * 1000 });
+    setCookie(res, 'accessToken', newAccessToken, { maxAge: 60 * 60 * 1000 });
 
     res.status(200).json({ message: 'Access token refreshed successfully' });
   } catch (error) {

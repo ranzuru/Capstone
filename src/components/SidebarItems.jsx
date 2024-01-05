@@ -6,7 +6,7 @@ import {
   MedicalServicesOutlined,
   EventOutlined,
   AutoGraphOutlined,
-  // ReceiptLongOutlined,
+  ReceiptLongOutlined,
   SettingsOutlined,
   ExitToAppOutlined,
 } from '@mui/icons-material';
@@ -105,12 +105,12 @@ export const sidebarItems = [
     primary: 'Settings',
     icon: SettingsOutlined,
   },
-  // {
-  //   type: 'link',
-  //   to: '/app/logs',
-  //   primary: 'Logs',
-  //   icon: ReceiptLongOutlined,
-  // },
+  {
+    type: 'link',
+    to: '/app/logs',
+    primary: 'Logs',
+    icon: ReceiptLongOutlined,
+  },
   {
     type: 'link',
     to: '/',

@@ -9,6 +9,7 @@ import {
 } from '../controller/employeeMedicalController.js';
 import multer from 'multer';
 import { authenticateUser } from '../middleware/authenticateMiddleware.js';
+import { logActionsMiddleware } from '../middleware/logActionMiddleware.js';
 const router = express.Router();
 
 router.use(authenticateUser);
@@ -16,11 +17,11 @@ router.use(authenticateUser);
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
-router.post('/create', createEmployeeMedical);
+router.post('/create', logActionsMiddleware, createEmployeeMedical);
 router.get('/fetch', getAllEmployeeMedicals);
-router.put('/update/:id', updateEmployeeMedical);
-router.delete('/delete/:id', deleteEmployeeMedical);
-router.delete('/bulkDelete', bulkDeleteEmployeeMedical);
+router.put('/update/:id', logActionsMiddleware, updateEmployeeMedical);
+router.delete('/delete/:id', logActionsMiddleware, deleteEmployeeMedical);
+router.delete('/bulkDelete', logActionsMiddleware, bulkDeleteEmployeeMedical);
 router.post('/import', upload.single('file'), importMedical);
 
 export default router;

@@ -17,6 +17,7 @@ import {
 } from '../controller/analytics/medicalCharts.js';
 import multer from 'multer';
 import { authenticateUser } from '../middleware/authenticateMiddleware.js';
+import { logActionsMiddleware } from '../middleware/logActionMiddleware.js';
 const router = express.Router();
 
 router.use(authenticateUser);
@@ -24,11 +25,11 @@ router.use(authenticateUser);
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
-router.post('/create', createStudentMedical);
+router.post('/create', logActionsMiddleware, createStudentMedical);
 router.get('/fetch', getAllStudentMedicals);
-router.put('/update/:id', updateStudentMedical);
-router.delete('/delete/:id', deleteStudentMedical);
-router.delete('/bulkDelete', bulkDeleteStudentMedical);
+router.put('/update/:id', logActionsMiddleware, updateStudentMedical);
+router.delete('/delete/:id', logActionsMiddleware, deleteStudentMedical);
+router.delete('/bulkDelete', logActionsMiddleware, bulkDeleteStudentMedical);
 router.post('/import', upload.single('file'), importMedical);
 
 router.get('/fetchBar/:schoolYear', getScreeningStatsBar);

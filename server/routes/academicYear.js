@@ -9,17 +9,18 @@ import {
   setCompletedAcademicYear,
 } from '../controller/academicYearController.js';
 import { authenticateUser } from '../middleware/authenticateMiddleware.js';
+import { logActionsMiddleware } from '../middleware/logActionMiddleware.js';
 
 const router = express.Router();
 
 router.get('/fetchSchoolYears', getSchoolYears);
 router.use(authenticateUser);
-router.post('/create', createAcademicYear);
+router.post('/create', logActionsMiddleware, createAcademicYear);
 router.get('/fetch', getAcademicYears);
-router.put('/update/:id', updateAcademicYear);
-router.delete('/delete/:id', deleteAcademicYear);
+router.put('/update/:id', logActionsMiddleware, updateAcademicYear);
+router.delete('/delete/:id', logActionsMiddleware, deleteAcademicYear);
 
-router.put('/setActive/:id', setActiveAcademicYear);
-router.put('/setCompleted/:id', setCompletedAcademicYear);
+router.put('/setActive/:id', logActionsMiddleware, setActiveAcademicYear);
+router.put('/setCompleted/:id', logActionsMiddleware, setCompletedAcademicYear);
 
 export default router;

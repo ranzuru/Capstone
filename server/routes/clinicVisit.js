@@ -12,14 +12,15 @@ import {
   calculateComparisonStatistics,
 } from '../controller/analytics/clinicVisitCharts.js';
 import { authenticateUser } from '../middleware/authenticateMiddleware.js';
+import { logActionsMiddleware } from '../middleware/logActionMiddleware.js';
 const router = express.Router();
 
 router.use(authenticateUser);
 
-router.post('/post', post);
+router.post('/post', logActionsMiddleware, post);
 router.get('/getAll', getAll);
-router.put('/update/:id', update);
-router.delete('/deleteData/:id', deleteData);
+router.put('/update/:id', logActionsMiddleware, update);
+router.delete('/deleteData/:id', logActionsMiddleware, deleteData);
 
 // Analytics
 router.get('/fetchLineChart/:schoolYear', getVisitCount);

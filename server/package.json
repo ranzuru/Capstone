@@ -36,7 +36,8 @@
     "pos": "^0.4.2",
     "postmark": "^4.0.2",
     "simple-statistics": "^7.8.3",
-    "stopword": "^2.0.8"
+    "stopword": "^2.0.8",
+    "winston-mongodb": "^5.1.1"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"

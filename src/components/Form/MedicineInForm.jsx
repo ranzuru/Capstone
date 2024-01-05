@@ -28,12 +28,10 @@ import {
 } from '@mui/material';
 // others
 import { parseISO } from 'date-fns';
-import {
-  statusOptions,
-} from '../../others/dropDownOptions';
+import { statusOptions } from '../../others/dropDownOptions';
 
 const Form = (props) => {
-  const { open, onClose, initialData, addNewRecord, selectedRecord, onUpdate, } =
+  const { open, onClose, initialData, addNewRecord, selectedRecord, onUpdate } =
     props;
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarData, setSnackbarData] = useState({
@@ -162,9 +160,7 @@ const Form = (props) => {
       });
 
       // Date fields
-      const dateFields = [
-        'expirationDate',
-      ];
+      const dateFields = ['expirationDate'];
 
       dateFields.forEach((field) => {
         const dateValue = selectedRecord[field]
@@ -172,7 +168,6 @@ const Form = (props) => {
           : null;
         setValue(field, dateValue);
       });
-
     }
   }, [selectedRecord, setValue]);
 
@@ -204,7 +199,6 @@ const Form = (props) => {
                   control={control}
                   name="itemId"
                   label="Item ID"
-                  textType="combine"
                   error={errors.itemId}
                   disabled={selectedRecord !== null}
                 />
@@ -216,7 +210,6 @@ const Form = (props) => {
                   control={control}
                   name="batchId"
                   label="Batch ID"
-                  textType="combine"
                   error={errors.batchId}
                   disabled={selectedRecord !== null}
                 />
@@ -228,7 +221,6 @@ const Form = (props) => {
                   control={control}
                   name="receiptId"
                   label="Receipt ID"
-                  textType="combine"
                   error={errors.receiptId}
                 />
               </Grid>
@@ -253,7 +245,7 @@ const Form = (props) => {
               </Grid>
             </Grid>
             <Grid container spacing={2}>
-            <Grid item xs={12} md={12}>
+              <Grid item xs={12} md={12}>
                 <FormInput
                   control={control}
                   name="notes"

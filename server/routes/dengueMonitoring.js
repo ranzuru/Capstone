@@ -15,20 +15,20 @@ import {
   calculateComparisonStatistics,
 } from '../controller/analytics/dengueCharts.js';
 import { authenticateUser } from '../middleware/authenticateMiddleware.js';
+import { logActionsMiddleware } from '../middleware/logActionMiddleware.js';
 
 import multer from 'multer';
 const router = express.Router();
 
-router.use(authenticateUser);
-
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
-router.post('/create', createDengueMonitoring);
+router.use(authenticateUser);
+router.post('/create', logActionsMiddleware, createDengueMonitoring);
 router.get('/fetch', getAllDengueMonitoring);
-router.put('/update/:id', updateDengueMonitoring);
-router.delete('/delete/:id', deleteDengueMonitoring);
-router.delete('/bulkDelete', bulkDeleteDengueMonitoring);
+router.put('/update/:id', logActionsMiddleware, updateDengueMonitoring);
+router.delete('/delete/:id', logActionsMiddleware, deleteDengueMonitoring);
+router.delete('/bulkDelete', logActionsMiddleware, bulkDeleteDengueMonitoring);
 router.post('/import', upload.single('file'), importDengueMonitoring);
 
 router.get('/fetchBar/:schoolYear', getGroupedDengueData);

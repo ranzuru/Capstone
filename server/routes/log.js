@@ -1,11 +1,10 @@
 // Updated router file
 import express from 'express';
-// import { get } from '../controller/viewLogController.js';
-// import { post } from '../controller/createLogController.js';
+import { fetchLogsController } from '../controller/logsController.js';
+import { authenticateUser } from '../middleware/authenticateMiddleware.js';
 
 const router = express.Router();
 
-// router.post('/post', post);
-// router.get('/get', get);
+router.get('/fetchLogs', authenticateUser, fetchLogsController);
 
 export default router;

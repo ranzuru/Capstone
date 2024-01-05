@@ -21,34 +21,39 @@ import {
   deleteAdjustment,
 } from '../controller/medicineInventoryController.js';
 import { authenticateUser } from '../middleware/authenticateMiddleware.js';
+import { logActionsMiddleware } from '../middleware/logActionMiddleware.js';
 
 const router = express.Router();
 
 router.use(authenticateUser);
 
 // ITEM
-router.post('/postItem', postItem);
+router.post('/postItem', logActionsMiddleware, postItem);
 router.get('/getAllItem', getAllItem);
-router.put('/updateItem/:id', updateItem);
-router.delete('/deleteItem/:id', deleteItem);
+router.put('/updateItem/:id', logActionsMiddleware, updateItem);
+router.delete('/deleteItem/:id', logActionsMiddleware, deleteItem);
 // BATCH
 router.get('/getAllBatch', getAllBatch);
 router.get('/getAllBatchNotExpired', getAllBatchNotExpired);
 // IN
-router.post('/postIn', postIn);
+router.post('/postIn', logActionsMiddleware, postIn);
 router.get('/getAllIn', getAllIn);
-router.put('/updateIn/:id', updateIn);
-router.delete('/deleteIn/:id', deleteIn);
+router.put('/updateIn/:id', logActionsMiddleware, updateIn);
+router.delete('/deleteIn/:id', logActionsMiddleware, deleteIn);
 // DISPENSE
-router.post('/postDispense', postDispense);
-router.post('/postDispenseClinicVisit', postDispenseClinicVisit);
+router.post('/postDispense', logActionsMiddleware, postDispense);
+router.post(
+  '/postDispenseClinicVisit',
+  logActionsMiddleware,
+  postDispenseClinicVisit
+);
 router.get('/getAllDispense', getAllDispense);
-router.put('/updateDispense/:id', updateDispense);
-router.delete('/deleteDispense/:id', deleteDispense);
+router.put('/updateDispense/:id', logActionsMiddleware, updateDispense);
+router.delete('/deleteDispense/:id', logActionsMiddleware, deleteDispense);
 // ADJUSTMENT
-router.post('/postAdjustment', postAdjustment);
+router.post('/postAdjustment', logActionsMiddleware, postAdjustment);
 router.get('/getAllAdjustment', getAllAdjustment);
-router.put('/updateAdjustment/:id', updateAdjustment);
-router.delete('/deleteAdjustment/:id', deleteAdjustment);
+router.put('/updateAdjustment/:id', logActionsMiddleware, updateAdjustment);
+router.delete('/deleteAdjustment/:id', logActionsMiddleware, deleteAdjustment);
 
 export default router;
