@@ -146,11 +146,10 @@ const RoleGrid = () => {
       setRole(updatedRecords);
       showSnackbar('Role successfully deleted.', 'success');
     } catch (error) {
-      if (error.response && error.response.data && error.response.data.error) {
-        showSnackbar(`Delete Error: ${error.response.data.error}`, 'error');
-      } else {
-        showSnackbar('Failed to delete the Role. Please try again.', 'error');
-      }
+      const errorMessage =
+        error.response?.data?.error ||
+        'Failed to delete the Role. Please try again.';
+      showSnackbar(`Delete Error: ${errorMessage}`, 'error');
     }
     setSnackbarOpen(true);
     handleDialogClose();
@@ -169,11 +168,10 @@ const RoleGrid = () => {
       setRole(updatedRecords);
       showSnackbar('Roles successfully deleted.', 'success');
     } catch (error) {
-      if (error.response && error.response.data && error.response.data.error) {
-        showSnackbar(`Delete Error: ${error.response.data.error}`, 'error');
-      } else {
-        showSnackbar('Failed to delete the Roles. Please try again.', 'error');
-      }
+      const errorMessage =
+        error.response?.data?.error ||
+        'Failed to delete the Roles. Please try again.';
+      showSnackbar(`Delete Error: ${errorMessage}`, 'error');
     }
     setSnackbarOpen(true);
     handleDialogClose();

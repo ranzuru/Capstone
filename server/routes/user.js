@@ -17,10 +17,6 @@ router.put('/update/:id', logActionsMiddleware, updateUserProfile);
 router.delete('/delete/:id', logActionsMiddleware, deleteUser);
 
 router.get('/user-profile/:userId', getUserProfile);
-router.put(
-  '/user-settings/:userId',
-  logActionsMiddleware,
-  updateUserProfileSettings
-);
+router.put('/user-settings/:userId', updateUserProfileSettings);
 
 export default router;

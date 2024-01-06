@@ -38,7 +38,7 @@ const AcademicYearGrid = () => {
   const openSetCompletedDialog = (recordId) => {
     setDialogTitle('Set Academic Year Completed');
     setDialogMessage(
-      'Are you sure you want to set this academic year as completed?'
+      'Confirm setting this academic year as completed? All related records will be archived and this action is irreversible.'
     );
     setConfirmAction(() => () => handleSetCompleted(recordId));
     setDialogOpen(true);
@@ -46,7 +46,10 @@ const AcademicYearGrid = () => {
 
   const openDeleteDialog = (recordId) => {
     setDialogTitle('Delete Academic Year');
-    setDialogMessage('Are you sure you want to delete this academic year?');
+    setDialogMessage(
+      'Confirm deletion of this academic year? This will permanently remove all related data and cannot be undone.'
+    );
+
     setConfirmAction(() => () => handleDelete(recordId));
     setDialogOpen(true);
   };

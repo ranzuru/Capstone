@@ -354,7 +354,6 @@ const Form = (props) => {
                   control={control}
                   name="patientId"
                   label="ID (LRN/ Employee ID)"
-                  textType="combine"
                   error={errors.patientId}
                 />
               </Grid>

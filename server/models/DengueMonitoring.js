@@ -80,8 +80,6 @@ const dengueMonitoringSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-dengueMonitoringSchema.index({ lrn: 1, academicYear: 1 }, { unique: true });
-
 const DengueMonitoringSchema = mongoose.model(
   'DengueMonitoring',
   dengueMonitoringSchema

@@ -40,11 +40,14 @@ export const logActionsMiddleware = (req, res, next) => {
   // Overwrite the end method to intercept the response status code
   const originalEnd = res.end;
   res.end = function (chunk, encoding) {
-    // Grab the status code before the response is actually sent
     const responseStatusCode = res.statusCode;
 
-    // Log the action if the status is 200 OK and the user is authenticated
-    if (responseStatusCode === 200 && req.userResponse) {
+    if (
+      (responseStatusCode === 200 ||
+        responseStatusCode === 201 ||
+        responseStatusCode === 204) &&
+      req.userResponse
+    ) {
       const logEntry = {
         section: sectionName,
         action: actionType,

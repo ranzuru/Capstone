@@ -20,6 +20,15 @@ export const SchoolYearDashboard = () => {
         onChange={handleChange}
         sx={{ height: 50, fontSize: '1.5rem' }}
       >
+        {activeSchoolYear === 'No Active School Year' && (
+          <MenuItem
+            value="No Active School Year"
+            disabled
+            sx={{ fontSize: '1.5rem' }}
+          >
+            No Active School Year
+          </MenuItem>
+        )}
         {schoolYears.map((year) => (
           <MenuItem
             key={year.value}

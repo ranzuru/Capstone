@@ -165,7 +165,6 @@ const RoleForm = (props) => {
                   name="description"
                   control={control}
                   label="Description"
-                  textType="combine"
                   error={errors.description}
                   multiline
                 />

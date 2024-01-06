@@ -19,7 +19,6 @@ const studentMedicalValidation = Yup.object().shape({
   bmi: Yup.number().required('BMI is required'),
   bmiClassification: Yup.string().required('BMI Classification is required'),
   heightForAge: Yup.string().required('Height for Age is required'),
-  beneficiaryOfSBFP: Yup.boolean().required('SBFP status is required'),
   temperature: Yup.number().required('Temperature is required'),
   bloodPressure: Yup.string().required('Blood Pressure is required'),
   heartRate: Yup.number().required('Heart Rate is required'),

@@ -234,7 +234,6 @@ const EmployeeProfileForm = (props) => {
                   control={control}
                   name="employeeId"
                   label="Employee Id"
-                  textType="combine"
                   error={errors.employeeId}
                 />
               </Grid>

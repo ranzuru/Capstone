@@ -336,7 +336,6 @@ const EmployeeMedicalForm = (props) => {
                   control={control}
                   name="employeeId"
                   label="Employee ID"
-                  textType="combine"
                   error={errors.employeeId}
                 />
               </Grid>

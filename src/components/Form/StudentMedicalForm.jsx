@@ -93,7 +93,6 @@ const StudentMedicalForm = (props) => {
     bmi: '',
     bmiClassification: '',
     heightForAge: '',
-    beneficiaryOfSBFP: false,
     temperature: '',
     bloodPressure: '',
     heartRate: '',
@@ -374,7 +373,6 @@ const StudentMedicalForm = (props) => {
                   control={control}
                   name="lrn"
                   label="LRN"
-                  textType="combine"
                   error={errors.lrn}
                 />
               </Grid>

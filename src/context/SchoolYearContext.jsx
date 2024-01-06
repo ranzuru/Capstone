@@ -22,9 +22,9 @@ export const SchoolYearProvider = ({ children }) => {
         setSchoolYears(fetchedSchoolYears);
 
         const activeYear = response.data.find((year) => year.isActive);
-        if (activeYear) {
-          setActiveSchoolYear(activeYear.schoolYear);
-        }
+        setActiveSchoolYear(
+          activeYear ? activeYear.schoolYear : 'No Active School Year'
+        );
       } catch (error) {
         console.error('Error fetching school years:', error);
       }

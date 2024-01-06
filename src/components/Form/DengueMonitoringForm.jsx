@@ -286,7 +286,6 @@ const DengueMonitoringForm = (props) => {
                   control={control}
                   name="lrn"
                   label="LRN"
-                  textType="combine"
                   error={errors.lrn}
                 />
               </Grid>

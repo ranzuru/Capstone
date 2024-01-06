@@ -56,10 +56,17 @@ export const updateRole = async (req, res) => {
 
 export const deleteRole = async (req, res) => {
   try {
-    const role = await Role.findByIdAndDelete(req.params.id);
+    const role = await Role.findById(req.params.id);
     if (!role) {
       return res.status(404).json({ error: 'Role not found' });
     }
+    if (role.roleName === 'Administrator') {
+      return res
+        .status(403)
+        .json({ error: 'Cannot delete Administrator role' });
+    }
+
+    await Role.findByIdAndDelete(req.params.id);
     res.status(200).json({ message: 'Role deleted successfully' });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -74,10 +81,16 @@ export const deleteBulkRoles = async (req, res) => {
       return res.status(400).json({ error: 'No role IDs provided' });
     }
 
+    const rolesToDelete = await Role.find({ _id: { $in: roleIds } });
+    if (rolesToDelete.some((role) => role.roleName === 'Administrator')) {
+      return res
+        .status(403)
+        .json({ error: 'Cannot delete Administrator role' });
+    }
+
     const result = await Role.deleteMany({
       _id: { $in: roleIds },
     });
-
     if (result.deletedCount === 0) {
       return res.status(404).json({ error: 'No roles found to delete' });
     }
