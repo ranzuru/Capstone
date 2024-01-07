@@ -67,12 +67,8 @@ const Grid = () => {
         : null,
       quantity: record.quantity || 'N/A',
       notes: record.notes || '',
-      createdAt: record.createdAt
-        ? formatYearFromDate(record.createdAt)
-        : null,
-      updatedAt: record.updatedAt
-        ? formatYearFromDate(record.updatedAt)
-        : null,
+      createdAt: record.createdAt ? formatYearFromDate(record.createdAt) : null,
+      updatedAt: record.updatedAt ? formatYearFromDate(record.updatedAt) : null,
       status: record.status || 'N/A',
     };
   };
@@ -125,29 +121,35 @@ const Grid = () => {
     { field: 'product', headerName: 'Product', width: 200 },
     { field: 'batchId', headerName: 'Batch ID', width: 150 },
     { field: 'quantity', headerName: 'Quantity', width: 100 },
-    { field: 'expirationDate', headerName: 'Expiration', width: 150,
-    renderCell: (params) => {
-      const expirationDate = params.value;
-      const currentDate = new Date();
+    {
+      field: 'expirationDate',
+      headerName: 'Expiration',
+      width: 150,
+      renderCell: (params) => {
+        const expirationDate = params.value;
+        const currentDate = new Date();
 
-      // Calculate the difference in milliseconds between expirationDate and currentDate
-      const timeDiff = new Date(expirationDate) - currentDate;
+        // Calculate the difference in milliseconds between expirationDate and currentDate
+        const timeDiff = new Date(expirationDate) - currentDate;
 
-      // Calculate the difference in years
-      const yearsDiff = timeDiff / (1000 * 60 * 60 * 24 * 365);
+        // Calculate the difference in years
+        const yearsDiff = timeDiff / (1000 * 60 * 60 * 24 * 365);
 
-      // Set color based on expiration date
-      let color;
-      if (timeDiff < 0) {
-        color = 'red'; // Expired
-      } else if (yearsDiff <= 1) {
-        color = 'blue'; // Less than or equal to 1 year
-      } else {
-        color = 'green'; // More than 1 year
-      }
+        // Set color based on expiration date
+        let color;
+        if (timeDiff < 0) {
+          color = 'red'; // Expired
+        } else if (yearsDiff <= 1) {
+          color = 'blue'; // Less than or equal to 1 year
+        } else {
+          color = 'green'; // More than 1 year
+        }
 
-      return <div style={{ color }}>{formatYearFromDate(expirationDate)}</div>;
-    }, },
+        return (
+          <div style={{ color }}>{formatYearFromDate(expirationDate)}</div>
+        );
+      },
+    },
     { field: 'createdAt', headerName: 'Created', width: 100 },
     {
       field: 'status',
@@ -192,7 +194,9 @@ const Grid = () => {
 
   const handleDelete = async () => {
     try {
-      await axiosInstance.delete(`medicineInventory/deleteIn/${recordIdToDelete}`);
+      await axiosInstance.delete(
+        `medicineInventory/deleteIn/${recordIdToDelete}`
+      );
 
       const updatedRecords = records.filter(
         (record) => record.id !== recordIdToDelete
@@ -203,10 +207,7 @@ const Grid = () => {
       if (error.response && error.response.data && error.response.data.error) {
         showSnackbar(`Delete Error: ${error.response.data.error}`, 'error');
       } else {
-        showSnackbar(
-          'Failed to delete the record. Please try again.',
-          'error'
-        );
+        showSnackbar('Failed to delete the record. Please try again.', 'error');
       }
     }
     setSnackbarOpen(true); // Open the snackbar with the message
@@ -260,15 +261,8 @@ const Grid = () => {
       }));
 
     exportDataToExcel(filteredData, excelHeaders, 'MedicineIn', {
-      dateFields: [
-        'itemId',
-        'product',
-        'batchId',
-        'dateOfDischarge',
-      ], // adjust based on transformed data
-      excludeColumns: [
-        'action',
-      ], // adjust based on transformed data
+      dateFields: ['expirationDate'], // adjust based on transformed data
+      excludeColumns: ['action', 'updatedAt', 'createdAt'], // adjust based on transformed data
     });
   };
 
@@ -288,7 +282,7 @@ const Grid = () => {
   );
   return (
     <>
-    <CustomSnackbar
+      <CustomSnackbar
         open={snackbarOpen}
         handleClose={handleCloseSnackbar}
         severity={snackbarData.severity}
@@ -334,11 +328,7 @@ const Grid = () => {
                 },
               }}
               slots={{
-                toolbar: () => (
-                  <CustomGridToolbar
-                    onExport={handleExport}
-                  />
-                ),
+                toolbar: () => <CustomGridToolbar onExport={handleExport} />,
               }}
               sx={{
                 '& .MuiDataGrid-row:nth-of-type(odd)': {

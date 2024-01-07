@@ -27,13 +27,11 @@ const Grid = () => {
     items: [],
   });
 
-
   const handleSearchChange = (event) => {
     setSearchValue(event.target.value);
   };
 
   const mapRecord = (record) => {
-
     return {
       id: record._id,
       itemId: record.itemId || 'N/A',
@@ -45,12 +43,8 @@ const Grid = () => {
       expirationDate: record.expirationDate
         ? formatYearFromDate(record.expirationDate)
         : null,
-      createdAt: record.createdAt
-        ? formatYearFromDate(record.createdAt)
-        : null,
-      updatedAt: record.updatedAt
-        ? formatYearFromDate(record.updatedAt)
-        : null,
+      createdAt: record.createdAt ? formatYearFromDate(record.createdAt) : null,
+      updatedAt: record.updatedAt ? formatYearFromDate(record.updatedAt) : null,
       status: record.status || 'N/A',
     };
   };
@@ -78,29 +72,35 @@ const Grid = () => {
     { field: 'itemId', headerName: 'Item ID', width: 150 },
     { field: 'product', headerName: 'Product', width: 200 },
     { field: 'batchId', headerName: 'Batch ID', width: 150 },
-    { field: 'expirationDate', headerName: 'Expiration', width: 100,
-    renderCell: (params) => {
-      const expirationDate = params.value;
-      const currentDate = new Date();
+    {
+      field: 'expirationDate',
+      headerName: 'Expiration',
+      width: 100,
+      renderCell: (params) => {
+        const expirationDate = params.value;
+        const currentDate = new Date();
 
-      // Calculate the difference in milliseconds between expirationDate and currentDate
-      const timeDiff = new Date(expirationDate) - currentDate;
+        // Calculate the difference in milliseconds between expirationDate and currentDate
+        const timeDiff = new Date(expirationDate) - currentDate;
 
-      // Calculate the difference in years
-      const yearsDiff = timeDiff / (1000 * 60 * 60 * 24 * 365);
+        // Calculate the difference in years
+        const yearsDiff = timeDiff / (1000 * 60 * 60 * 24 * 365);
 
-      // Set color based on expiration date
-      let color;
-      if (timeDiff < 0) {
-        color = 'red'; // Expired
-      } else if (yearsDiff <= 1) {
-        color = 'blue'; // Less than or equal to 1 year
-      } else {
-        color = 'green'; // More than 1 year
-      }
+        // Set color based on expiration date
+        let color;
+        if (timeDiff < 0) {
+          color = 'red'; // Expired
+        } else if (yearsDiff <= 1) {
+          color = 'blue'; // Less than or equal to 1 year
+        } else {
+          color = 'green'; // More than 1 year
+        }
 
-      return <div style={{ color }}>{formatYearFromDate(expirationDate)}</div>;
-    }, },
+        return (
+          <div style={{ color }}>{formatYearFromDate(expirationDate)}</div>
+        );
+      },
+    },
     { field: 'totalBatchQuantity', headerName: 'Quantity', width: 100 },
     { field: 'createdAt', headerName: 'Created', width: 100 },
     {
@@ -118,9 +118,7 @@ const Grid = () => {
       headerAlign: 'center',
       align: 'center',
       renderCell: (params) => (
-        <ActionMenu
-          onView={() => handleInfoDialogOpen(params.row.id)}
-        />
+        <ActionMenu onView={() => handleInfoDialogOpen(params.row.id)} />
       ),
     },
   ];
@@ -183,17 +181,10 @@ const Grid = () => {
       }));
 
     exportDataToExcel(filteredData, excelHeaders, 'MedicineBatch', {
-      dateFields: [
-        'createdAt',
-        'updatedAt',
-      ], // adjust based on transformed data
-      excludeColumns: [
-        'action',
-
-      ], // adjust based on transformed data
+      dateFields: ['expirationDate'], // adjust based on transformed data
+      excludeColumns: ['action', 'updatedAt', 'createdAt'], // adjust based on transformed data
     });
   };
-
 
   const filteredRecords = records.filter((record) =>
     Object.keys(record).some((key) => {
@@ -236,11 +227,7 @@ const Grid = () => {
                 },
               }}
               slots={{
-                toolbar: () => (
-                  <CustomGridToolbar
-                    onExport={handleExport}
-                  />
-                ),
+                toolbar: () => <CustomGridToolbar onExport={handleExport} />,
               }}
               sx={{
                 '& .MuiDataGrid-row:nth-of-type(odd)': {

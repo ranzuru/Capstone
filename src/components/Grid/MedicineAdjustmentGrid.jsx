@@ -52,7 +52,6 @@ const Grid = () => {
   };
 
   const mapRecord = (record) => {
-
     return {
       id: record._id,
       itemId: record.itemId || 'N/A',
@@ -61,12 +60,8 @@ const Grid = () => {
       type: record.type || 'N/A',
       quantity: record.quantity || '',
       reason: record.reason || '',
-      createdAt: record.createdAt
-        ? formatYearFromDate(record.createdAt)
-        : null,
-      updatedAt: record.updatedAt
-        ? formatYearFromDate(record.updatedAt)
-        : null,
+      createdAt: record.createdAt ? formatYearFromDate(record.createdAt) : null,
+      updatedAt: record.updatedAt ? formatYearFromDate(record.updatedAt) : null,
       status: record.status || 'N/A',
     };
   };
@@ -74,7 +69,9 @@ const Grid = () => {
   const fetchRecord = useCallback(async () => {
     setIsLoading(true);
     try {
-      const response = await axiosInstance.get('medicineInventory/getAllAdjustment');
+      const response = await axiosInstance.get(
+        'medicineInventory/getAllAdjustment'
+      );
       const updatedRecords = response.data.map(mapRecord);
       setRecords(updatedRecords);
     } catch (error) {
@@ -116,7 +113,7 @@ const Grid = () => {
   const columns = [
     { field: 'id', headerName: 'ID', width: 150 },
     { field: 'itemId', headerName: 'Item ID', width: 150 },
-    { field: 'product', headerName: 'Product', width: 200 }, 
+    { field: 'product', headerName: 'Product', width: 200 },
     { field: 'batchId', headerName: 'Batch ID', width: 150 },
     { field: 'type', headerName: 'Type', width: 100 },
     { field: 'quantity', headerName: 'Quantity', width: 100 },
@@ -169,7 +166,9 @@ const Grid = () => {
 
   const handleDelete = async () => {
     try {
-      await axiosInstance.delete(`medicineInventory/deleteItem/${recordIdToDelete}`);
+      await axiosInstance.delete(
+        `medicineInventory/deleteItem/${recordIdToDelete}`
+      );
 
       const updatedRecords = records.filter(
         (record) => record.id !== recordIdToDelete
@@ -180,10 +179,7 @@ const Grid = () => {
       if (error.response && error.response.data && error.response.data.error) {
         showSnackbar(`Delete Error: ${error.response.data.error}`, 'error');
       } else {
-        showSnackbar(
-          'Failed to delete the record. Please try again.',
-          'error'
-        );
+        showSnackbar('Failed to delete the record. Please try again.', 'error');
       }
     }
     setSnackbarOpen(true); // Open the snackbar with the message
@@ -237,13 +233,7 @@ const Grid = () => {
       }));
 
     exportDataToExcel(filteredData, excelHeaders, 'MedicineAdjustment', {
-      dateFields: [
-        'createdAt',
-        'updatedAt',
-      ], // adjust based on transformed data
-      excludeColumns: [
-        'action',
-      ], // adjust based on transformed data
+      excludeColumns: ['action', 'createdAt', 'updatedAt'], // adjust based on transformed data
     });
   };
 
@@ -263,7 +253,7 @@ const Grid = () => {
   );
   return (
     <>
-    <CustomSnackbar
+      <CustomSnackbar
         open={snackbarOpen}
         handleClose={handleCloseSnackbar}
         severity={snackbarData.severity}
@@ -309,11 +299,7 @@ const Grid = () => {
                 },
               }}
               slots={{
-                toolbar: () => (
-                  <CustomGridToolbar
-                    onExport={handleExport}
-                  />
-                ),
+                toolbar: () => <CustomGridToolbar onExport={handleExport} />,
               }}
               sx={{
                 '& .MuiDataGrid-row:nth-of-type(odd)': {

@@ -18,6 +18,7 @@ import headerMapping from '../../constant/clinicVisitHeaderMapping.js';
 import ConfirmationDialog from '../../custom/CustomConfirmDialog.jsx';
 import InfoDialog from '../../components/Dialog/clinicVisitDialog.jsx';
 import Form from '../Form/ClinicVisitForm.jsx';
+import { useSchoolYear } from '../../hooks/useSchoolYear.js';
 
 const Grid = () => {
   const [formOpen, setFormOpen] = useState(false);
@@ -38,6 +39,7 @@ const Grid = () => {
   const [filterModel, setFilterModel] = useState({
     items: [],
   });
+  const { activeSchoolYear } = useSchoolYear();
 
   const showSnackbar = (message, severity) => {
     setSnackbarData({ message, severity });
@@ -79,21 +81,15 @@ const Grid = () => {
       age: record.age || 'N/A',
       mobileNumber: record.mobileNumber || '',
       address: record.address || '',
-      issueDate: record.issueDate
-      ? formatYearFromDate(record.issueDate)
-      : null,
+      issueDate: record.issueDate ? formatYearFromDate(record.issueDate) : null,
       malady: record.malady || '',
       reason: record.reason || '',
       medicine: medicine._id || '',
       product: record.itemData || '',
       quantity: record.quantity || '',
       remarks: record.remarks || '',
-      createdAt: record.createdAt
-        ? formatYearFromDate(record.createdAt)
-        : null,
-      updatedAt: record.updatedAt
-        ? formatYearFromDate(record.updatedAt)
-        : null,
+      createdAt: record.createdAt ? formatYearFromDate(record.createdAt) : null,
+      updatedAt: record.updatedAt ? formatYearFromDate(record.updatedAt) : null,
       status: record.status || 'N/A',
     };
   };
@@ -101,7 +97,9 @@ const Grid = () => {
   const fetchRecord = useCallback(async () => {
     setIsLoading(true);
     try {
-      const response = await axiosInstance.get('clinicVisit/getAll');
+      const response = await axiosInstance.get(
+        `clinicVisit/getAll?schoolYear=${encodeURIComponent(activeSchoolYear)}`
+      );
       const updatedRecords = response.data.map(mapRecord);
       setRecords(updatedRecords);
     } catch (error) {
@@ -110,11 +108,13 @@ const Grid = () => {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [activeSchoolYear]);
 
   useEffect(() => {
-    fetchRecord();
-  }, [fetchRecord]);
+    if (activeSchoolYear) {
+      fetchRecord();
+    }
+  }, [activeSchoolYear, fetchRecord]);
 
   const addNewRecord = (newRecord) => {
     const mappedRecord = mapRecord(newRecord);
@@ -138,11 +138,11 @@ const Grid = () => {
     { field: 'age', headerName: 'Age', width: 75 },
     { field: 'schoolYear', headerName: 'S.Y', width: 100 },
     {
-        field: 'issueDate',
-        headerName: 'Issue Date',
-        width: 100,
-        valueGetter: (params) => formatYearFromDate(params.row.issueDate),
-      },
+      field: 'issueDate',
+      headerName: 'Issue Date',
+      width: 100,
+      valueGetter: (params) => formatYearFromDate(params.row.issueDate),
+    },
     {
       field: 'status',
       headerName: 'Status',
@@ -332,11 +332,7 @@ const Grid = () => {
                 },
               }}
               slots={{
-                toolbar: () => (
-                  <CustomGridToolbar
-                    onExport={handleExport}
-                  />
-                ),
+                toolbar: () => <CustomGridToolbar onExport={handleExport} />,
               }}
               sx={{
                 '& .MuiDataGrid-row:nth-of-type(odd)': {

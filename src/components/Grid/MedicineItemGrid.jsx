@@ -222,8 +222,7 @@ const Grid = () => {
       }));
 
     exportDataToExcel(filteredData, excelHeaders, 'MedicineItem', {
-      dateFields: ['created'], // adjust based on transformed data
-      excludeColumns: ['action'], // adjust based on transformed data
+      excludeColumns: ['action', 'updatedAt', 'createdAt'], // adjust based on transformed data
     });
   };
 

@@ -32,7 +32,7 @@ import {
 } from '../../others/dropDownOptions';
 
 const Form = (props) => {
-  const { open, onClose, initialData, addNewRecord, selectedRecord, onUpdate, } =
+  const { open, onClose, initialData, addNewRecord, selectedRecord, onUpdate } =
     props;
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarData, setSnackbarData] = useState({
@@ -154,7 +154,6 @@ const Form = (props) => {
       fields.forEach((field) => {
         setValue(field, selectedRecord[field] || '');
       });
-
     }
   }, [selectedRecord, setValue]);
 
@@ -186,7 +185,6 @@ const Form = (props) => {
                   control={control}
                   name="itemId"
                   label="Item ID"
-                  textType="combine"
                   error={errors.itemId}
                   disabled={selectedRecord !== null}
                 />
@@ -198,14 +196,13 @@ const Form = (props) => {
                   control={control}
                   name="batchId"
                   label="Batch ID"
-                  textType="combine"
                   error={errors.batchId}
                   disabled={selectedRecord !== null}
                 />
               </Grid>
             </Grid>
             <Grid container spacing={2}>
-            <Grid item xs={12} md={7}>
+              <Grid item xs={12} md={7}>
                 <FormSelect
                   control={control}
                   name="type"
@@ -227,12 +224,11 @@ const Form = (props) => {
               </Grid>
             </Grid>
             <Grid container spacing={2}>
-            <Grid item xs={12} md={12}>
+              <Grid item xs={12} md={12}>
                 <FormInput
                   control={control}
                   name="reason"
                   label="Reason/s"
-                  textType="combine"
                   error={errors.reason}
                 />
               </Grid>

@@ -146,26 +146,29 @@ const Form = (props) => {
 
   const handleCreateRecord = async (data) => {
     try {
+      // Make the first request
       const responseClinicVisit = await axiosInstance.post(
         '/clinicVisit/post',
         data
       );
 
-      const responseDispense = await axiosInstance.post(
-        '/medicineInventory/postDispenseClinicVisit',
-        data
-      );
+      // Check if the first request was successful
+      if (responseClinicVisit.data && responseClinicVisit.data._id) {
+        // Pass the clinic visit ID to the second request
+        const responseDispense = await axiosInstance.post(
+          '/medicineInventory/postDispenseClinicVisit',
+          { ...data, clinicVisitId: responseClinicVisit.data._id }
+        );
 
-      if (
-        responseClinicVisit.data &&
-        responseClinicVisit.data._id &&
-        responseDispense.data &&
-        responseDispense.data._id
-      ) {
-        addNewRecord(responseClinicVisit.data);
-        addNewRecord(responseDispense.data);
-        showSnackbar('Successfully added new record', 'success');
-        handleClose();
+        // Check if the second request was successful
+        if (responseDispense.data && responseDispense.data._id) {
+          // Update the UI or state as needed
+          addNewRecord(responseClinicVisit.data);
+          showSnackbar('Successfully added new record', 'success');
+          handleClose();
+        } else {
+          showSnackbar('Operation failed', 'error');
+        }
       } else {
         showSnackbar('Operation failed', 'error');
       }

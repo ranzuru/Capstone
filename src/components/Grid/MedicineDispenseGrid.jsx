@@ -48,7 +48,6 @@ const Grid = () => {
     setSnackbarOpen(false);
   };
 
-
   const handleSearchChange = (event) => {
     setSearchValue(event.target.value);
   };
@@ -65,12 +64,8 @@ const Grid = () => {
       type: record.type || 'N/A',
       quantity: record.quantity || 'N/A',
       reason: record.reason || '',
-      createdAt: record.createdAt
-        ? formatYearFromDate(record.createdAt)
-        : null,
-      updatedAt: record.updatedAt
-        ? formatYearFromDate(record.updatedAt)
-        : null,
+      createdAt: record.createdAt ? formatYearFromDate(record.createdAt) : null,
+      updatedAt: record.updatedAt ? formatYearFromDate(record.updatedAt) : null,
       status: record.status || 'N/A',
     };
   };
@@ -78,7 +73,9 @@ const Grid = () => {
   const fetchRecord = useCallback(async () => {
     setIsLoading(true);
     try {
-      const response = await axiosInstance.get('medicineInventory/getAllDispense');
+      const response = await axiosInstance.get(
+        'medicineInventory/getAllDispense'
+      );
       const updatedRecords = response.data.map(mapRecord);
       setRecords(updatedRecords);
     } catch (error) {
@@ -105,7 +102,7 @@ const Grid = () => {
 
   const addNewRecord = (newRecord) => {
     const mappedRecord = mapRecord(newRecord);
-    setRecords((prevRecords) => [mappedRecord, ...prevRecords, ]);
+    setRecords((prevRecords) => [mappedRecord, ...prevRecords]);
   };
 
   const updatedStudentProfile = (updatedStudentData) => {
@@ -167,7 +164,9 @@ const Grid = () => {
 
   const handleDelete = async () => {
     try {
-      await axiosInstance.delete(`medicineInventory/deleteDispense/${recordIdToDelete}`);
+      await axiosInstance.delete(
+        `medicineInventory/deleteDispense/${recordIdToDelete}`
+      );
 
       const updatedRecords = records.filter(
         (record) => record.id !== recordIdToDelete
@@ -178,10 +177,7 @@ const Grid = () => {
       if (error.response && error.response.data && error.response.data.error) {
         showSnackbar(`Delete Error: ${error.response.data.error}`, 'error');
       } else {
-        showSnackbar(
-          'Failed to delete the record. Please try again.',
-          'error'
-        );
+        showSnackbar('Failed to delete the record. Please try again.', 'error');
       }
     }
     setSnackbarOpen(true); // Open the snackbar with the message
@@ -234,20 +230,8 @@ const Grid = () => {
         key: key,
       }));
 
-    exportDataToExcel(filteredData, excelHeaders, 'DengueMonitoring', {
-      dateFields: [
-        'created',
-        'dateOfOnset',
-        'dateOfAdmission',
-        'dateOfDischarge',
-      ], // adjust based on transformed data
-      excludeColumns: [
-        'action',
-        'firstName',
-        'lastName',
-        'middleName',
-        'nameExtension',
-      ], // adjust based on transformed data
+    exportDataToExcel(filteredData, excelHeaders, 'Medicine Dispense', {
+      excludeColumns: ['action', 'createdAt', 'updatedAt'], // adjust based on transformed data
     });
   };
 
@@ -267,7 +251,7 @@ const Grid = () => {
   );
   return (
     <>
-    <CustomSnackbar
+      <CustomSnackbar
         open={snackbarOpen}
         handleClose={handleCloseSnackbar}
         severity={snackbarData.severity}
@@ -313,11 +297,7 @@ const Grid = () => {
                 },
               }}
               slots={{
-                toolbar: () => (
-                  <CustomGridToolbar
-                    onExport={handleExport}
-                  />
-                ),
+                toolbar: () => <CustomGridToolbar onExport={handleExport} />,
               }}
               sx={{
                 '& .MuiDataGrid-row:nth-of-type(odd)': {
