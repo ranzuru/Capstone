@@ -83,7 +83,7 @@ export const monthOptions = [
 
 export const generateAcademicYearOptions = () => {
   const options = [];
-  for (let year = 2021; year <= 2049; year++) {
+  for (let year = 2018; year <= 2049; year++) {
     options.push({
       label: `${year}-${year + 1}`,
       value: `${year}-${year + 1}`,
