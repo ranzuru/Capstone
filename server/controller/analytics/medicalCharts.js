@@ -609,11 +609,23 @@ const generateComparisonSummary = (data) => {
       return `data unavailable for ${fieldName}`;
     }
 
+    // Check if the values are the same
+    if (value1 === value2) {
+      return `No change in ${fieldName}`;
+    }
+
     const difference = value1 - value2;
-    const trend = difference > 0 ? 'an increase' : 'a decrease';
-    // Limiting the difference to two decimal places
-    const formattedDifference = Math.abs(difference).toFixed(2);
-    return `${trend} of ${formattedDifference} in ${fieldName}`;
+    // Determine the trend based on the difference
+    let trend;
+    if (difference === 0) {
+      trend = 'no change';
+    } else {
+      trend = difference > 0 ? 'an increase' : 'a decrease';
+    }
+
+    // Format the difference to one decimal place
+    const formattedDifference = Math.abs(difference).toFixed(1);
+    return `${fieldName} showed ${trend} of ${formattedDifference}`;
   };
 
   const findMostPrevalentCondition = (yearData) => {
@@ -698,7 +710,7 @@ const generateComparisonSummary = (data) => {
 
     return dynamicSummary;
   };
-
+  // New
   const generateComparativeSummary = (
     firstData,
     secondData,
@@ -721,30 +733,51 @@ const generateComparisonSummary = (data) => {
       const firstYearCount = firstData[key];
       const secondYearCount = secondData[key];
 
-      comparativeSummary += `The ${readableConditionName} cases changed from ${firstYearCount} in ${firstYear} to ${secondYearCount} in ${secondYear}. `;
+      if (firstYearCount !== secondYearCount) {
+        comparativeSummary += `The ${readableConditionName} cases changed from ${firstYearCount} in ${firstYear} to ${secondYearCount} in ${secondYear}. `;
+      } else {
+        comparativeSummary += `The ${readableConditionName} cases remained the same at ${firstYearCount} in both years. `;
+      }
     });
 
+    const compareOrStateSame = (value1, value2, description) => {
+      // Compare raw values before rounding
+      if (Math.abs(value1 - value2) < 0.1) {
+        // Assuming a threshold of 0.05 for no significant change
+        return `remained the same at ${value1.toFixed(1)}`;
+      } else {
+        const changeDescription = compare(value2, value1, '');
+        return `changed (${description} ${changeDescription} from ${value1.toFixed(
+          1
+        )} to ${value2.toFixed(1)})`;
+      }
+    };
+
     // Comparing average values
-    comparativeSummary += `Average heart rate changed with ${compare(
-      secondData.averageHeartRate,
+    comparativeSummary += `Average Heart rate: ${compareOrStateSame(
       firstData.averageHeartRate,
-      'the average heart rate'
+      secondData.averageHeartRate,
+      'Heart rate'
     )}, `;
-    comparativeSummary += `and respiratory rate with ${compare(
-      secondData.averageRespiratoryRate,
+    comparativeSummary += `Average Respiratory rate: ${compareOrStateSame(
       firstData.averageRespiratoryRate,
-      'the average respiratory rate'
-    )}. `;
-    comparativeSummary += `Average student age altered from ${firstData.averageAge.toFixed(
-      1
-    )} years to ${secondData.averageAge.toFixed(1)} years. `;
-    comparativeSummary += `Average body temperature changed from ${firstData.averageTemperature.toFixed(
-      1
-    )}°C to ${secondData.averageTemperature.toFixed(1)}°C. `;
-    comparativeSummary += `Average pulse rate saw ${compare(
-      secondData.averagePulseRate,
+      secondData.averageRespiratoryRate,
+      'Respiratory rate'
+    )}, `;
+    comparativeSummary += `Average Student age: ${compareOrStateSame(
+      firstData.averageAge,
+      secondData.averageAge,
+      'Student age'
+    )} years, `;
+    comparativeSummary += `Average Body temperature: ${compareOrStateSame(
+      firstData.averageTemperature,
+      secondData.averageTemperature,
+      'Body temperature'
+    )}°C, `;
+    comparativeSummary += `Average Pulse rate: ${compareOrStateSame(
       firstData.averagePulseRate,
-      'an alteration'
+      secondData.averagePulseRate,
+      'Pulse rate'
     )}.`;
 
     return comparativeSummary;

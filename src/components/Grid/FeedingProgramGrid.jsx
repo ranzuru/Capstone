@@ -382,30 +382,44 @@ const FeedingProgramGrid = () => {
       />
       <div className="flex flex-col h-full">
         <div className="w-full max-w-screen-xl mx-auto px-8">
-          <div className="mb-4 flex justify-end items-center">
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleGenerateReport}
-              style={{ marginRight: '16px' }}
-            >
-              GENERATE REPORT
-            </Button>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleModalOpen}
-            >
-              New Record
-            </Button>
-            <div className="ml-2">
-              <TextField
-                label="Search"
-                variant="outlined"
-                size="small"
-                value={searchValue}
-                onChange={handleSearchChange}
-              />
+          <div className="mb-4 flex justify-between items-center">
+            <div className="flex">
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleGenerateReport}
+              >
+                GENERATE REPORT
+              </Button>
+              <div className="ml-2">
+                <a
+                  href="/template/Feeding_Template.xlsx"
+                  download
+                  style={{ textDecoration: 'none' }}
+                >
+                  <Button variant="contained" color="primary">
+                    Download Template
+                  </Button>
+                </a>
+              </div>
+            </div>
+            <div className="flex items-center">
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleModalOpen}
+              >
+                New Record
+              </Button>
+              <div className="ml-2">
+                <TextField
+                  label="Search"
+                  variant="outlined"
+                  size="small"
+                  value={searchValue}
+                  onChange={handleSearchChange}
+                />
+              </div>
             </div>
           </div>
           <Tabs
