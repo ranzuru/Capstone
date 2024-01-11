@@ -253,19 +253,14 @@ const Grid = () => {
         key: key,
       }));
 
-    exportDataToExcel(filteredData, excelHeaders, 'DengueMonitoring', {
+    exportDataToExcel(filteredData, excelHeaders, 'Clinic Visit', {
       dateFields: [
-        'dateOfBirth',
-        'dateOfOnset',
-        'dateOfAdmission',
-        'dateOfDischarge',
+        'issueDate',
       ], // adjust based on transformed data
       excludeColumns: [
-        'action',
-        'firstName',
-        'lastName',
-        'middleName',
-        'nameExtension',
+        'status',
+        'createdAt',
+        'updatedAt',
       ], // adjust based on transformed data
     });
   };
