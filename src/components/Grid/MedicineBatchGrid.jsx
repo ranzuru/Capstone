@@ -180,7 +180,7 @@ const Grid = () => {
         key: key,
       }));
 
-    exportDataToExcel(filteredData, excelHeaders, 'MedicineBatch', {
+    exportDataToExcel(filteredData, excelHeaders, 'Medicine Batch', {
       dateFields: ['expirationDate'], // adjust based on transformed data
       excludeColumns: ['action', 'updatedAt', 'createdAt'], // adjust based on transformed data
     });

@@ -13,7 +13,7 @@ const InfoDialog = ({ open, onClose, record }) => {
     <>
       <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
         <DialogTitle className="bg-gray-100 text-gray-800">
-          Clinic Visit Information
+        Medicine Inventory Dispense Information
         </DialogTitle>
         <DialogContent className="divide-y divide-gray-200">
           {record ? (

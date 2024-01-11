@@ -221,7 +221,7 @@ const Grid = () => {
         key: key,
       }));
 
-    exportDataToExcel(filteredData, excelHeaders, 'MedicineItem', {
+    exportDataToExcel(filteredData, excelHeaders, 'Medicine Item', {
       excludeColumns: ['action', 'updatedAt', 'createdAt'], // adjust based on transformed data
     });
   };

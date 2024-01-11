@@ -8,7 +8,7 @@ const InfoDialog = ({ open, onClose, record }) => {
   return (
     <>
       <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
-        <DialogTitle className="bg-gray-100 text-gray-800">Logs</DialogTitle>
+        <DialogTitle className="bg-gray-100 text-gray-800">Log Information</DialogTitle>
         <DialogContent className="divide-y divide-gray-200">
           {record ? (
             <div className="space-y-4 p-4">
