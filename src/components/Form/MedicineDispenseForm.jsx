@@ -26,12 +26,10 @@ import {
   Divider,
 } from '@mui/material';
 // others
-import {
-  statusOptions,
-} from '../../others/dropDownOptions';
+import { statusOptions } from '../../others/dropDownOptions';
 
 const Form = (props) => {
-  const { open, onClose, initialData, addNewRecord, selectedRecord, onUpdate, } =
+  const { open, onClose, initialData, addNewRecord, selectedRecord, onUpdate } =
     props;
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarData, setSnackbarData] = useState({
@@ -66,7 +64,7 @@ const Form = (props) => {
     defaultValues: initialData || defaultValuesRef,
     resolver: yupResolver(Validation),
   });
-  console.log(errors)
+
   useEffect(() => {
     reset({
       ...defaultValuesRef,
@@ -137,22 +135,14 @@ const Form = (props) => {
     onClose();
   };
 
-
   useEffect(() => {
     if (selectedRecord) {
       // Regular fields
-      const fields = [
-        'itemId',
-        'batchId',
-        'quantity',
-        'reason',
-        'status',
-      ];
+      const fields = ['itemId', 'batchId', 'quantity', 'reason', 'status'];
 
       fields.forEach((field) => {
         setValue(field, selectedRecord[field] || '');
       });
-
     }
   }, [selectedRecord, setValue]);
 
@@ -184,7 +174,6 @@ const Form = (props) => {
                   control={control}
                   name="itemId"
                   label="Item ID"
-                  textType="combine"
                   error={errors.itemId}
                   disabled={selectedRecord !== null}
                 />
@@ -196,7 +185,6 @@ const Form = (props) => {
                   control={control}
                   name="batchId"
                   label="Batch ID"
-                  textType="combine"
                   error={errors.batchId}
                   disabled={selectedRecord !== null}
                 />
@@ -215,7 +203,7 @@ const Form = (props) => {
               </Grid>
             </Grid>
             <Grid container spacing={2}>
-            <Grid item xs={12} md={12}>
+              <Grid item xs={12} md={12}>
                 <FormInput
                   control={control}
                   name="reason"
