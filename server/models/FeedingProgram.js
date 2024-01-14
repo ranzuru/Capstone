@@ -92,7 +92,10 @@ const feedingProgramSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-feedingProgramSchema.index({ lrn: 1, academicYear: 1 }, { unique: true });
+feedingProgramSchema.index(
+  { lrn: 1, measurementType: 1, academicYear: 1 },
+  { unique: true }
+);
 
 const FeedingProgramSchema = mongoose.model(
   'FeedingProgram',

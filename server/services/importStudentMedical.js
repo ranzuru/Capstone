@@ -14,17 +14,16 @@ const importStudentMedical = async (fileBuffer) => {
   const errors = [];
 
   for (let rowData of data) {
-    rowData.lrn = rowData.lrn != null ? String(rowData.lrn) : rowData.lrn;
-    rowData.bloodPressure =
-      rowData.bloodPressure != null
-        ? String(rowData.bloodPressure)
-        : rowData.bloodPressure;
-    if (rowData.is4p) rowData.is4p = rowData.is4p.toLowerCase() === 'yes';
-    if (rowData.ironSupplementation)
-      rowData.ironSupplementation =
-        rowData.ironSupplementation.toLowerCase() === 'yes';
-    if (rowData.deworming)
-      rowData.deworming = rowData.deworming.toLowerCase() === 'yes';
+    rowData.lrn = rowData.lrn ? String(rowData.lrn) : null;
+    rowData.bloodPressure = rowData.bloodPressure
+      ? String(rowData.bloodPressure)
+      : null;
+
+    rowData.is4p = rowData.is4p.toLowerCase() === 'yes';
+    rowData.ironSupplementation =
+      rowData.ironSupplementation.toLowerCase() === 'yes';
+    rowData.deworming = rowData.deworming.toLowerCase() === 'yes';
+
     try {
       const { value, error } = validateStudentMedical(rowData, {
         abortEarly: false,

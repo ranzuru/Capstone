@@ -41,7 +41,6 @@ const employeeProfileSchema = new mongoose.Schema(
     },
     email: {
       type: String,
-      unique: true,
     },
     mobileNumber: {
       type: Number,
@@ -65,7 +64,7 @@ const employeeProfileSchema = new mongoose.Schema(
 );
 
 employeeProfileSchema.index(
-  { employeeId: 1, academicYear: 1 },
+  { employeeId: 1, academicYear: 1, email: 1 },
   { unique: true }
 );
 

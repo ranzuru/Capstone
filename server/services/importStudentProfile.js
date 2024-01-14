@@ -13,9 +13,18 @@ const importStudents = async (fileBuffer) => {
   const errors = [];
 
   for (let rowData of data) {
-    rowData.lrn =
-      rowData.lrn && rowData.lrn.result ? String(rowData.lrn.result) : null;
-    if (rowData.is4p) rowData.is4p = rowData.is4p.toLowerCase() === 'yes';
+    rowData.lrn = rowData.lrn ? String(rowData.lrn) : null;
+
+    // Convert parentContact1 and parentContact2 to strings, handling undefined or null
+    rowData.parentContact1 = String(rowData.parentContact1 || '');
+    rowData.parentContact2 = String(rowData.parentContact2 || '');
+
+    // Convert 'Yes'/'No' to true/false for is4p field
+    rowData.is4p = rowData.is4p.toLowerCase() === 'yes';
+    rowData.grade =
+      typeof rowData.grade === 'number'
+        ? `Grade ${rowData.grade}`
+        : rowData.grade;
 
     try {
       const { value, error } = validateStudentProfile(rowData, {

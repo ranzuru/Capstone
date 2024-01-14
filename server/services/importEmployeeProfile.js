@@ -13,10 +13,8 @@ const importEmployees = async (fileBuffer) => {
   const errors = [];
 
   for (let rowData of data) {
-    rowData.employeeId =
-      rowData.employeeId && rowData.employeeId.result
-        ? String(rowData.employeeId.result)
-        : null;
+    rowData.employeeId = rowData.employeeId ? String(rowData.employeeId) : null;
+    rowData.email = rowData.email ? String(rowData.email) : null;
     try {
       const { value, error } = validateEmployeeProfile(rowData, {
         abortEarly: false,
@@ -33,12 +31,24 @@ const importEmployees = async (fileBuffer) => {
         });
         continue;
       }
-
       value.academicYear = academicYear._id;
 
       employeeProfiles.push(value);
     } catch (validationError) {
-      if (validationError.details && Array.isArray(validationError.details)) {
+      const detailedError = validationError.details
+        ? validationError.details.map((detail) => detail.message).join('; ')
+        : validationError.message;
+      console.error(
+        'Validation error for employee ID',
+        rowData.employeeId,
+        ':',
+        detailedError
+      );
+      errors.push({
+        employeeId: rowData.employeeId || 'Unknown Employee ID',
+        errors: ['Validation error: ' + detailedError],
+      });
+      if (validationError.details) {
         errors.push({
           employeeId: rowData.employeeId || 'Unknown Employee ID',
           errors: validationError.details.map((detail) => detail.message),

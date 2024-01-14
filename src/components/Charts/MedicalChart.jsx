@@ -48,11 +48,11 @@ export const StudentMedicalBar = ({ schoolYear }) => {
         <Grid item xs={12}>
           <Box p={3}>
             <Typography variant="h6" gutterBottom>
-              Health Screening Outcomes by Condition
+              Health Screening Results by Condition for SY {schoolYear}
             </Typography>
             <Typography variant="body1" paragraph>
-              Comparative Analysis of Normal vs. Specific Conditions Across
-              Screening Categories.
+              Stacked bar chart showing normal versus abnormal findings in
+              various health screening categories.
             </Typography>
             <ResponsiveContainer width="100%" height={450}>
               <BarChart
@@ -144,7 +144,7 @@ export const ScreeningPerGrade = ({ schoolYear }) => {
         <Grid item xs={12}>
           <Box p={3}>
             <Typography variant="h6" gutterBottom>
-              Health Screening Concerns by Grade
+              Grade-Specific Health Screening Findings for SY {schoolYear}
             </Typography>
             <Typography variant="body1" paragraph>
               Detailed Breakdown of Non-Normal Findings in Student Health

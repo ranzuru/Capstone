@@ -13,7 +13,7 @@ const importDengue = async (fileBuffer) => {
   const errors = [];
 
   for (let rowData of data) {
-    rowData.lrn = rowData.lrn != null ? String(rowData.lrn) : rowData.lrn;
+    rowData.lrn = rowData.lrn ? String(rowData.lrn) : null;
     try {
       const { value, error } = validateDengue(rowData, { abortEarly: false });
       if (error) throw error;

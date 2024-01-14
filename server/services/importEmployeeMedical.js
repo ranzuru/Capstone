@@ -14,15 +14,10 @@ const importEmployeeMedical = async (fileBuffer) => {
   const errors = [];
 
   for (let rowData of data) {
-    rowData.employeeId =
-      rowData.employeeId && rowData.employeeId.result
-        ? String(rowData.employeeId.result)
-        : null;
-
-    rowData.bloodPressure =
-      rowData.bloodPressure != null
-        ? String(rowData.bloodPressure)
-        : rowData.bloodPressure;
+    rowData.employeeId = rowData.employeeId ? String(rowData.employeeId) : null;
+    rowData.bloodPressure = rowData.bloodPressure
+      ? String(rowData.bloodPressure)
+      : null;
     try {
       const { value, error } = validateEmployeeMedical(rowData, {
         abortEarly: false,

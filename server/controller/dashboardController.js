@@ -25,6 +25,7 @@ export const getDashboardCounts = async (req, res) => {
     const feedingProgramCount = await FeedingProgram.countDocuments({
       ...filter,
       beneficiaryOfSBFP: true,
+      measurementType: 'PRE',
     });
 
     // Send all counts in a single response
@@ -35,11 +36,9 @@ export const getDashboardCounts = async (req, res) => {
       feedingProgramCount,
     });
   } catch (error) {
-    res
-      .status(500)
-      .json({
-        message: 'Error fetching dashboard counts',
-        error: error.message,
-      });
+    res.status(500).json({
+      message: 'Error fetching dashboard counts',
+      error: error.message,
+    });
   }
 };

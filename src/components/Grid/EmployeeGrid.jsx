@@ -453,6 +453,7 @@ const EmployeeProfileGrid = () => {
               disableSelectionOnClick
               checkboxSelection
               loading={isLoading}
+              style={{ height: 650 }}
             />
           </Paper>
         </div>

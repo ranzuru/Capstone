@@ -44,10 +44,11 @@ export const BmiChart = ({ schoolYear }) => {
         <Grid item xs={12}>
           <Box p={3}>
             <Typography variant="h6" gutterBottom>
-              Nutritional Status Improvement After Feeding Program
+              BMI Classification Pre-Post Feeding Program for SY {schoolYear}
             </Typography>
             <Typography variant="body1" paragraph>
-              Comparison of Pre and Post-Intervention BMI Classifications
+              Bar chart comparison of BMI categories before and after a feeding
+              intervention.
             </Typography>
             <ResponsiveContainer width="100%" height={400}>
               <BarChart
@@ -100,10 +101,11 @@ export const BeneficiaryImpactChart = ({ schoolYear }) => {
         <Grid item xs={12}>
           <Box p={3}>
             <Typography variant="h6" gutterBottom>
-              Health Metrics Comparison: POST vs PRE Measurements
+              Health Metric Changes Pre-Post Intervention for SY {schoolYear}
             </Typography>
             <Typography variant="body1" paragraph>
-              Comparison of average BMI, weight, and height
+              Bar chart of average BMI, weight, and height before and after
+              health intervention.
             </Typography>
             <ResponsiveContainer width="100%" height={400}>
               <BarChart
@@ -165,10 +167,11 @@ export const MyPieChart = ({ schoolYear }) => {
         <Grid item xs={12}>
           <Box p={3}>
             <Typography variant="h6" gutterBottom>
-              Distribution of SBFP Beneficiaries by Grade Level
+              SBFP Beneficiary Breakdown by Grade for SY {schoolYear}
             </Typography>
             <Typography variant="body1" paragraph>
-              Proportional Representation Across Educational Stages
+              Pie chart showing the percentage of SBFP beneficiaries across
+              different grade levels.
             </Typography>
             <ResponsiveContainer width="100%" height={400}>
               <PieChart margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>

@@ -13,11 +13,10 @@ const importFeeding = async (fileBuffer) => {
   const errors = [];
 
   for (let rowData of data) {
-    rowData.lrn = rowData.lrn != null ? String(rowData.lrn) : rowData.lrn;
+    rowData.lrn = rowData.lrn ? String(rowData.lrn) : null;
 
-    if (rowData.beneficiaryOfSBFP)
-      rowData.beneficiaryOfSBFP =
-        rowData.beneficiaryOfSBFP.toLowerCase() === 'yes';
+    rowData.beneficiaryOfSBFP =
+      rowData.beneficiaryOfSBFP.toLowerCase() === 'yes';
     try {
       const { value, error } = validateFeeding(rowData, { abortEarly: false });
       if (error) throw error;

@@ -42,11 +42,11 @@ export const DewormingBar = ({ schoolYear }) => {
         <Grid item xs={12}>
           <Box p={3}>
             <Typography variant="h6" gutterBottom>
-              Deworming Distribution by Grade
+              Deworming Outcomes by Grade and 4Ps Status for SY {schoolYear}
             </Typography>
             <Typography variant="body1" paragraph>
-              Comparative overview of dewormed students across grades
-              categorized by participation in the 4Ps program.
+              Stacked bar chart comparing the number of dewormed students across
+              grades, segmented by 4Ps program participation.
             </Typography>
             <ResponsiveContainer width="100%" height={400}>
               <BarChart
@@ -161,10 +161,11 @@ export const DewormedPieChart = ({ schoolYear }) => {
         <Grid item xs={12}>
           <Box p={3}>
             <Typography variant="h6" gutterBottom>
-              Deworming Program Coverage Breakdown
+              4Ps Enrollment Impact on Deworming for SY {schoolYear}
             </Typography>
             <Typography variant="body1" paragraph>
-              Distribution of dewormed students by 4Ps enrollment status.
+              Pie chart showing the proportion of dewormed students segmented by
+              4Ps enrollment.
             </Typography>
             <ResponsiveContainer width="100%" height={400}>
               <PieChart margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>

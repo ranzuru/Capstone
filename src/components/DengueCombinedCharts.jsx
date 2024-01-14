@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Paper, Grid, Typography } from '@mui/material';
-import DengueCasesByGradePieChart from './Charts/DenguePieChart';
-import DengueBarChart from './Charts/DengueBarChart';
-import DengueCasesLineChart from './Charts/DengueLineChart';
-import DengueSummary from './Charts/DengueSummary';
+import {
+  DengueBarChart,
+  DengueCasesLineChart,
+  DengueSummary,
+  DengueCasesByGradePieChart,
+} from './Charts/DengueChart';
 import { SchoolYearSelect } from './SchoolYearSelect';
 import useFetchSchoolYears from '../hooks/useFetchSchoolYears';
 
