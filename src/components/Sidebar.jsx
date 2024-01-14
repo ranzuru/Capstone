@@ -4,8 +4,7 @@ import { sidebarItems } from '../components/SidebarItems';
 import SidebarLink from '../components/SidebarLink';
 import SidebarSubmenu from '../components/SidebarSubmenu';
 import MenuOutlinedIcon from '@mui/icons-material/MenuOutlined';
-import schoolLogo from '/assets/DonjuanTransparent.webp';
-import { useAuth } from '../hooks/useAuth';
+// import { useAuth } from '../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 
 function Sidebar() {
@@ -13,32 +12,26 @@ function Sidebar() {
   const [openedSubmenu, setOpenedSubmenu] = useState('');
   const navigate = useNavigate();
 
-  // bypass login - start
-  const { user, logout } = useAuth();
+  // const { user, logout } = useAuth();
 
-  const navigationScopes = user?.role?.navigationScopes || [];
+  // const navigationScopes = user?.role?.navigationScopes || [];
+  // const logoutItem = sidebarItems.find((item) => item.primary === 'Logout');
 
-  const settingsItem = sidebarItems.find((item) => item.primary === 'Settings');
-  const logoutItem = sidebarItems.find((item) => item.primary === 'Logout');
+  // const itemsToDisplay = sidebarItems
+  //   .filter((item) => {
+  //     if (item.type === 'link' && item.primary !== 'Logout') {
+  //       return navigationScopes.includes(item.primary);
+  //     } else if (item.type === 'submenu') {
+  //       item.submenuLinks = item.submenuLinks.filter((subItem) =>
+  //         navigationScopes.includes(subItem.primary)
+  //       );
+  //       return item.submenuLinks.length > 0;
+  //     }
+  //     return false;
+  //   })
+  //   .concat(logoutItem ? [logoutItem] : []); // Ensure logout is always included
 
-  const itemsToDisplay = sidebarItems
-    .filter((item) => {
-      if (
-        item.type === 'link' &&
-        item.primary !== 'Logout' &&
-        item.primary !== 'Settings'
-      ) {
-        return navigationScopes.includes(item.primary);
-      } else if (item.type === 'submenu') {
-        item.submenuLinks = item.submenuLinks.filter((subItem) =>
-          navigationScopes.includes(subItem.primary)
-        );
-        return item.submenuLinks.length > 0;
-      }
-      return false;
-    })
-    .concat(settingsItem ? [settingsItem] : [])
-    .concat(logoutItem ? [logoutItem] : []);
+  const itemsToDisplay = sidebarItems;
 
   const toggleSidebar = () => {
     setSidebarCollapsed(!isSidebarCollapsed);
@@ -46,7 +39,7 @@ function Sidebar() {
 
   const handleLogout = async () => {
     try {
-      await logout();
+      // await logout();
       navigate('/');
     } catch (error) {
       console.error('Logout error:', error);
