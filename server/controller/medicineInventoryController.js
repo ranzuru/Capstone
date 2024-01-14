@@ -244,6 +244,14 @@ export const postIn = async (req, res) => {
       ...data,
     });
 
+    const existingItemData = await MedicineItemSchema.find({
+      'itemId': newData.itemId,
+    });
+
+    const existingItemQuantity = existingItemData[0].quantity; // Accessing 'quantity' from the first document
+
+    const newQuantity = quantity + existingItemQuantity
+
     await newData.save();
 
     // LOG
@@ -257,14 +265,6 @@ export const postIn = async (req, res) => {
     const createdData = await MedicineInSchema.findById(
       newData._id
     );
-
-    const existingItemData = await MedicineItemSchema.find({
-      'itemId': newData.itemId,
-    });
-
-    const existingItemQuantity = existingItemData[0].quantity; // Accessing 'quantity' from the first document
-
-    const newQuantity = quantity + existingItemQuantity
     
     await MedicineItemSchema.updateOne(
       { 'itemId': newData.itemId },
@@ -659,19 +659,6 @@ export const postAdjustment = async (req, res) => {
       ...data,
     });
 
-    await newData.save();
-    // LOG
-    await createLog({
-      user: 'n/a',
-      section: 'Medicine Inventory - Adjustment',
-      action: 'CREATE/ POST',
-      description: JSON.stringify(newData),
-    });
-
-    const createdData = await MedicineAdjustmentSchema.findById(
-      newData._id
-    );
-
     const existingItemData = await MedicineItemSchema.find({
       'itemId': newData.itemId
     });
@@ -718,6 +705,20 @@ export const postAdjustment = async (req, res) => {
     } else {
       return res.status(400).send('Operation Failed: Addition and Subtraction are the only choices for adjusting quantity');
     }
+
+    await newData.save();
+    
+    // LOG
+    await createLog({
+      user: 'n/a',
+      section: 'Medicine Inventory - Adjustment',
+      action: 'CREATE/ POST',
+      description: JSON.stringify(newData),
+    });
+
+    const createdData = await MedicineAdjustmentSchema.findById(
+      newData._id
+    );
 
     await MedicineItemSchema.updateOne(
       { 'itemId': newData.itemId },

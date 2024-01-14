@@ -169,7 +169,7 @@ const Grid = () => {
 
   const handleDelete = async () => {
     try {
-      await axiosInstance.delete(`medicineInventory/deleteItem/${recordIdToDelete}`);
+      await axiosInstance.delete(`medicineInventory/deleteAdjustment/${recordIdToDelete}`);
 
       const updatedRecords = records.filter(
         (record) => record.id !== recordIdToDelete

@@ -7,7 +7,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import PropTypes from 'prop-types';
 // custom
 import CustomSnackbar from '../../custom/CustomSnackbar';
-import FormInput from '../../custom/CustomIdTextField';
+import FormInput from '../../custom/CustomIdTextField2';
 import FormSelect from '../../custom/CustomSelect';
 import CustomDatePicker from '../../custom/CustomDatePicker';
 
@@ -204,7 +204,7 @@ const Form = (props) => {
                   control={control}
                   name="itemId"
                   label="Item ID"
-                  textType="combine"
+                  textType="text"
                   error={errors.itemId}
                   disabled={selectedRecord !== null}
                 />
@@ -216,7 +216,7 @@ const Form = (props) => {
                   control={control}
                   name="batchId"
                   label="Batch ID"
-                  textType="combine"
+                  textType="text"
                   error={errors.batchId}
                   disabled={selectedRecord !== null}
                 />
@@ -228,7 +228,7 @@ const Form = (props) => {
                   control={control}
                   name="receiptId"
                   label="Receipt ID"
-                  textType="combine"
+                  textType="text"
                   error={errors.receiptId}
                 />
               </Grid>
@@ -258,7 +258,7 @@ const Form = (props) => {
                   control={control}
                   name="notes"
                   label="Notes/s"
-                  textType="combine"
+                  textType="text"
                   error={errors.notes}
                 />
               </Grid>
