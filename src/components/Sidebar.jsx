@@ -4,7 +4,7 @@ import { sidebarItems } from '../components/SidebarItems';
 import SidebarLink from '../components/SidebarLink';
 import SidebarSubmenu from '../components/SidebarSubmenu';
 import MenuOutlinedIcon from '@mui/icons-material/MenuOutlined';
-import { useAuth } from '../hooks/useAuth';
+// import { useAuth } from '../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 
 function Sidebar() {
@@ -33,7 +33,7 @@ function Sidebar() {
   //   .concat(logoutItem ? [logoutItem] : []); // Ensure logout is always included
   
   // bypass login - end
-  // remove comment tag below
+  
   const itemsToDisplay = sidebarItems;
 
   const toggleSidebar = () => {

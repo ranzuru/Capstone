@@ -1,10 +1,10 @@
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import { AuthProvider } from './context/AuthProvider'; //Eh comment out pag development
+// import { AuthProvider } from './context/AuthProvider'; //Eh comment out pag development
 import { ThemeProvider } from '@mui/material/styles';
 import Login from './components/Login';
 import theme from './theme/theme';
 import LayoutWithSidebar from './components/LayoutWithSidebar';
-import ProtectedRoute from './utils/ProtectedRoute'; //Eh comment out pag development
+// import ProtectedRoute from './utils/ProtectedRoute'; //Eh comment out pag development
 import PageNotFound from './pages/PageNotFound';
 import { SchoolYearProvider } from './context/SchoolYearContext';
 // Analytics
