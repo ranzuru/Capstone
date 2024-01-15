@@ -208,7 +208,6 @@ const Form = (props) => {
                   control={control}
                   name="reason"
                   label="Reason/s"
-                  textType="combine"
                   error={errors.reason}
                 />
               </Grid>
