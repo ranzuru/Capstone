@@ -235,9 +235,6 @@ export const postIn = async (req, res) => {
       ...data,
     });
 
-    await newData.save();
-    const createdData = await MedicineInSchema.findById(newData._id);
-
     const existingItemData = await MedicineItemSchema.find({
       itemId: newData.itemId,
     });
@@ -245,6 +242,9 @@ export const postIn = async (req, res) => {
     const existingItemQuantity = existingItemData[0].quantity; // Accessing 'quantity' from the first document
 
     const newQuantity = quantity + existingItemQuantity;
+
+    await newData.save();
+    const createdData = await MedicineInSchema.findById(newData._id);
 
     await MedicineItemSchema.updateOne(
       { itemId: newData.itemId },
@@ -608,9 +608,6 @@ export const postAdjustment = async (req, res) => {
       ...data,
     });
 
-    await newData.save();
-    const createdData = await MedicineAdjustmentSchema.findById(newData._id);
-
     const existingItemData = await MedicineItemSchema.find({
       itemId: newData.itemId,
     });
@@ -678,6 +675,10 @@ export const postAdjustment = async (req, res) => {
           'Operation Failed: Addition and Subtraction are the only choices for adjusting quantity'
         );
     }
+
+    await newData.save();
+    
+    const createdData = await MedicineAdjustmentSchema.findById(newData._id);
 
     await MedicineItemSchema.updateOne(
       { itemId: newData.itemId },

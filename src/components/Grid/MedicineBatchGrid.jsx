@@ -38,7 +38,7 @@ const Grid = () => {
       product: record.itemData?.[0]?.product || 'N/A',
       batchId: record.batchId || 'N/A',
       receiptId: record.receiptId || 'N/A',
-      totalBatchQuantity: record.totalBatchQuantity || 'N/A',
+      totalBatchQuantity: record.totalBatchQuantity !== undefined && record.totalBatchQuantity !== null ? record.totalBatchQuantity : "N/A",
       reason: record.reason || '',
       expirationDate: record.expirationDate
         ? formatYearFromDate(record.expirationDate)

@@ -65,7 +65,7 @@ const Grid = () => {
       expirationDate: record.expirationDate
         ? formatYearFromDate(record.expirationDate)
         : null,
-      quantity: record.quantity || 'N/A',
+        quantity: record.quantity !== undefined && record.quantity !== null ? record.quantity : "N/A",
       notes: record.notes || '',
       createdAt: record.createdAt ? formatYearFromDate(record.createdAt) : null,
       updatedAt: record.updatedAt ? formatYearFromDate(record.updatedAt) : null,
