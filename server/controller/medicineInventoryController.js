@@ -140,7 +140,7 @@ export const getAllBatch = async (req, res) => {
     handleError(res, err);
   }
 };
-
+// read
 export const getAllBatchNotExpired = async (req, res) => {
   try {
     const data = await MedicineInSchema.find({
@@ -282,6 +282,52 @@ export const getAllIn = async (req, res) => {
     res.send(populatedData);
   } catch (err) {
     handleError(res, err);
+  }
+};
+// read
+export const getAllInAutoComplete = async (req, res) => {
+  try {
+    const { search = '', page = 1, limit = 10 } = req.query;
+
+    // Building the search query with a condition for 'status' being 'Active'
+    const searchQuery = {
+      ...(search
+        ? {
+            $or: [
+              { itemId: { $regex: search, $options: 'i' } },
+              { batchId: { $regex: search, $options: 'i' } },
+            ],
+          }
+        : {}),
+    };
+
+    const total = await MedicineInSchema.countDocuments(searchQuery);
+    const medicineData = await MedicineInSchema.find(
+      searchQuery,
+      'itemId batchId'
+    )
+      .skip((page - 1) * limit)
+      .limit(limit);
+
+     // Fetch additional data for each medicine item using Promise.all
+     const fetchDataPromises = medicineData.map(async (medicineItem) => {
+      const itemId = medicineItem.itemId;
+
+      // Find related dispense data
+      const itemData = await MedicineItemSchema.find({ itemId });
+
+      // Combine all data for the batch record
+      return {
+        ...medicineItem.toObject(),
+        itemData: itemData,
+      };
+    });
+
+    const enhancedMedicineData = await Promise.all(fetchDataPromises);
+
+    res.json({ data: enhancedMedicineData, total, page, limit });
+  } catch (error) {
+    res.status(500).send('Error fetching employee profiles: ' + error.message);
   }
 };
 

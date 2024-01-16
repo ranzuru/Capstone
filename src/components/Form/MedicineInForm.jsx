@@ -29,6 +29,7 @@ import {
 // others
 import { parseISO } from 'date-fns';
 import { statusOptions } from '../../others/dropDownOptions';
+import AutoComplete from '../MedicineItemAutoComplete.jsx';
 
 const Form = (props) => {
   const { open, onClose, initialData, addNewRecord, selectedRecord, onUpdate } =
@@ -137,6 +138,14 @@ const Form = (props) => {
     }
   };
 
+  const handleMedicineSelect = (data) => {
+    if (!data) {
+      reset(); // This assumes you've defined the default values at useForm hook initialization
+      return;
+    }
+    setValue('itemId', data.itemId);
+  };
+
   const handleClose = () => {
     reset();
     onClose();
@@ -192,6 +201,11 @@ const Form = (props) => {
         <form onSubmit={handleSubmit(handleSaveOrUpdate)}>
           <DialogContent>
             <DialogContentText>Enter record details:</DialogContentText>
+            <Grid container spacing={2}>
+              <Grid item xs={12} md={12}>
+                <AutoComplete onSelect={handleMedicineSelect} displayBatch={false}/>
+              </Grid>
+            </Grid>
             <Divider />
             <Grid container spacing={2}>
               <Grid item xs={12} md={12}>

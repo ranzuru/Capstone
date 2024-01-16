@@ -264,7 +264,7 @@ const Grid = () => {
               color="primary"
               onClick={handleModalOpen}
             >
-              New Record
+              New Item
             </Button>
             <div className="ml-2">
               <TextField
