@@ -1,5 +1,8 @@
 import ClinicVisitSchema from '../models/ClinicVisit.js';
 import MedicineItemSchema from '../models/MedicineItem.js';
+import MedicineInSchema from '../models/MedicineIn.js';
+import MedicineDispenseSchema from '../models/MedicineDispense.js';
+import MedicineAdjustmentSchema from '../models/MedicineAdjustment.js';
 import AcademicYear from '../models/AcademicYear.js';
 import { handleError } from '../utils/handleError.js';
 import { validate } from '../schema/clinicVisitValidation.js';
@@ -9,6 +12,7 @@ import { createLog } from './createLogController.js';
 export const post = async (req, res) => {
   try {
     const { schoolYear, ...data } = req.body;
+    const { medicine, quantity } = req.body
 
     // validate data
     const { error } = validate({ schoolYear, ...data });
@@ -17,6 +21,41 @@ export const post = async (req, res) => {
     // find the academic year using the schoolYear field
     const academicYear = await AcademicYear.findOne({ schoolYear });
     if (!academicYear) return res.status(400).send('Invalid academic year.');
+
+    if (medicine) {
+      const existingInData = await MedicineInSchema.findOne({
+        medicine
+      });
+      const existingInQuantity = existingInData.quantity; // Accessing 'quantity' from the first document
+      const existingDispenseData = await MedicineDispenseSchema.find({
+        'itemId': existingInData.itemId,
+        'batchId': existingInData.batchId,
+      });
+      const existingAdditionAdjustmentData = await MedicineAdjustmentSchema.find({
+        'itemId': existingInData.itemId,
+        'batchId': existingInData.batchId,
+        'type': 'Addition',
+      });
+      const existingSubtractionAdjustmentData = await MedicineAdjustmentSchema.find({
+        'itemId': existingInData.itemId,
+        'batchId': existingInData.batchId,
+        'type': 'Subtraction',
+      });
+      
+      const existingDispenseTotalQuantity = existingDispenseData.reduce((acc, record) => acc + record.quantity, 0);
+      const existingAdditionAdjustmentTotalQuantity = existingAdditionAdjustmentData.reduce((acc, record) => acc + record.quantity, 0);
+      const existingSubtractionAdjustmentTotalQuantity = existingSubtractionAdjustmentData.reduce((acc, record) => acc + record.quantity, 0);
+      let existingInAdditionSubtractionTotalQuantity 
+        = Math.abs((existingInQuantity 
+        + existingAdditionAdjustmentTotalQuantity) 
+        - existingSubtractionAdjustmentTotalQuantity)
+        - existingDispenseTotalQuantity;
+      console.log(`existingInAdditionSubtractionTotalQuantity: `, existingInAdditionSubtractionTotalQuantity)
+      
+      if (quantity > existingInAdditionSubtractionTotalQuantity) {
+        return res.status(400).send('Operation Failed: The current dispensing quantity is greater than the remaining quantity');
+      }
+    }
 
     // create a new data with the academic year ObjectId
     const newData = new ClinicVisitSchema({
@@ -54,18 +93,16 @@ export const post = async (req, res) => {
 export const getAll = async (req, res) => {
   try {
     const data =
-      await ClinicVisitSchema.find().populate('academicYear').populate('medicine');
+      await ClinicVisitSchema.find().populate('academicYear');
     
       const populatedData = await Promise.all(data.map(async (data) => {
-        const itemId = data.medicine.itemId;
-
-        const itemData = await MedicineItemSchema.find({ itemId });
-
-        const product = itemData.map(item => item.product);
+        const itemData = await MedicineItemSchema.find({
+          product: data.medicine,
+        });
   
         return {
           ...data.toObject(),
-          itemData: product,
+          itemData: itemData.map((item) => item.product),
         };
       }));
 

@@ -50,9 +50,8 @@ const schema = new mongoose.Schema(
       required: true,
     },
     medicine: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: String,
       ref: 'medicineIn',
-      required: true,
     },
     quantity: {
       type: Number,

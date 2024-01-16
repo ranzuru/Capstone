@@ -10,6 +10,7 @@ import {
 
     postIn,
     getAllIn,
+    getAllInAutoComplete,
     updateIn,
     deleteIn,
 
@@ -38,6 +39,7 @@ router.get('/getAllBatchNotExpired', getAllBatchNotExpired);
 // IN
 router.post('/postIn', postIn);
 router.get('/getAllIn', getAllIn);
+router.get('/getAllInAutoComplete', getAllInAutoComplete);
 router.put('/updateIn/:id', updateIn);
 router.delete('/deleteIn/:id', deleteIn);
 // DISPENSE

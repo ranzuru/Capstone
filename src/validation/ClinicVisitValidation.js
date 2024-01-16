@@ -15,7 +15,7 @@ const Validation = Yup.object().shape({
   issueDate: Yup.date().required('Issue Date is required'),
   malady: Yup.string().required('Malady is required'),
   reason: Yup.string().required('Reason/s is required'),
-  medicine: Yup.string().required('Medicine is required'),
+  medicine: Yup.string().nullable(),
   quantity: Yup.number().integer().required('Quantity is required'),
   remarks: Yup.string().nullable(),
 });

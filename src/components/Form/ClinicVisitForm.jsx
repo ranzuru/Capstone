@@ -144,23 +144,31 @@ const Form = (props) => {
         '/clinicVisit/post',
         data
       );
-
+  
       // Check if the first request was successful
       if (responseClinicVisit.data && responseClinicVisit.data._id) {
-        // Pass the clinic visit ID to the second request
-        const responseDispense = await axiosInstance.post(
-          '/medicineInventory/postDispenseClinicVisit',
-          { ...data, clinicVisitId: responseClinicVisit.data._id }
-        );
-
-        // Check if the second request was successful
-        if (responseDispense.data && responseDispense.data._id) {
+        // Check if the medicine field is not empty
+        if (data.medicine) {
+          // Pass the clinic visit ID to the second request
+          const responseDispense = await axiosInstance.post(
+            '/medicineInventory/postDispenseClinicVisit',
+            { ...data, clinicVisitId: responseClinicVisit.data._id }
+          );
+  
+          // Check if the second request was successful
+          if (responseDispense.data && responseDispense.data._id) {
+            // Update the UI or state as needed
+            addNewRecord(responseClinicVisit.data);
+            showSnackbar('Successfully added new record', 'success');
+            handleClose();
+          } else {
+            showSnackbar('Operation failed', 'error');
+          }
+        } else {
           // Update the UI or state as needed
           addNewRecord(responseClinicVisit.data);
           showSnackbar('Successfully added new record', 'success');
           handleClose();
-        } else {
-          showSnackbar('Operation failed', 'error');
         }
       } else {
         showSnackbar('Operation failed', 'error');
@@ -169,6 +177,7 @@ const Form = (props) => {
       handleError(error, 'adding record');
     }
   };
+  
 
   const handleUpdateRecord = async (id, updatedData) => {
     try {
@@ -467,7 +476,7 @@ const Form = (props) => {
                   label="Quantity"
                   textType="number"
                   error={errors.age}
-                  disabled={selectedRecord !== null}
+                  disabled={!watch('medicine') || selectedRecord !== null}
                 />
               </Grid> 
               <Grid item xs={12} md={4}>
