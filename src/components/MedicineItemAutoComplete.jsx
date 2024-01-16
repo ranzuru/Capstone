@@ -7,7 +7,7 @@ import axiosInstance from '../config/axios-instance';
 import debounce from 'lodash/debounce';
 import SearchIcon from '@mui/icons-material/Search';
 
-const AutoComplete = ({ onSelect }) => {
+const AutoComplete = ({ onSelect, displayBatchOnly  }) => {
   const [inputValue, setInputValue] = useState('');
   const [options, setOptions] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -48,8 +48,10 @@ const AutoComplete = ({ onSelect }) => {
     <Autocomplete
       options={options}
       getOptionLabel={(option) =>
-        `Medicine: [${option.itemId}] ${option.itemData.map(item => item.product).join(',')} | Batch: ${option.batchId}`
-      }      
+        displayBatchOnly
+          ? `Batch: ${option.batchId}`
+          : `Medicine: [${option.itemId}] ${option.itemData.map(item => item.product).join(',')} | Batch: ${option.batchId}`
+      }     
       fullWidth
       popupIcon={<SearchIcon />}
       inputValue={inputValue}
@@ -91,6 +93,7 @@ const AutoComplete = ({ onSelect }) => {
 
 AutoComplete.propTypes = {
   onSelect: PropTypes.func, // Optional callback for additional handling when a student is selected
+  displayBatchOnly: PropTypes.bool,
 };
 
 export default AutoComplete;
