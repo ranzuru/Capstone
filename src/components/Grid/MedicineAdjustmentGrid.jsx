@@ -58,7 +58,10 @@ const Grid = () => {
       product: record.itemData?.[0]?.product || 'N/A',
       batchId: record.batchId || 'N/A',
       type: record.type || 'N/A',
-      quantity: record.quantity !== undefined && record.quantity !== null ? record.quantity : "N/A",
+      quantity:
+        record.quantity !== undefined && record.quantity !== null
+          ? record.quantity
+          : '0',
       reason: record.reason || '',
       createdAt: record.createdAt ? formatYearFromDate(record.createdAt) : null,
       updatedAt: record.updatedAt ? formatYearFromDate(record.updatedAt) : null,

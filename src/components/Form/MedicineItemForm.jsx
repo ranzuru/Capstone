@@ -26,13 +26,10 @@ import {
   Divider,
 } from '@mui/material';
 // others
-import {
-  statusOptions,
-} from '../../others/dropDownOptions';
-
+import { statusOptions } from '../../others/dropDownOptions';
 
 const Form = (props) => {
-  const { open, onClose, initialData, addNewRecord, selectedRecord, onUpdate, } =
+  const { open, onClose, initialData, addNewRecord, selectedRecord, onUpdate } =
     props;
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarData, setSnackbarData] = useState({
@@ -68,7 +65,7 @@ const Form = (props) => {
     resolver: yupResolver(Validation),
   });
 
-  // console.log(errors) 
+  // console.log(errors)
 
   useEffect(() => {
     reset({
@@ -154,7 +151,6 @@ const Form = (props) => {
       fields.forEach((field) => {
         setValue(field, selectedRecord[field] || '');
       });
-
     }
   }, [selectedRecord, setValue]);
 
@@ -186,7 +182,6 @@ const Form = (props) => {
                   control={control}
                   name="product"
                   label="Product"
-                  textType="text"
                   error={errors.product}
                 />
               </Grid>
@@ -207,18 +202,16 @@ const Form = (props) => {
                   control={control}
                   name="dosagePer"
                   label="Dosage (Each/ Per)"
-                  textType="text"
                   error={errors.dosagePer}
                 />
               </Grid>
             </Grid>
             <Grid container spacing={2}>
-            <Grid item xs={12} md={12}>
+              <Grid item xs={12} md={12}>
                 <FormInput
                   control={control}
                   name="description"
                   label="Description"
-                  textType="text"
                   error={errors.description}
                 />
               </Grid>

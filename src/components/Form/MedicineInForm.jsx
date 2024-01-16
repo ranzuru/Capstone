@@ -250,7 +250,6 @@ const Form = (props) => {
                   control={control}
                   name="notes"
                   label="Notes/s"
-                  textType="combine"
                   error={errors.notes}
                 />
               </Grid>

@@ -56,7 +56,10 @@ const Grid = () => {
       id: record._id,
       itemId: record.itemId || 'N/A',
       product: record.product || 'N/A',
-      quantity: record.quantity !== undefined && record.quantity !== null ? record.quantity : "N/A",
+      quantity:
+        record.quantity !== undefined && record.quantity !== null
+          ? record.quantity
+          : '0',
       dosagePer: record.dosagePer || 'N/A',
       description: record.description || '',
       createdAt: record.createdAt ? formatYearFromDate(record.createdAt) : null,
