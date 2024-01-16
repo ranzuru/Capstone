@@ -13,7 +13,7 @@ const ValidationSchema = Joi.object({
   issueDate: Joi.date().required(),
   mobileNumber: Joi.string().required(),
   address: Joi.string().required(),
-  medicine: Joi.string().required(),
+  medicine: Joi.string().allow('', null),
   quantity: Joi.number().required(),
   malady: Joi.string().required(),
   reason: Joi.string().required(),
