@@ -432,72 +432,115 @@ const generateComparisonSummary = (data) => {
     // Handling the case with data for only one year
     const year = years[0];
     const yearData = data[year];
-    summary += `For the school year ${year}, there were ${yearData.totalCases} reported cases of dengue. `;
-    summary += `Out of these, ${yearData.hospitalizedCases} cases required hospitalization, which is a rate of ${yearData.hospitalizationRate}%. `;
-    summary += `This suggests that ${
-      yearData.hospitalizationRate > 10 ? 'a significant' : 'a small'
-    } number of dengue cases were severe enough to require hospital care. `;
-    summary += `The average age of affected individuals was ${
-      yearData.ageStats.mean !== null
-        ? yearData.ageStats.mean.toFixed(2)
-        : 'N/A'
+
+    summary += `In school year ${year}, there were ${yearData.totalCases} reported dengue cases. `;
+    summary += `Hospitalizations accounted for ${yearData.hospitalizedCases} (${yearData.hospitalizationRate}%) of these, `;
+    summary += `which ${
+      yearData.hospitalizationRate > 50
+        ? 'indicates that a slight majority'
+        : yearData.hospitalizationRate === 50
+          ? 'shows that exactly half'
+          : yearData.hospitalizationRate >= 10 &&
+              yearData.hospitalizationRate <= 50
+            ? 'highlights that a substantial portion'
+            : 'suggests that only a limited number'
+    }`;
+    summary += `of the cases ${
+      yearData.hospitalizationRate > 50
+        ? 'required'
+        : yearData.hospitalizationRate === 50
+          ? 'required'
+          : yearData.hospitalizationRate > 10
+            ? 'were severe enough to necessitate'
+            : 'did not require'
+    } hospital care. `;
+    summary += `This level of hospitalization ${
+      yearData.hospitalizationRate > 55
+        ? 'points to a greater severity among these cases'
+        : yearData.hospitalizationRate >= 45 &&
+            yearData.hospitalizationRate <= 55
+          ? 'suggests a moderate severity in comparison to the total cases'
+          : 'may indicate a less severe impact on overall health outcomes'
+    } compared to the total number of reported cases.`;
+    summary += `The average age of individuals affected was ${
+      yearData.ageStats.mean.toFixed(2) || 'N/A'
     } years. `;
-    summary += `Gender-wise, there were ${
-      yearData.genderBreakdown.Male
-    } male and ${yearData.genderBreakdown.Female} female cases, indicating ${
-      yearData.genderBreakdown.Male > yearData.genderBreakdown.Female
-        ? 'a higher prevalence among males'
-        : 'a more balanced distribution between genders'
+    summary += `Gender distribution data shows ${
+      yearData.genderBreakdown.Male || 0
+    } male and ${yearData.genderBreakdown.Female || 0} female cases, `;
+    summary += `pointing to ${
+      yearData.genderBreakdown.Female > yearData.genderBreakdown.Male
+        ? 'higher female susceptibility'
+        : yearData.genderBreakdown.Male > yearData.genderBreakdown.Female
+          ? 'higher male susceptibility'
+          : 'a balanced gender impact'
     }.\n`;
   } else {
-    // Comparative analysis for two years
     const [firstYear, secondYear] = years;
     const firstData = data[firstYear],
       secondData = data[secondYear];
 
+    // Comparative analysis for dengue cases
     summary += `Comparing the school years ${firstYear} and ${secondYear}, `;
     summary += `the number of dengue cases was ${
-      firstData.totalCases > secondData.totalCases ? 'higher' : 'lower'
+      firstData.totalCases === secondData.totalCases
+        ? 'the same'
+        : firstData.totalCases > secondData.totalCases
+          ? 'higher'
+          : 'lower'
     } in ${firstYear} with ${firstData.totalCases} cases, compared to ${
       secondData.totalCases
     } in ${secondYear}. `;
+
+    // Comparative analysis for hospitalization rate
+    const firstRate = parseFloat(firstData.hospitalizationRate);
+    const secondRate = parseFloat(secondData.hospitalizationRate);
     summary += `The hospitalization rate ${
-      parseFloat(firstData.hospitalizationRate) >
-      parseFloat(secondData.hospitalizationRate)
-        ? 'decreased'
-        : 'increased'
+      firstRate === secondRate
+        ? 'remained stable'
+        : firstRate > secondRate
+          ? 'decreased'
+          : 'increased'
     } from ${firstData.hospitalizationRate}% to ${
       secondData.hospitalizationRate
-    }%, `;
-    summary += `suggesting that the cases were ${
-      parseFloat(firstData.hospitalizationRate) >
-      parseFloat(secondData.hospitalizationRate)
-        ? 'more severe'
-        : 'less severe'
+    }%. `;
+    summary += `This suggests that the cases were ${
+      firstRate > secondRate ? 'more severe' : 'less severe'
     } or the healthcare response was ${
-      parseFloat(firstData.hospitalizationRate) >
-      parseFloat(secondData.hospitalizationRate)
-        ? 'less effective'
-        : 'more effective'
+      firstRate > secondRate ? 'less effective' : 'more effective'
     } in ${secondYear}. `;
-    summary += `The average age of those affected slightly ${
-      firstData.ageStats.mean > secondData.ageStats.mean
-        ? 'decreased'
-        : 'increased'
-    } from ${
-      firstData.ageStats.mean !== null
-        ? firstData.ageStats.mean.toFixed(2)
-        : 'N/A'
-    } to ${
-      secondData.ageStats.mean !== null
-        ? secondData.ageStats.mean.toFixed(2)
-        : 'N/A'
-    } years. `;
+
+    // Comparative analysis for average age
+    const firstMeanAge = firstData.ageStats.mean;
+    const secondMeanAge = secondData.ageStats.mean;
+    summary += `The average age of those affected ${
+      firstMeanAge === secondMeanAge
+        ? 'remained constant'
+        : firstMeanAge > secondMeanAge
+          ? 'decreased'
+          : 'increased'
+    } from ${firstMeanAge.toFixed(2)} to ${secondMeanAge.toFixed(2)} years. `;
+
+    // Comparative analysis for gender distribution
+    const firstYearMaleCases = firstData.genderBreakdown.Male;
+    const secondYearMaleCases = secondData.genderBreakdown.Male;
+    const firstYearFemaleCases = firstData.genderBreakdown.Female;
+    const secondYearFemaleCases = secondData.genderBreakdown.Female;
+
+    const maleCaseChange =
+      ((secondYearMaleCases - firstYearMaleCases) / firstYearMaleCases) * 100;
+    const femaleCaseChange =
+      ((secondYearFemaleCases - firstYearFemaleCases) / firstYearFemaleCases) *
+      100;
+
     summary += `Regarding gender distribution, the number of male cases was ${
-      firstData.genderBreakdown.Male > secondData.genderBreakdown.Male
-        ? 'higher'
-        : 'lower'
-    } in ${firstYear} compared to ${secondYear}.`;
+      firstYearMaleCases > secondYearMaleCases ? 'higher' : 'lower'
+    } in ${firstYear} (${firstYearMaleCases} cases) compared to ${secondYear} (${secondYearMaleCases} cases), `;
+    summary += `a change of ${maleCaseChange.toFixed(2)}%. `;
+    summary += `For female cases, the number was ${
+      firstYearFemaleCases > secondYearFemaleCases ? 'higher' : 'lower'
+    } in ${firstYear} (${firstYearFemaleCases} cases) compared to ${secondYear} (${secondYearFemaleCases} cases), `;
+    summary += `a change of ${femaleCaseChange.toFixed(2)}%.`;
   }
 
   return summary;

@@ -22,6 +22,7 @@ import {
 } from '../controller/medicineInventoryController.js';
 import { authenticateUser } from '../middleware/authenticateMiddleware.js';
 import { logActionsMiddleware } from '../middleware/logActionMiddleware.js';
+import { getAllBatchNearExpiry } from '../controller/dashboardController.js';
 
 const router = express.Router();
 
@@ -55,5 +56,7 @@ router.post('/postAdjustment', logActionsMiddleware, postAdjustment);
 router.get('/getAllAdjustment', getAllAdjustment);
 router.put('/updateAdjustment/:id', logActionsMiddleware, updateAdjustment);
 router.delete('/deleteAdjustment/:id', logActionsMiddleware, deleteAdjustment);
+// Dashboard
+router.get('/medicineDashboard', getAllBatchNearExpiry);
 
 export default router;

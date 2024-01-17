@@ -284,7 +284,6 @@ const processComparisonData = (reports, academicYears) => {
       (report) => report.academicYear === academicYear.schoolYear
     );
 
-    // Assuming each report has a 'totalStudents' and 'totalDewormed' field
     const totalStudents = yearReports.reduce(
       (sum, report) => sum + report.totalStudents,
       0
@@ -296,12 +295,15 @@ const processComparisonData = (reports, academicYears) => {
     const dewormingRate =
       totalStudents > 0 ? (totalDewormed / totalStudents) * 100 : 0;
 
-    // Assuming 'ageDistribution' is an array of ages from all the reports
     const ageData = yearReports.flatMap((report) => report.ageDistribution);
-    const genderData = yearReports.flatMap((report) => report.gender); // Assuming 'gender' is a field in each report
+
+    // New approach for gender breakdown
+    let genderBreakdown = yearReports.reduce((acc, report) => {
+      acc[report.gender] = (acc[report.gender] || 0) + report.totalStudents;
+      return acc;
+    }, {});
 
     const ageStats = getStatistics(ageData);
-    const genderBreakdown = _.countBy(genderData);
 
     processedData[academicYear.schoolYear] = {
       totalStudents,
@@ -349,18 +351,17 @@ const generateComparisonSummary = (data) => {
     summary += `Out of these, ${yearData.totalDewormed} students were dewormed, which is a rate of ${yearData.dewormingRate}%. `;
     summary += `This suggests that ${
       yearData.dewormingRate > 10 ? 'a significant' : 'a small'
-    } portion of the student population required deworming. `;
+    } portion of the student population gets deworm. `;
     summary += `The average age of the students was ${yearData.ageStats.mean.toFixed(
       2
     )} years. `;
-    summary += `Gender-wise, there were ${
-      yearData.genderBreakdown.Male
-    } male and ${
-      yearData.genderBreakdown.Female
-    } female students dewormed, indicating ${
+    summary += `In terms of gender, ${yearData.genderBreakdown.Male} male and ${yearData.genderBreakdown.Female} female students were dewormed. `;
+    summary += `This indicates ${
       yearData.genderBreakdown.Male > yearData.genderBreakdown.Female
         ? 'a higher prevalence among males'
-        : 'a more balanced distribution between genders'
+        : yearData.genderBreakdown.Male < yearData.genderBreakdown.Female
+          ? 'a higher prevalence among females'
+          : 'an equal distribution between genders'
     }.\n`;
   } else {
     const [firstYear, secondYear] = years;
@@ -369,29 +370,47 @@ const generateComparisonSummary = (data) => {
 
     summary += `Comparing the school years ${firstYear} and ${secondYear}, `;
     summary += `the number of dewormed students was ${
-      firstData.totalDewormed > secondData.totalDewormed ? 'higher' : 'lower'
+      firstData.totalDewormed > secondData.totalDewormed
+        ? 'higher'
+        : firstData.totalDewormed < secondData.totalDewormed
+          ? 'lower'
+          : 'the same'
     } in ${firstYear} with ${firstData.totalDewormed} students, compared to ${
       secondData.totalDewormed
     } in ${secondYear}. `;
     summary += `The deworming rate ${
       parseFloat(firstData.dewormingRate) > parseFloat(secondData.dewormingRate)
         ? 'increased'
-        : 'decreased'
-    } from ${firstData.dewormingRate}% to ${secondData.dewormingRate}%, `;
-    summary += `indicating that ${
-      parseFloat(firstData.dewormingRate) > parseFloat(secondData.dewormingRate)
-        ? 'more students required treatment'
-        : 'fewer students required treatment'
-    } in ${secondYear}. `;
+        : parseFloat(firstData.dewormingRate) <
+            parseFloat(secondData.dewormingRate)
+          ? 'decreased'
+          : 'remained the same'
+    } from ${firstData.dewormingRate}% to ${secondData.dewormingRate}%. `;
     summary += `The average age of students ${
       firstData.ageStats.mean > secondData.ageStats.mean
         ? 'decreased'
-        : 'increased'
+        : firstData.ageStats.mean < secondData.ageStats.mean
+          ? 'increased'
+          : 'stayed consistent'
     } from ${firstData.ageStats.mean.toFixed(
       2
     )} to ${secondData.ageStats.mean.toFixed(2)} years. `;
     summary += `Regarding gender distribution, in ${firstYear} there were ${firstData.genderBreakdown.Male} male and ${firstData.genderBreakdown.Female} female students dewormed, `;
-    summary += `compared to ${secondData.genderBreakdown.Male} male and ${secondData.genderBreakdown.Female} female students in ${secondYear}.`;
+    summary += `compared to ${secondData.genderBreakdown.Male} male and ${secondData.genderBreakdown.Female} female students in ${secondYear}, `;
+    summary += `indicating ${
+      firstData.genderBreakdown.Male - secondData.genderBreakdown.Male > 0
+        ? 'a decrease'
+        : firstData.genderBreakdown.Male - secondData.genderBreakdown.Male < 0
+          ? 'an increase'
+          : 'no significant change'
+    } in male deworming, and ${
+      firstData.genderBreakdown.Female - secondData.genderBreakdown.Female > 0
+        ? 'a decrease'
+        : firstData.genderBreakdown.Female - secondData.genderBreakdown.Female <
+            0
+          ? 'an increase'
+          : 'no significant change'
+    } in female deworming between the two years.`;
   }
 
   return summary;

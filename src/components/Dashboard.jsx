@@ -12,6 +12,7 @@ import { SchoolYearDashboard } from './SchoolYearDashboard';
 import { useAuth } from '../hooks/useAuth';
 import { useSchoolYear } from '../hooks/useSchoolYear.js';
 import axiosInstance from '../config/axios-instance.js';
+import MedicineDashboard from './MedicineDashboard.jsx';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -124,6 +125,12 @@ const Dashboard = () => {
                   Select School Year:
                 </Typography>
                 <SchoolYearDashboard />
+              </Grid>
+              <Grid item xs={12}>
+                <Typography variant="h6" component="div" gutterBottom>
+                  Medicine
+                </Typography>
+                <MedicineDashboard />
               </Grid>
             </Grid>
           </div>

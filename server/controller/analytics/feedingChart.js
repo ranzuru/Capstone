@@ -1,7 +1,5 @@
 import FeedingProgram from '../../models/FeedingProgram.js';
 import AcademicYear from '../../models/AcademicYear.js';
-import _ from 'lodash';
-import { mean, median, mode, variance } from 'simple-statistics';
 
 // Bar
 
@@ -246,65 +244,66 @@ const fetchFeedingReportsSummary = async (academicYearIds) => {
     },
     {
       $lookup: {
-        from: AcademicYear.collection.name, // This should match your collection name
+        from: AcademicYear.collection.name,
         localField: 'academicYear',
         foreignField: '_id',
         as: 'academicYearDetails',
       },
     },
     {
-      $unwind: {
-        path: '$academicYearDetails',
-        preserveNullAndEmptyArrays: true,
-      },
+      $unwind: '$academicYearDetails',
     },
     {
       $group: {
         _id: {
           academicYear: '$academicYearDetails.schoolYear',
           measurementType: '$measurementType',
-          grade: '$grade',
-          gender: '$gender',
-          bmiClassification: '$bmiClassification', // Grouping by BMI classification
-          heightForAge: '$heightForAge', // Grouping by height for age
+          bmiClassification: '$bmiClassification',
         },
-        totalStudents: { $sum: 1 },
-        totalBeneficiaries: { $sum: { $cond: ['$beneficiaryOfSBFP', 1, 0] } },
-        averageBMI: { $avg: '$bmi' },
-        averageHeight: { $avg: '$heightCm' },
-        averageWeight: { $avg: '$weightKg' },
-        averageAge: { $avg: '$age' }, // Calculating the average age
-        ageDistribution: { $push: '$age' }, // Collecting ages for distribution
+        count: { $sum: 1 },
+        totalBeneficiaries: {
+          $sum: {
+            $cond: {
+              if: {
+                $and: [
+                  { $eq: ['$measurementType', 'PRE'] },
+                  '$beneficiaryOfSBFP',
+                ],
+              },
+              then: 1,
+              else: 0,
+            },
+          },
+        },
       },
     },
+    {
+      $group: {
+        _id: {
+          academicYear: '$_id.academicYear',
+          measurementType: '$_id.measurementType',
+        },
+        totalStudents: { $sum: '$count' },
+        totalBeneficiaries: { $sum: '$totalBeneficiaries' },
+        bmiClassificationCounts: {
+          $push: {
+            k: '$_id.bmiClassification',
+            v: '$count',
+          },
+        },
+      },
+    },
+
     {
       $project: {
         _id: 0,
         academicYear: '$_id.academicYear',
         measurementType: '$_id.measurementType',
-        grade: '$_id.grade',
-        gender: '$_id.gender',
-        bmiClassification: '$_id.bmiClassification', // Including BMI classification in the projection
-        heightForAge: '$_id.heightForAge', // Including height for age
         totalStudents: 1,
         totalBeneficiaries: 1,
-        averageBMI: 1,
-        averageHeight: 1,
-        averageWeight: 1,
-        averageAge: 1,
-        ageDistribution: 1, // Including the age distribution in the projection
+        bmiClassificationCount: { $arrayToObject: '$bmiClassificationCounts' },
       },
     },
-    {
-      $sort: {
-        academicYear: 1,
-        grade: 1,
-        gender: 1,
-        measurementType: 1,
-        bmiClassification: 1,
-        heightForAge: 1,
-      },
-    }, // Sorting the results
   ]);
 };
 
@@ -315,80 +314,40 @@ const processComparisonData = (reports, academicYears) => {
     const yearReports = reports.filter(
       (report) => report.academicYear === academicYear.schoolYear
     );
-    // Process the data for each year
-    const metrics = yearReports.reduce(
-      (acc, report) => {
-        acc.totalStudents += report.totalStudents;
-        acc.totalBeneficiaries += report.totalBeneficiaries;
-        acc.averageBMI.push(report.averageBMI);
-        acc.averageHeight.push(report.averageHeight);
-        acc.averageWeight.push(report.averageWeight);
-        acc.ageDistribution.push(...report.ageDistribution);
-        acc.bmiClassification.push(report.bmiClassification); // Corrected
-        acc.heightForAge.push(report.heightForAge);
-        return acc;
-      },
-      {
+
+    // Initialize the structure for each report type
+    const metrics = {
+      PRE: {
         totalStudents: 0,
         totalBeneficiaries: 0,
-        averageBMI: [],
-        averageHeight: [],
-        averageWeight: [],
-        ageDistribution: [],
-        bmiClassification: [],
-        heightForAge: [],
-      }
-    );
-
-    // Calculate aggregate statistics
-    const bmiStats = getStatistics(metrics.averageBMI);
-    const heightStats = getStatistics(metrics.averageHeight);
-    const weightStats = getStatistics(metrics.averageWeight);
-    const ageStats = getStatistics(metrics.ageDistribution);
-
-    processedData[academicYear.schoolYear] = {
-      totalStudents: metrics.totalStudents,
-      totalBeneficiaries: metrics.totalBeneficiaries,
-      bmiStats,
-      heightStats,
-      weightStats,
-      ageStats,
-      beneficiaryRate:
-        metrics.totalStudents > 0
-          ? parseFloat(
-              (
-                (metrics.totalBeneficiaries / metrics.totalStudents) *
-                100
-              ).toFixed(2)
-            )
-          : 0,
-      bmiClassificationCount: _.countBy(metrics.bmiClassification),
-      heightForAgeCount: _.countBy(metrics.heightForAge),
+        bmiClassification: {},
+      },
+      POST: {
+        totalStudents: 0,
+        totalBeneficiaries: 0,
+        bmiClassification: {},
+      },
     };
+
+    yearReports.forEach((report) => {
+      const type = report.measurementType; // PRE or POST
+      metrics[type].totalStudents += report.totalStudents; // Summing up the students
+      metrics[type].totalBeneficiaries += report.totalBeneficiaries; // Summing up the beneficiaries
+      metrics[type].bmiClassification = report.bmiClassificationCount; // Assuming this is directly mapped
+    });
+
+    // Assign calculated metrics to processedData
+    processedData[academicYear.schoolYear] = {};
+    ['PRE', 'POST'].forEach((type) => {
+      processedData[academicYear.schoolYear][type] = {
+        totalStudents: metrics[type].totalStudents,
+        totalBeneficiaries: metrics[type].totalBeneficiaries,
+        bmiClassificationCount: metrics[type].bmiClassification,
+      };
+    });
   });
 
   return processedData;
-};
-
-// Utility function to calculate statistics
-const getStatistics = (data) => {
-  if (data.length === 0) {
-    return {
-      mean: null,
-      median: null,
-      mode: null,
-      range: null,
-      standardDeviation: null,
-    };
-  }
-
-  return {
-    mean: mean(data),
-    median: median(data),
-    mode: mode(data),
-    range: _.max(data) - _.min(data),
-    standardDeviation: Math.sqrt(variance(data)),
-  };
 };
 
 const generateComparisonSummary = (data) => {
@@ -398,79 +357,76 @@ const generateComparisonSummary = (data) => {
   if (years.length === 0) {
     return 'No academic year data available for feeding program analysis.';
   } else if (years.length === 1) {
+    // Handle single year summary
     const year = years[0];
     const yearData = data[year];
-    summary += `For the school year ${year}, ${yearData.totalStudents} students participated in the feeding program. `;
-    summary += `Out of these, ${yearData.totalBeneficiaries} were beneficiaries, accounting for ${yearData.beneficiaryRate}% of the student population. `;
-    summary += `The average BMI was ${yearData.bmiStats.mean.toFixed(2)}, `;
-    summary += `with average height and weight being ${yearData.heightStats.mean.toFixed(
-      2
-    )} cm and ${yearData.weightStats.mean.toFixed(2)} kg, respectively. `;
-    summary += `BMI classifications: ${Object.entries(
-      yearData.bmiClassificationCount
+    summary += `In the school year ${year}, `;
+    summary += `${yearData.PRE.totalStudents} students were assessed before the feeding program (PRE), `;
+    summary += `with ${yearData.PRE.totalBeneficiaries} students participating as beneficiaries. `;
+    summary += `Following the feeding program, the POST measurement showed `;
+    summary += `that ${yearData.POST.totalStudents} students were reassessed. `;
+    summary += `The effectiveness of the feeding program can be gauged by analyzing changes in BMI classifications. `;
+    summary += `Initially, the distribution was as follows: ${Object.entries(
+      yearData.PRE.bmiClassificationCount
     )
       .map(([classification, count]) => `${classification}: ${count}`)
       .join(', ')}. `;
-    summary += `Height for age categories: ${Object.entries(
-      yearData.heightForAgeCount
+    summary += `Post intervention, the distribution was: ${Object.entries(
+      yearData.POST.bmiClassificationCount
     )
-      .map(([category, count]) => `${category}: ${count}`)
-      .join(', ')}.\n`;
+      .map(([classification, count]) => `${classification}: ${count}`)
+      .join(', ')}.`;
   } else {
+    // Handle comparative summary between two years
     const [firstYear, secondYear] = years;
     const firstData = data[firstYear],
       secondData = data[secondYear];
 
-    summary += `Comparing the school years ${firstYear} and ${secondYear}, `;
-    summary += `the number of beneficiaries was ${
-      firstData.totalBeneficiaries > secondData.totalBeneficiaries
-        ? 'higher'
-        : 'lower'
-    } in ${firstYear} (${
-      firstData.totalBeneficiaries
-    } students) compared to ${secondYear} (${secondData.totalBeneficiaries}). `;
-    summary += `The beneficiary rate changed from ${firstData.beneficiaryRate}% to ${secondData.beneficiaryRate}%. `;
-    summary += `Average BMI altered from ${firstData.bmiStats.mean.toFixed(
-      2
-    )} in ${firstYear} to ${secondData.bmiStats.mean.toFixed(
-      2
-    )} in ${secondYear}. `;
-    summary += `Average height and weight shifted from ${firstData.heightStats.mean.toFixed(
-      2
-    )} cm and ${firstData.weightStats.mean.toFixed(
-      2
-    )} kg to ${secondData.heightStats.mean.toFixed(
-      2
-    )} cm and ${secondData.weightStats.mean.toFixed(2)} kg, respectively.`;
-    const bmiClassificationsToCompare = [
-      'Normal',
-      'Wasted',
-      'Obese',
-      'Severely Wasted',
-    ];
-    const bmiSummaryParts = bmiClassificationsToCompare.map(
+    const compareCounts = (firstCount, secondCount) => {
+      const difference = secondCount - firstCount;
+      const percentageChange = (difference / firstCount) * 100;
+      const direction =
+        difference > 0
+          ? 'increase'
+          : difference < 0
+            ? 'decrease'
+            : 'remain the same';
+      return `${difference} (${percentageChange.toFixed(2)}%) ${direction}`;
+    };
+
+    summary += `Comparative Summary for School Years ${firstYear} vs ${secondYear}:\n`;
+    summary += `In ${firstYear}, the number of beneficiaries for PRE measurement was ${firstData.PRE.totalBeneficiaries}, `;
+    summary += `while in ${secondYear} it is ${secondData.PRE.totalBeneficiaries}, `;
+    summary += `${compareCounts(
+      firstData.PRE.totalBeneficiaries,
+      secondData.PRE.totalBeneficiaries
+    )}.\n`;
+
+    Object.keys(firstData.PRE.bmiClassificationCount).forEach(
       (classification) => {
         const firstYearCount =
-          firstData.bmiClassificationCount[classification] || 0;
+          firstData.PRE.bmiClassificationCount[classification];
         const secondYearCount =
-          secondData.bmiClassificationCount[classification] || 0;
-
-        let comparisonResult;
-        if (firstYearCount > secondYearCount) {
-          comparisonResult = 'decreased';
-        } else if (firstYearCount < secondYearCount) {
-          comparisonResult = 'increased';
-        } else {
-          comparisonResult = 'did not change';
-        }
-
-        return `'${classification}' students ${comparisonResult} from ${firstYearCount} in ${firstYear} to ${secondYearCount} in ${secondYear}`;
+          secondData.PRE.bmiClassificationCount[classification] || 0;
+        summary += `In ${firstYear}, '${classification}' students were ${firstYearCount}, `;
+        summary += `while in ${secondYear} there are ${secondYearCount}, `;
+        summary += `${compareCounts(firstYearCount, secondYearCount)}.\n`;
       }
     );
 
-    summary += `The count of BMI classifications ${bmiSummaryParts.join(
-      '; '
-    )}.`;
+    summary += `\nPost-intervention comparison:\n`;
+
+    Object.keys(firstData.POST.bmiClassificationCount).forEach(
+      (classification) => {
+        const firstYearCount =
+          firstData.POST.bmiClassificationCount[classification];
+        const secondYearCount =
+          secondData.POST.bmiClassificationCount[classification] || 0;
+        summary += `In ${firstYear}, post-intervention, '${classification}' students were ${firstYearCount}, `;
+        summary += `while in ${secondYear} there are ${secondYearCount}, `;
+        summary += `${compareCounts(firstYearCount, secondYearCount)}.\n`;
+      }
+    );
   }
 
   return summary;
