@@ -92,13 +92,13 @@ const Form = (props) => {
       );
       if (response.data && response.data._id) {
         addNewRecord(response.data);
-        showSnackbar('Successfully added new record', 'success');
+        showSnackbar('Successfully added new item', 'success');
         handleClose();
       } else {
         showSnackbar('Operation failed', 'error');
       }
     } catch (error) {
-      handleError(error, 'adding record');
+      handleError(error, 'adding item');
     }
   };
 
@@ -110,13 +110,13 @@ const Form = (props) => {
       );
       if (response.data) {
         onUpdate(response.data);
-        showSnackbar('Record successfully updated', 'success');
+        showSnackbar('Item successfully updated', 'success');
         handleClose();
       } else {
         showSnackbar('Update operation failed', 'error');
       }
     } catch (error) {
-      handleError(error, 'updating record');
+      handleError(error, 'updating item');
     }
   };
 
@@ -170,11 +170,11 @@ const Form = (props) => {
         className="overflow-auto"
       >
         <DialogTitle>
-          {selectedRecord ? 'Edit Record' : 'Add Record'}
+          {selectedRecord ? 'Edit Item' : 'Add Item'}
         </DialogTitle>
         <form onSubmit={handleSubmit(handleSaveOrUpdate)}>
           <DialogContent>
-            <DialogContentText>Enter record details:</DialogContentText>
+            <DialogContentText>Enter item details:</DialogContentText>
             <Divider />
             <Grid container spacing={2}>
               <Grid item xs={12} md={12}>
