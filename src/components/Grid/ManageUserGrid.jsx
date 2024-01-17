@@ -219,6 +219,7 @@ const ManageUserGrid = () => {
               pageSizeOptions={[10]}
               disableSelectionOnClick
               loading={isLoading}
+              style={{ height: 650 }}
             />
           </Paper>
           <ManageUserForm

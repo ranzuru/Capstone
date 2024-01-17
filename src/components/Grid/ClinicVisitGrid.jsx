@@ -254,14 +254,8 @@ const Grid = () => {
       }));
 
     exportDataToExcel(filteredData, excelHeaders, 'Clinic Visit', {
-      dateFields: [
-        'issueDate',
-      ], // adjust based on transformed data
-      excludeColumns: [
-        'status',
-        'createdAt',
-        'updatedAt',
-      ], // adjust based on transformed data
+      dateFields: ['issueDate'], // adjust based on transformed data
+      excludeColumns: ['status', 'createdAt', 'updatedAt'], // adjust based on transformed data
     });
   };
 
@@ -338,6 +332,7 @@ const Grid = () => {
               disableSelectionOnClick
               checkboxSelection
               loading={isLoading}
+              style={{ height: 650 }}
             />
           </Paper>
         </div>

@@ -171,20 +171,20 @@ export const importFeedingProgram = async (req, res) => {
       await importFeeding(fileBuffer);
 
     if (errors.length > 0) {
-      const errorDetails = errors
-        .map((error) => {
-          if (error.lrn && error.errors) {
-            return `LRN ${error.lrn}: ${error.errors.join(', ')}`;
-          }
-          return error.message || 'Unknown error';
-        })
-        .join('; ');
+      const parsedErrors = errors.map((error) => {
+        // Check if the error is a MongoDB duplicate key error
+        if (error.includes('E11000 duplicate key error')) {
+          // Extract the relevant parts of the error message
+          const matches = error.match(/dup key: { (.+?) }/);
+          const keyValue = matches ? matches[1] : 'unknown';
+          return `Duplicate entry detected for: ${keyValue.replace(/"/g, '')}`;
+        }
+        return error; // If it's not a duplicate key error, return it as is
+      });
 
       return res.status(400).json({
-        message: `Some records have errors${
-          hasMoreErrors ? ' (showing first 5)' : ''
-        }.`,
-        detailedErrors: errorDetails,
+        message: `Some records have errors.`,
+        detailedErrors: parsedErrors,
         errorCount: errors.length,
         ...(hasMoreErrors && {
           additionalErrors: 'Not all errors are displayed.',
@@ -197,7 +197,10 @@ export const importFeedingProgram = async (req, res) => {
       count: feedingRecords.length,
     });
   } catch (err) {
-    handleError(res, err);
+    return res.status(500).json({
+      message: 'An unexpected error occurred on the server.',
+      error: err.message || 'Unknown error',
+    });
   }
 };
 
