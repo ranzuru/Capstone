@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
 import Header from './Header';
 import Footer from './Footer';
 import CustomDashboardCard from '../custom/CustomDashboardCard';
@@ -15,7 +14,6 @@ import axiosInstance from '../config/axios-instance.js';
 import MedicineDashboard from './MedicineDashboard.jsx';
 
 const Dashboard = () => {
-  const navigate = useNavigate();
   const { user } = useAuth();
   const { activeSchoolYear } = useSchoolYear();
   const [isLoading, setIsLoading] = useState(false);
@@ -61,22 +59,6 @@ const Dashboard = () => {
     );
   }
 
-  const handleCardClickManageUser = () => {
-    navigate('/app/manage-users');
-  };
-
-  const handleCardClickStudents = () => {
-    navigate('/app/students-profile');
-  };
-
-  const handleCardClickClinic = () => {
-    navigate('/app/clinic-records');
-  };
-
-  const handleCardClickFeeding = () => {
-    navigate('/app/feeding-program');
-  };
-
   return (
     <>
       <div className="flex flex-col min-h-screen bg-custom-blue">
@@ -90,7 +72,6 @@ const Dashboard = () => {
                   number={counts.userCount.toString()}
                   title="Number of User"
                   subtitle="Number of user of this system."
-                  onCardClick={handleCardClickManageUser}
                 />
               </Grid>
               <Grid item xs={12} sm={6} md={4} lg={3}>
@@ -99,7 +80,6 @@ const Dashboard = () => {
                   number={counts.studentCount.toString()}
                   title="Number of Students"
                   subtitle="Number of students."
-                  onCardClick={handleCardClickStudents}
                 />
               </Grid>
               <Grid item xs={12} sm={6} md={4} lg={3}>
@@ -108,7 +88,6 @@ const Dashboard = () => {
                   number={counts.clinicVisitCount.toString()}
                   title="Clinic Visitors"
                   subtitle="Number of clinic visitors."
-                  onCardClick={handleCardClickClinic}
                 />
               </Grid>
               <Grid item xs={12} sm={6} md={4} lg={3}>
@@ -117,7 +96,6 @@ const Dashboard = () => {
                   number={counts.feedingProgramCount.toString()}
                   title="Feeding Program"
                   subtitle="Students eligible for feeding program."
-                  onCardClick={handleCardClickFeeding}
                 />
               </Grid>
               <Grid item xs={12} sm={6} md={4} lg={3}>
