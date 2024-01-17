@@ -43,6 +43,36 @@ export const getAllItem = async (req, res) => {
   }
 };
 
+export const getAllItemAutoComplete = async (req, res) => {
+  try {
+    const { search = '', page = 1, limit = 10 } = req.query;
+
+    // Building the search query with a condition for 'status' being 'Active'
+    const searchQuery = {
+      ...(search
+        ? {
+            $or: [
+              { itemId: { $regex: search, $options: 'i' } },
+              { batchId: { $regex: search, $options: 'i' } },
+            ],
+          }
+        : {}),
+    };
+
+    const total = await MedicineItemSchema.countDocuments(searchQuery);
+    const medicineData = await MedicineItemSchema.find(
+      searchQuery,
+      'itemId product'
+    )
+      .skip((page - 1) * limit)
+      .limit(limit);
+
+    res.json({ data: medicineData, total, page, limit });
+  } catch (error) {
+    res.status(500).send('Error fetching medicine: ' + error.message);
+  }
+};
+
 // Update
 export const updateItem = async (req, res) => {
   try {

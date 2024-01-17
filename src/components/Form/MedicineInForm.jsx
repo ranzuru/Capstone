@@ -29,7 +29,7 @@ import {
 // others
 import { parseISO } from 'date-fns';
 import { statusOptions } from '../../others/dropDownOptions';
-import AutoComplete from '../MedicineAutoComplete.jsx';
+import AutoComplete from '../MedicineItemAutoComplete.jsx';
 
 const Form = (props) => {
   const { open, onClose, initialData, addNewRecord, selectedRecord, onUpdate } =
@@ -205,7 +205,6 @@ const Form = (props) => {
               <Grid item xs={12} md={12}>
                 <AutoComplete
                   onSelect={handleMedicineSelect}
-                  displayBatch={false}
                 />
               </Grid>
             </Grid>

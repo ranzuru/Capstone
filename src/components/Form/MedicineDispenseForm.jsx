@@ -179,7 +179,7 @@ const Form = (props) => {
             <DialogContentText>Enter Dispense details:</DialogContentText>
             <Grid container spacing={2}>
               <Grid item xs={12} md={12}>
-                <AutoComplete onSelect={handleMedicineSelect} displayBatch={true}/>
+                <AutoComplete onSelect={handleMedicineSelect} />
               </Grid>
             </Grid>
             <Divider />
