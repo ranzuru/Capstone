@@ -17,7 +17,7 @@ const AutoComplete = ({ onSelect }) => {
       setLoading(true);
       try {
         const response = await axiosInstance.get(
-          `/medicineInventory/getAllInAutoComplete?search=${encodeURIComponent(
+          `/medicineInventory/getAllItemAutoComplete?search=${encodeURIComponent(
             searchValue
           )}`
         );
@@ -48,7 +48,7 @@ const AutoComplete = ({ onSelect }) => {
     <Autocomplete
       options={options}
       getOptionLabel={(option) =>
-          `Medicine: [${option.itemId}] ${option.itemData.map(item => item.product).join(',')} | Batch: ${option.batchId}`
+        `Medicine: [${option.itemId}] ${option.itemData.map(item => item.product).join(',')}`
       }      
       fullWidth
       popupIcon={<SearchIcon />}
@@ -69,7 +69,7 @@ const AutoComplete = ({ onSelect }) => {
       renderInput={(params) => (
         <TextField
           {...params}
-          label="Search Medicine (Item ID/ Batch ID)"
+          label="Search Medicine (Item ID/ Product)"
           variant="outlined"
           margin="normal"
           InputProps={{

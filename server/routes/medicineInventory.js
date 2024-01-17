@@ -9,6 +9,7 @@ import {
   postIn,
   getAllIn,
   getAllInAutoComplete,
+  getAllItemAutoComplete,
   updateIn,
   deleteIn,
   postDispense,
@@ -32,6 +33,7 @@ router.use(authenticateUser);
 // ITEM
 router.post('/postItem', logActionsMiddleware, postItem);
 router.get('/getAllItem', getAllItem);
+router.get('/getAllItemAutoComplete', getAllItemAutoComplete);
 router.put('/updateItem/:id', logActionsMiddleware, updateItem);
 router.delete('/deleteItem/:id', logActionsMiddleware, deleteItem);
 // BATCH
