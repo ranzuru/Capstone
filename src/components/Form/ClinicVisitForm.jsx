@@ -181,7 +181,11 @@ const Form = (props) => {
         showSnackbar('Operation failed', 'error');
       }
     } catch (error) {
-      handleError(error, 'adding record');
+      const errorMessage =
+        error.response && error.response.data
+          ? error.response.data
+          : 'An unexpected error occurred';
+      showSnackbar(errorMessage, 'error');
     }
   };
 
@@ -463,7 +467,6 @@ const Form = (props) => {
                   name="malady"
                   label="Malady"
                   error={errors.malady}
-                  textType="combine"
                   multiline
                 />
               </Grid>
@@ -473,7 +476,6 @@ const Form = (props) => {
                   name="reason"
                   label="Reason/s"
                   error={errors.reason}
-                  textType="text"
                   multiline
                 />
               </Grid>
@@ -505,7 +507,6 @@ const Form = (props) => {
                   control={control}
                   name="remarks"
                   label="Remark/s"
-                  textType="text"
                   multiline
                 />
               </Grid>
