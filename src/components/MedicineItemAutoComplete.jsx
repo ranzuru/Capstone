@@ -47,9 +47,10 @@ const AutoComplete = ({ onSelect }) => {
   return (
     <Autocomplete
       options={options}
+      isOptionEqualToValue={(option, value) => option._id === value._id}
       getOptionLabel={(option) =>
-        `Medicine: [${option.itemId}] ${option.itemData.map(item => item.product).join(',')}`
-      }      
+        `Medicine: [${option.itemId}] ${option.product}`
+      }
       fullWidth
       popupIcon={<SearchIcon />}
       inputValue={inputValue}
