@@ -84,7 +84,10 @@ const MedicineDashboard = () => {
   ];
 
   return (
-    <TableContainer component={Paper}>
+    <TableContainer
+      component={Paper}
+      style={{ maxHeight: '400px', overflow: 'auto' }}
+    >
       <Table aria-label="simple table">
         <TableHead>
           <TableRow>

@@ -128,7 +128,7 @@ const Dashboard = () => {
               </Grid>
               <Grid item xs={12}>
                 <Typography variant="h6" component="div" gutterBottom>
-                  Medicine
+                  Inventory Expiration Overview
                 </Typography>
                 <MedicineDashboard />
               </Grid>
