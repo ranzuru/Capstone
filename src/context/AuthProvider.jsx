@@ -65,7 +65,7 @@ export const AuthProvider = ({ children }) => {
         if (error.response) {
           if (error.response.status === 400) {
             errorMessage = 'Invalid OTP. Please try again.';
-          } else if (error.response.status === 401) {
+          } else if (error.response.status === 403) {
             errorMessage = 'Session expired. Please login again.';
           } else {
             errorMessage = error.response.data.message || errorMessage;
