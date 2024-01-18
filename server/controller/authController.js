@@ -20,7 +20,7 @@ export const login = async (req, res) => {
   try {
     const user = await User.findOne({ email }).select('+password');
     if (!user) {
-      return res.status(401).json({ message: 'Invalid email or password' });
+      return res.status(403).json({ message: 'Invalid email or password' });
     }
 
     if (user.status !== 'Active') {
@@ -29,7 +29,7 @@ export const login = async (req, res) => {
 
     const match = await bcrypt.compare(password, user.password);
     if (!match) {
-      return res.status(401).json({ message: 'Invalid email or password' });
+      return res.status(403).json({ message: 'Invalid email or password' });
     }
 
     // If password match, proceed to send OTP
@@ -100,7 +100,7 @@ export const verifyLoginOTP = async (req, res) => {
       error.name === 'JsonWebTokenError'
     ) {
       res
-        .status(401)
+        .status(403)
         .json({ message: 'OTP verification failed or OTP expired' });
     } else {
       res
