@@ -194,23 +194,28 @@ export const importStudentProfiles = async (req, res) => {
     }
 
     const fileBuffer = req.file.buffer;
-    const { studentProfiles, errors } = await importStudents(fileBuffer);
+    const { studentProfiles, errors, hasMoreErrors } =
+      await importStudents(fileBuffer);
 
     if (errors.length > 0) {
-      // Construct a detailed error message if there are errors
-      const errorDetails = errors
-        .map((error) => {
-          if (error.lrn && error.message) {
-            return `LRN ${error.lrn}: ${error.message}`;
-          }
-          return error.message || 'Unknown error';
-        })
-        .join('; ');
+      const parsedErrors = errors.map((error) => {
+        // Check if the error is a MongoDB duplicate key error
+        if (error.includes('E11000 duplicate key error')) {
+          // Extract the relevant parts of the error message
+          const matches = error.match(/dup key: { (.+?) }/);
+          const keyValue = matches ? matches[1] : 'unknown';
+          return `Duplicate entry detected for: ${keyValue.replace(/"/g, '')}`;
+        }
+        return error; // If it's not a duplicate key error, return it as is
+      });
 
       return res.status(400).json({
-        message: 'Some records have errors.',
-        detailedErrors: errorDetails, // Include the detailed error messages
+        message: `Some records have errors.`,
+        detailedErrors: parsedErrors,
         errorCount: errors.length,
+        ...(hasMoreErrors && {
+          additionalErrors: 'Not all errors are displayed.',
+        }),
       });
     }
 

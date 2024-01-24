@@ -68,20 +68,20 @@ const importStudents = async (fileBuffer) => {
     try {
       await StudentProfile.insertMany(studentProfiles, { ordered: false });
     } catch (dbError) {
-      if (dbError.name === 'BulkWriteError' && dbError.code === 11000) {
-        // Handle duplicate key errors without logging them to the terminal
+      if (dbError.name === 'BulkWriteError' && dbError.writeErrors) {
         dbError.writeErrors.forEach((writeError) => {
-          const duplicateValue = writeError.err.op;
-          errors.push({
-            lrn: duplicateValue.lrn,
-            academicYear: duplicateValue.academicYear,
-            message: `Duplicate record with LRN '${duplicateValue.lrn}' for academic year already exists.`,
-          });
+          const errMsg = writeError.errmsg || writeError.err.message;
+          // Extract the duplicate key error details
+          if (writeError.code === 11000) {
+            const keyValueMatch = errMsg.match(/dup key: { : "(.+)" }/);
+            const keyValue = keyValueMatch ? keyValueMatch[1] : 'unknown';
+            errors.push(`Duplicate key error for value ${keyValue}`);
+          } else {
+            errors.push(`Write error: ${errMsg}`);
+          }
         });
       } else {
-        errors.push({
-          message: 'A database error occurred during the import process.',
-        });
+        errors.push(`Non-bulk write error: ${dbError.message}`);
       }
     }
   }

@@ -263,10 +263,16 @@ const StudentMedicalGrid = () => {
         refreshStudents(); // Refresh or update the data grid
       }
     } catch (error) {
-      // Handle network or server errors
       console.error('API error:', error);
-      const errorMessage =
-        error.response?.data?.message || 'An error occurred during importing';
+      let errorMessage = 'An error occurred during importing';
+      if (error.response && error.response.data) {
+        // Check for structured error response
+        if (error.response.data.detailedErrors) {
+          errorMessage = `Import failed: ${error.response.data.detailedErrors}`;
+        } else if (error.response.data.message) {
+          errorMessage = error.response.data.message;
+        }
+      }
       showSnackbar(errorMessage, 'error');
     } finally {
       setIsLoading(false); // Stop the loading spinner

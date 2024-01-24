@@ -70,31 +70,20 @@ const importEmployees = async (fileBuffer) => {
     try {
       await EmployeeProfile.insertMany(employeeProfiles, { ordered: false });
     } catch (dbError) {
-      if (dbError.name === 'BulkWriteError') {
+      if (dbError.name === 'BulkWriteError' && dbError.writeErrors) {
         dbError.writeErrors.forEach((writeError) => {
-          const errorField = writeError.err.keyPattern; // This will indicate which field caused the error
-          const errorValue = writeError.err.op;
-          let message;
-
-          if (errorField.employeeId && errorField.academicYear) {
-            // Error due to compound index violation
-            message = `Duplicate record found for Employee ID '${errorValue.employeeId}' in Academic Year '${errorValue.academicYear}'.`;
-          } else if (errorField.email) {
-            // Error due to email uniqueness violation
-            message = `Duplicate email found: '${errorValue.email}'.`;
+          const errMsg = writeError.errmsg || writeError.err.message;
+          // Extract the duplicate key error details
+          if (writeError.code === 11000) {
+            const keyValueMatch = errMsg.match(/dup key: { : "(.+)" }/);
+            const keyValue = keyValueMatch ? keyValueMatch[1] : 'unknown';
+            errors.push(`Duplicate key error for value ${keyValue}`);
           } else {
-            // General error message for other duplicate key errors
-            message = 'Duplicate record found with conflicting unique keys.';
+            errors.push(`Write error: ${errMsg}`);
           }
-
-          errors.push({ employeeId: errorValue.employeeId, message });
         });
       } else {
-        // Handle other types of database errors
-        console.error('Database error:', dbError);
-        errors.push({
-          message: 'A database error occurred during the import process.',
-        });
+        errors.push(`Non-bulk write error: ${dbError.message}`);
       }
     }
   }

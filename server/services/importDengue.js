@@ -54,23 +54,20 @@ const importDengue = async (fileBuffer) => {
     try {
       await DengueMonitoring.insertMany(dengueRecords, { ordered: false });
     } catch (dbError) {
-      if (dbError.name === 'BulkWriteError') {
+      if (dbError.name === 'BulkWriteError' && dbError.writeErrors) {
         dbError.writeErrors.forEach((writeError) => {
-          const errorField = writeError.err.keyPattern; // This will indicate which field caused the error
-          const errorValue = writeError.err.op;
-          let message = 'Duplicate record found with conflicting unique keys.';
-
-          if (errorField.lrn && errorField.academicYear) {
-            message = `Duplicate record found for LRN '${errorValue.lrn}' in Academic Year '${errorValue.academicYear}'.`;
+          const errMsg = writeError.errmsg || writeError.err.message;
+          // Extract the duplicate key error details
+          if (writeError.code === 11000) {
+            const keyValueMatch = errMsg.match(/dup key: { : "(.+)" }/);
+            const keyValue = keyValueMatch ? keyValueMatch[1] : 'unknown';
+            errors.push(`Duplicate key error for value ${keyValue}`);
+          } else {
+            errors.push(`Write error: ${errMsg}`);
           }
-
-          errors.push({ lrn: errorValue.lrn, message });
         });
       } else {
-        console.error('Database error:', dbError);
-        errors.push({
-          message: 'A database error occurred during the import process.',
-        });
+        errors.push(`Non-bulk write error: ${dbError.message}`);
       }
     }
   }

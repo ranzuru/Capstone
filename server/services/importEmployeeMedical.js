@@ -62,21 +62,20 @@ const importEmployeeMedical = async (fileBuffer) => {
         ordered: false,
       });
     } catch (dbError) {
-      if (dbError.name === 'BulkWriteError') {
+      if (dbError.name === 'BulkWriteError' && dbError.writeErrors) {
         dbError.writeErrors.forEach((writeError) => {
-          const errorField = writeError.err.keyPattern; // This will indicate which field caused the error
-          const errorValue = writeError.err.op;
-          errors.push({
-            employeeId: errorValue.employeeId || 'Unknown Employee Id',
-            errors: [`Duplicate entry for ${errorField}`],
-          });
+          const errMsg = writeError.errmsg || writeError.err.message;
+          // Extract the duplicate key error details
+          if (writeError.code === 11000) {
+            const keyValueMatch = errMsg.match(/dup key: { : "(.+)" }/);
+            const keyValue = keyValueMatch ? keyValueMatch[1] : 'unknown';
+            errors.push(`Duplicate key error for value ${keyValue}`);
+          } else {
+            errors.push(`Write error: ${errMsg}`);
+          }
         });
       } else {
-        console.error('Unexpected DB error:', dbError);
-        errors.push({
-          employeeId: 'Unknown Employee Id',
-          errors: ['Unexpected DB error.'],
-        });
+        errors.push(`Non-bulk write error: ${dbError.message}`);
       }
     }
   }
