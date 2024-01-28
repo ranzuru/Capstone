@@ -2,6 +2,7 @@ import DengueMonitoring from '../../models/DengueMonitoring.js';
 import AcademicYear from '../../models/AcademicYear.js';
 import _ from 'lodash';
 import { mean, median, mode, variance } from 'simple-statistics';
+import numberToMonth from '../../utils/numberToMonths.js';
 
 export const getGroupedDengueData = async (req, res) => {
   try {
@@ -93,86 +94,48 @@ export const getGroupedDengueData = async (req, res) => {
 export const getMonthlyDengueCases = async (req, res) => {
   try {
     const { schoolYear } = req.params;
-
     const academicYearDoc = await AcademicYear.findOne({ schoolYear });
+
     if (!academicYearDoc) {
       return res.status(404).json({ message: 'Academic year not found.' });
     }
 
     let casesByMonth = await DengueMonitoring.aggregate([
-      {
-        $match: {
-          academicYear: academicYearDoc._id,
-        },
-      },
-      {
-        $project: {
-          month: { $month: '$dateOfOnset' },
-          year: { $year: '$dateOfOnset' },
-        },
-      },
+      { $match: { academicYear: academicYearDoc._id } },
       {
         $group: {
           _id: {
-            month: '$month',
-            year: '$year',
+            month: { $month: '$dateOfOnset' },
+            year: { $year: '$dateOfOnset' },
           },
           totalCases: { $sum: 1 },
+          hospitalCases: {
+            $sum: { $cond: [{ $ne: ['$dateOfAdmission', null] }, 1, 0] },
+          },
+          nonHospitalCases: {
+            $sum: { $cond: [{ $eq: ['$dateOfAdmission', null] }, 1, 0] },
+          },
         },
       },
-      {
-        $sort: { '_id.year': 1, '_id.month': 1 }, // Sort by year and month number here
-      },
+      { $sort: { '_id.year': 1, '_id.month': 1 } },
       {
         $project: {
           _id: 0,
-          month: {
-            $arrayElemAt: [
-              [
-                '',
-                'January',
-                'February',
-                'March',
-                'April',
-                'May',
-                'June',
-                'July',
-                'August',
-                'September',
-                'October',
-                'November',
-                'December',
-              ],
-              '$_id.month',
-            ],
-          },
+          month: '$_id.month',
           year: '$_id.year',
           totalCases: 1,
+          hospitalCases: 1,
+          nonHospitalCases: 1,
         },
-      },
-      {
-        $sort: { year: 1, month: 1 },
       },
     ]);
 
-    const monthOrder = [
-      'January',
-      'February',
-      'March',
-      'April',
-      'May',
-      'June',
-      'July',
-      'August',
-      'September',
-      'October',
-      'November',
-      'December',
-    ];
-
-    casesByMonth = casesByMonth.sort((a, b) => {
-      return monthOrder.indexOf(a.month) - monthOrder.indexOf(b.month);
-    });
+    // Map the results to replace the numeric month with the month name using your utility function
+    casesByMonth = casesByMonth.map((item) => ({
+      ...item,
+      month: numberToMonth(item.month),
+      year: item.year,
+    }));
 
     res.status(200).json(casesByMonth);
   } catch (error) {
@@ -442,8 +405,8 @@ const generateComparisonSummary = (data) => {
           ? 'shows that exactly half'
           : yearData.hospitalizationRate >= 10 &&
               yearData.hospitalizationRate <= 50
-            ? 'highlights that a substantial portion'
-            : 'suggests that only a limited number'
+            ? 'highlights that a substantial portion '
+            : 'suggests that only a limited number '
     }`;
     summary += `of the cases ${
       yearData.hospitalizationRate > 50

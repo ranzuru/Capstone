@@ -3,10 +3,10 @@ import {
   ResponsiveContainer,
   BarChart,
   Bar,
-  LineChart,
   Line,
   PieChart,
   Pie,
+  ComposedChart,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -90,6 +90,41 @@ DengueBarChart.propTypes = {
   schoolYear: PropTypes.string,
 };
 
+const CustomTooltip = ({ active, payload, label }) => {
+  if (active && payload && payload.length) {
+    const { totalCases, hospitalCases, nonHospitalCases, year } =
+      payload[0].payload;
+    return (
+      <div className="custom-tooltip bg-white p-2 border border-gray-300 shadow-lg">
+        <p className="font-bold">{`${label} ${year}`}</p>
+        <p className="text-sm">{`Total Cases: ${totalCases}`}</p>
+        <p
+          className="text-sm"
+          style={{ color: '#413ea0' }}
+        >{`Hospital Cases: ${hospitalCases}`}</p>
+        <p
+          className="text-sm"
+          style={{ color: '#ff7300' }}
+        >{`Non-Hospital Cases: ${nonHospitalCases}`}</p>
+      </div>
+    );
+  }
+
+  return null;
+};
+
+CustomTooltip.propTypes = {
+  active: PropTypes.bool,
+  payload: PropTypes.arrayOf(PropTypes.object),
+  label: PropTypes.string,
+};
+
+CustomTooltip.defaultProps = {
+  active: false,
+  payload: [],
+  label: '',
+};
+
 export const DengueCasesLineChart = ({ schoolYear }) => {
   const [monthlyData, setMonthlyData] = useState([]);
 
@@ -123,14 +158,14 @@ export const DengueCasesLineChart = ({ schoolYear }) => {
               patterns.
             </Typography>
             <ResponsiveContainer width="100%" height={400}>
-              <LineChart
+              <ComposedChart
                 data={monthlyData}
                 margin={{ top: 5, right: 30, left: 20, bottom: 50 }}
               >
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis
                   dataKey="month"
-                  interval={'preserveStartEnd'}
+                  interval={0}
                   angle={-45}
                   height={70}
                   textAnchor="end"
@@ -143,16 +178,22 @@ export const DengueCasesLineChart = ({ schoolYear }) => {
                     style: { textAnchor: 'middle' },
                   }}
                 />
-                <Tooltip />
+                <Tooltip content={<CustomTooltip />} />
                 <Legend />
+                <Bar
+                  dataKey="hospitalCases"
+                  barSize={20}
+                  fill="#413ea0"
+                  name="Hospital Cases"
+                />
                 <Line
-                  name="Months"
                   type="monotone"
-                  dataKey="totalCases"
-                  stroke="#8884d8"
+                  dataKey="nonHospitalCases"
+                  stroke="#ff7300"
+                  name="Non-Hospital Cases"
                   activeDot={{ r: 8 }}
                 />
-              </LineChart>
+              </ComposedChart>
             </ResponsiveContainer>
           </Box>
         </Grid>
