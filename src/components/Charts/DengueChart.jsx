@@ -154,8 +154,8 @@ export const DengueCasesLineChart = ({ schoolYear }) => {
               Monthly Dengue Trends for SY {schoolYear}
             </Typography>
             <Typography variant="body1" paragraph>
-              Line graph showing monthly dengue cases to pinpoint trend
-              patterns.
+              A composed chart showing the monthly distribution of hospital and
+              non-hospital dengue cases to track seasonal trends.
             </Typography>
             <ResponsiveContainer width="100%" height={400}>
               <ComposedChart
