@@ -133,7 +133,13 @@ export const MaladyDistributionBarChart = ({ schoolYear }) => {
                 margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
               >
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
+                <XAxis
+                  dataKey="name"
+                  interval={0}
+                  angle={-45}
+                  height={70}
+                  textAnchor="end"
+                />
                 <YAxis />
                 <Tooltip />
                 <Legend />
